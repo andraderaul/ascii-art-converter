@@ -5,9 +5,11 @@ interface Props {
   canvasRef: RefObject<HTMLCanvasElement | null>
   asciiRows: string[]
   isLive?: boolean
+  hasAiConfig: boolean
+  onAnalyze: () => void
 }
 
-export default function DownloadBar({ canvasRef, asciiRows, isLive }: Props) {
+export default function DownloadBar({ canvasRef, asciiRows, isLive, hasAiConfig, onAnalyze }: Props) {
   function exportPng() {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -42,9 +44,20 @@ export default function DownloadBar({ canvasRef, asciiRows, isLive }: Props) {
     'font-mono tracking-wide rounded-xs cursor-pointer transition-all duration-fast'
   )
 
+  const analyzeBtn = hasAiConfig ? (
+    <button
+      onClick={onAnalyze}
+      className={cn(btnBase, 'border border-violet bg-accent-bg text-violet')}
+      style={{ borderColor: 'var(--violet)', background: 'var(--bg-accent-ghost)' }}
+    >
+      ◈ scan &amp; analyze
+    </button>
+  ) : null
+
   if (isLive) {
     return (
       <div className="flex gap-sm justify-end">
+        {analyzeBtn}
         <button
           onClick={capture}
           className={cn(btnBase, 'border border-hot-pink bg-danger-ghost text-hot-pink font-bold')}
@@ -57,6 +70,7 @@ export default function DownloadBar({ canvasRef, asciiRows, isLive }: Props) {
 
   return (
     <div className="flex gap-sm justify-end">
+      {analyzeBtn}
       <button
         onClick={exportPng}
         className={cn(btnBase, 'border-2 border-violet bg-accent-bg text-violet font-bold')}

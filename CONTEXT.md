@@ -60,6 +60,22 @@ _Avoid_: stream, câmera, video source
 O ato de exportar um frame do Live Source como PNG em um instante determinado pelo usuário. Não interrompe o Live Source — o loop continua rodando após o Capture.
 _Avoid_: snapshot, screenshot, foto, tirar foto
 
+**Analyze**:
+O ato de enviar o canvas ASCII renderizado a um AI Provider externo e receber uma **Analysis** em resposta. Disponível apenas quando uma AI Config está presente.
+_Avoid_: scan, scan & analyze (UI copy apenas, não termo de domínio)
+
+**Analysis**:
+O resultado de um **Analyze** — contém uma descrição narrativa, um Threat Level e tags identificadoras. Produzido pelo AI Provider e normalizado pelo adapter correspondente.
+_Avoid_: AnalysisResult (nome de tipo interno), response, resultado
+
+**AI Config**:
+A configuração que habilita o **Analyze** — inclui o AI Provider escolhido e a API key fornecida pelo usuário. Persiste em `localStorage`. Ausência de AI Config torna o **Analyze** invisível na UI.
+_Avoid_: key, api key, credentials
+
+**AI Provider**:
+O serviço externo de IA que executa o **Analyze** (ex: Anthropic, OpenAI, Gemini). Cada AI Provider tem um adapter dedicado que implementa o contrato `AIProvider`.
+_Avoid_: provider (genérico), model, LLM
+
 ## Flagged ambiguities
 
 - `color` (valor de ColorMode) era ambíguo — poderia significar "tem cor" ou "usa as cores originais". Resolvido: o valor se chama `original`.

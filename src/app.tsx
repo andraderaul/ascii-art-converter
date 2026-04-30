@@ -4,6 +4,11 @@ import UploadZone from './components/upload-zone'
 import ControlPanel from './components/control-panel'
 import AsciiCanvas from './components/ascii-canvas'
 import DownloadBar from './components/download-bar'
+import ApiKeyModal from './components/api-key-modal'
+import AnalysisModal, { type AnalysisState } from './components/analysis-modal'
+import { useAIConfig } from './ai/use-ai-config'
+import { analyzeCanvas } from './ai/analysis-service'
+import { AuthError, QuotaError } from './ai/errors'
 
 const DEFAULT_SETTINGS: ConversionSettings = {
   resolution: 12,
@@ -20,6 +25,10 @@ export default function App() {
   const [asciiRows, setAsciiRows] = useState<string[]>([])
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
+  const { config: aiConfig, save: saveAiConfig, remove: removeAiConfig } = useAIConfig()
+  const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false)
+  const [analysisState, setAnalysisState] = useState<AnalysisState | null>(null)
+
   const patchSettings = useCallback((patch: Partial<ConversionSettings>) => {
     setSettings((prev) => ({ ...prev, ...patch }))
   }, [])
@@ -34,6 +43,27 @@ export default function App() {
     setSourceVideo(video)
   }, [])
 
+  async function handleAnalyze() {
+    const canvas = canvasRef.current
+    if (!canvas || !aiConfig) return
+
+    const dataUrl = canvas.toDataURL('image/png')
+    setAnalysisState({ status: 'loading' })
+
+    try {
+      const analysis = await analyzeCanvas(dataUrl, aiConfig)
+      setAnalysisState({ status: 'success', analysis })
+    } catch (err) {
+      if (err instanceof AuthError) {
+        setAnalysisState({ status: 'auth-error' })
+      } else if (err instanceof QuotaError) {
+        setAnalysisState({ status: 'quota-error' })
+      } else {
+        setAnalysisState({ status: 'parse-error' })
+      }
+    }
+  }
+
   const isLive = !!sourceVideo
 
   return (
@@ -42,6 +72,21 @@ export default function App() {
         <span className="text-violet text-base font-bold tracking-wide">ASCII//CONVERT</span>
         <span className="text-slate text-xs">—</span>
         <span className="text-fg-muted text-xs">image → ascii art</span>
+        <button
+          onClick={() => setApiKeyModalOpen(true)}
+          className="ml-auto font-mono tracking-wide cursor-pointer transition-all"
+          style={{
+            fontSize: 'var(--text-xs)',
+            color: aiConfig ? 'var(--violet)' : 'var(--muted)',
+            background: 'none',
+            border: 'none',
+            letterSpacing: 'var(--tracking-wide)',
+            padding: '4px 8px',
+          }}
+          title="Configure AI key"
+        >
+          {aiConfig ? '⚿ ai configured' : '⚿ configure ai'}
+        </button>
       </header>
 
       <div className="flex-1 grid grid-cols-1 [grid-template-rows:auto_1fr] sm:grid-cols-[280px_1fr] sm:[grid-template-rows:1fr] overflow-hidden">
@@ -68,10 +113,33 @@ export default function App() {
             )}
           </div>
           <div className="py-sm px-md border-t border-base shrink-0">
-            <DownloadBar canvasRef={canvasRef} asciiRows={asciiRows} isLive={isLive} />
+            <DownloadBar
+              canvasRef={canvasRef}
+              asciiRows={asciiRows}
+              isLive={isLive}
+              hasAiConfig={!!aiConfig}
+              onAnalyze={handleAnalyze}
+            />
           </div>
         </main>
       </div>
+
+      {apiKeyModalOpen && (
+        <ApiKeyModal
+          current={aiConfig}
+          onSave={saveAiConfig}
+          onRemove={removeAiConfig}
+          onClose={() => setApiKeyModalOpen(false)}
+        />
+      )}
+
+      {analysisState && (
+        <AnalysisModal
+          state={analysisState}
+          onClose={() => setAnalysisState(null)}
+          onRetry={analysisState.status === 'parse-error' ? handleAnalyze : undefined}
+        />
+      )}
     </div>
   )
 }
