@@ -1,4 +1,5 @@
 import { ConversionSettings, ColorMode, Charset } from '../types'
+import { cn } from '../utils/cn'
 
 interface Props {
   settings: ConversionSettings
@@ -7,7 +8,7 @@ interface Props {
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <span style={{ color: 'var(--fg-muted)', fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+    <span className="text-fg-muted text-xs tracking-wide uppercase">
       {children}
     </span>
   )
@@ -23,22 +24,17 @@ function ToggleGroup<T extends string>({
   onChange: (v: T) => void
 }) {
   return (
-    <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+    <div className="flex gap-xs flex-wrap">
       {options.map((opt) => (
         <button
           key={opt}
           onClick={() => onChange(opt)}
-          style={{
-            padding: '0.2rem 0.5rem',
-            fontSize: '0.75rem',
-            fontFamily: 'var(--font-mono)',
-            borderRadius: 'var(--radius-xs)',
-            border: `1px solid ${value === opt ? 'var(--violet)' : 'var(--slate)'}`,
-            background: value === opt ? 'rgba(184,41,255,0.12)' : 'transparent',
-            color: value === opt ? 'var(--violet)' : 'var(--fg-muted)',
-            cursor: 'pointer',
-            transition: 'all 0.12s',
-          }}
+          className={cn(
+            'py-xs px-sm text-xs font-mono rounded-xs border cursor-pointer transition-all duration-fast',
+            value === opt
+              ? 'border-violet bg-accent-soft text-violet'
+              : 'border-base bg-transparent text-fg-muted'
+          )}
         >
           {opt}
         </button>
@@ -63,10 +59,10 @@ function SliderRow({
   onChange: (v: number) => void
 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="flex flex-col gap-2xs">
+      <div className="flex justify-between items-center">
         <Label>{label}</Label>
-        <span style={{ color: 'var(--violet)', fontSize: '0.7rem' }}>{value.toFixed(1)}</span>
+        <span className="text-violet text-xs">{value.toFixed(1)}</span>
       </div>
       <input
         type="range"
@@ -82,11 +78,11 @@ function SliderRow({
 
 export default function ControlPanel({ settings, onChange }: Props) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+    <div className="flex flex-col gap-md">
+      <div className="flex flex-col gap-2xs">
+        <div className="flex justify-between">
           <Label>resolution</Label>
-          <span style={{ color: 'var(--violet)', fontSize: '0.7rem' }}>{settings.resolution}px</span>
+          <span className="text-violet text-xs">{settings.resolution}px</span>
         </div>
         <input
           type="range"
@@ -98,7 +94,7 @@ export default function ControlPanel({ settings, onChange }: Props) {
         />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+      <div className="flex flex-col gap-2xs">
         <Label>color mode</Label>
         <ToggleGroup<ColorMode>
           options={['matrix', 'bw', 'retro', 'sepia', 'neon', 'original']}
@@ -107,7 +103,7 @@ export default function ControlPanel({ settings, onChange }: Props) {
         />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+      <div className="flex flex-col gap-2xs">
         <Label>charset</Label>
         <ToggleGroup<Charset>
           options={['simple', 'complex', 'binary', 'blocks']}

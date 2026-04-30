@@ -112,13 +112,7 @@ export default function AsciiCanvas({ sourceImage, sourceVideo, settings, onConv
       ref={canvasRef}
       width={800}
       height={600}
-      style={{
-        width: '100%',
-        height: '100%',
-        display: 'block',
-        background: 'var(--bg)',
-        imageRendering: 'pixelated',
-      }}
+      className="w-full h-full block bg-bg [image-rendering:pixelated]"
     />
   )
 }

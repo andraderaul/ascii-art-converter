@@ -65,6 +65,11 @@
 
   --color-accent-bg:    #1a0a2e;
 
+  --bg-accent-ghost: rgba(184,41,255,0.05);
+  --bg-accent-dim:   rgba(184,41,255,0.08);
+  --bg-accent-soft:  rgba(184,41,255,0.12);
+  --bg-danger-ghost: rgba(255,45,120,0.08);
+
   /* Tipografia */
   --font-mono:    'IBM Plex Mono', 'Departure Mono', monospace;
   --font-display: 'Departure Mono', 'IBM Plex Mono', monospace;
@@ -107,6 +112,7 @@
   --gap-lg:  24px;
   --gap-xl:  32px;
   --gap-2xl: 48px;
+  --gap-2xs:  6px;
   --gap-3xl: 64px;
 
   /* Bordas */

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { cn } from '../utils/cn'
 
 type SourceMode = 'upload' | 'webcam'
 
@@ -73,27 +74,29 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
     if (file) load(file)
   }, [load])
 
-  const toggleStyle = (active: boolean): React.CSSProperties => ({
-    flex: 1,
-    padding: '0.4rem 0',
-    fontSize: '0.7rem',
-    fontFamily: 'var(--btn-font)',
-    letterSpacing: 'var(--btn-tracking)',
-    borderRadius: 'var(--radius-xs)',
-    cursor: 'pointer',
-    border: active ? '1px solid var(--violet)' : '1px solid var(--slate)',
-    background: active ? 'rgba(184,41,255,0.08)' : 'transparent',
-    color: active ? 'var(--violet)' : 'var(--fg-muted)',
-    transition: 'all 0.12s',
-  })
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-      <div style={{ display: 'flex', gap: '0.4rem' }}>
-        <button style={toggleStyle(mode === 'upload')} onClick={() => switchMode('upload')}>
+    <div className="flex flex-col gap-sm">
+      <div className="flex gap-2xs">
+        <button
+          onClick={() => switchMode('upload')}
+          className={cn(
+            'flex-1 py-2xs text-xs font-mono tracking-wide rounded-xs border cursor-pointer transition-all duration-fast',
+            mode === 'upload'
+              ? 'border-violet bg-accent-dim text-violet'
+              : 'border-base bg-transparent text-fg-muted'
+          )}
+        >
           ↑ upload
         </button>
-        <button style={toggleStyle(mode === 'webcam')} onClick={() => switchMode('webcam')}>
+        <button
+          onClick={() => switchMode('webcam')}
+          className={cn(
+            'flex-1 py-2xs text-xs font-mono tracking-wide rounded-xs border cursor-pointer transition-all duration-fast',
+            mode === 'webcam'
+              ? 'border-violet bg-accent-dim text-violet'
+              : 'border-base bg-transparent text-fg-muted'
+          )}
+        >
           ◉ webcam
         </button>
       </div>
@@ -104,62 +107,39 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
           onDrop={onDrop}
           onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
           onDragLeave={() => setDragging(false)}
-          style={{
-            border: `1px solid ${dragging ? 'var(--violet)' : 'var(--slate)'}`,
-            borderRadius: 'var(--radius-xs)',
-            padding: '2rem',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            cursor: 'pointer',
-            minHeight: '120px',
-            background: dragging ? 'rgba(184,41,255,0.05)' : 'transparent',
-            transition: 'border-color 0.15s, background 0.15s',
-            userSelect: 'none',
-          }}
+          className={cn(
+            'border rounded-xs p-xl flex flex-col items-center justify-center gap-sm cursor-pointer min-h-[120px] select-none transition-colors duration-fast',
+            dragging
+              ? 'border-violet bg-accent-ghost'
+              : 'border-base bg-transparent'
+          )}
         >
-          <span style={{ fontSize: '1.5rem', color: 'var(--violet)' }}>⬆</span>
-          <span style={{ color: 'var(--fg)', fontSize: '0.875rem' }}>
-            drag & drop or click to upload
-          </span>
-          <span style={{ color: 'var(--fg-muted)', fontSize: '0.75rem' }}>
-            jpg · png · webp
-          </span>
+          <span className="text-lg text-violet">⬆</span>
+          <span className="text-fg text-sm">drag & drop or click to upload</span>
+          <span className="text-fg-muted text-xs">jpg · png · webp</span>
           <input
             ref={inputRef}
             type="file"
             accept="image/jpeg,image/png,image/webp"
-            style={{ display: 'none' }}
+            className="hidden"
             onChange={onFileChange}
           />
         </div>
       ) : (
-        <div style={{
-          border: `1px solid ${live ? 'var(--hot-pink)' : 'var(--slate)'}`,
-          borderRadius: 'var(--radius-xs)',
-          padding: '2rem',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.5rem',
-          minHeight: '120px',
-          transition: 'border-color 0.3s',
-        }}>
-          <span style={{ fontSize: '1.5rem', color: live ? 'var(--hot-pink)' : 'var(--fg-muted)' }}>
+        <div
+          className={cn(
+            'border rounded-xs p-xl flex flex-col items-center justify-center gap-sm min-h-[120px] transition-colors duration-base',
+            live ? 'border-hot-pink' : 'border-base'
+          )}
+        >
+          <span className={cn('text-lg', live ? 'text-hot-pink' : 'text-fg-muted')}>
             {live ? '◉' : '○'}
           </span>
-          <span style={{
-            color: live ? 'var(--hot-pink)' : 'var(--fg-muted)',
-            fontSize: '0.75rem',
-            letterSpacing: '0.1em',
-          }}>
+          <span className={cn('text-xs tracking-wide', live ? 'text-hot-pink' : 'text-fg-muted')}>
             {live ? 'LIVE' : 'starting camera...'}
           </span>
           {live && (
-            <span style={{ color: 'var(--fg-muted)', fontSize: '0.7rem', textAlign: 'center' }}>
+            <span className="text-fg-muted text-xs text-center">
               adjust controls to tune the feed
             </span>
           )}

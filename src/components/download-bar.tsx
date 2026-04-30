@@ -1,4 +1,5 @@
 import { type RefObject } from 'react'
+import { cn } from '../utils/cn'
 
 interface Props {
   canvasRef: RefObject<HTMLCanvasElement | null>
@@ -35,28 +36,18 @@ export default function DownloadBar({ canvasRef, asciiRows, isLive }: Props) {
     a.click()
   }
 
-  const btnStyle: React.CSSProperties = {
-    padding: 'var(--btn-secondary-padding)',
-    fontSize: 'var(--btn-secondary-size)',
-    fontFamily: 'var(--btn-font)',
-    letterSpacing: 'var(--btn-tracking)',
-    borderRadius: 'var(--btn-radius)',
-    cursor: 'pointer',
-    transition: 'all 0.12s',
-  }
+  const btnBase = cn(
+    '[padding:var(--btn-secondary-padding)]',
+    '[font-size:var(--btn-secondary-size)]',
+    'font-mono tracking-wide rounded-xs cursor-pointer transition-all duration-fast'
+  )
 
   if (isLive) {
     return (
-      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+      <div className="flex gap-sm justify-end">
         <button
           onClick={capture}
-          style={{
-            ...btnStyle,
-            border: '1px solid var(--hot-pink)',
-            background: 'rgba(255,45,120,0.08)',
-            color: 'var(--hot-pink)',
-            fontWeight: 'var(--btn-primary-weight)',
-          }}
+          className={cn(btnBase, 'border border-hot-pink bg-danger-ghost text-hot-pink font-bold')}
         >
           ◎ capture
         </button>
@@ -65,28 +56,16 @@ export default function DownloadBar({ canvasRef, asciiRows, isLive }: Props) {
   }
 
   return (
-    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+    <div className="flex gap-sm justify-end">
       <button
         onClick={exportPng}
-        style={{
-          ...btnStyle,
-          border: 'var(--btn-primary-border)',
-          background: 'var(--color-accent-bg)',
-          color: 'var(--btn-primary-color)',
-          fontWeight: 'var(--btn-primary-weight)',
-        }}
+        className={cn(btnBase, 'border-2 border-violet bg-accent-bg text-violet font-bold')}
       >
         export png
       </button>
       <button
         onClick={exportTxt}
-        style={{
-          ...btnStyle,
-          border: 'var(--btn-secondary-border)',
-          background: 'var(--color-info-bg)',
-          color: 'var(--btn-secondary-color)',
-          fontWeight: 'var(--btn-secondary-weight)',
-        }}
+        className={cn(btnBase, 'border border-info bg-info-bg text-info font-medium')}
       >
         export txt
       </button>

@@ -34,6 +34,15 @@ export default {
         info:          'var(--color-info)',
         danger:        'var(--color-danger)',
         warning:       'var(--color-warning)',
+        // Superfícies de estado com transparência
+        'accent-ghost': 'var(--bg-accent-ghost)',
+        'accent-dim':   'var(--bg-accent-dim)',
+        'accent-soft':  'var(--bg-accent-soft)',
+        'danger-ghost': 'var(--bg-danger-ghost)',
+        // Fundos semânticos
+        'accent-bg':   'var(--color-accent-bg)',
+        'info-bg':     'var(--color-info-bg)',
+        'danger-bg':   'var(--color-danger-bg)',
       },
       fontFamily: {
         mono:    ['var(--font-mono)'],
@@ -67,14 +76,14 @@ export default {
         loose:  'var(--leading-loose)',
       },
       spacing: {
-        // Gaps micro
-        'gap-xs':  'var(--gap-xs)',
-        'gap-sm':  'var(--gap-sm)',
-        'gap-md':  'var(--gap-md)',
-        'gap-lg':  'var(--gap-lg)',
-        'gap-xl':  'var(--gap-xl)',
-        'gap-2xl': 'var(--gap-2xl)',
-        'gap-3xl': 'var(--gap-3xl)',
+        '2xs':   'var(--gap-2xs)',
+        'xs':    'var(--gap-xs)',
+        'sm':    'var(--gap-sm)',
+        'md':    'var(--gap-md)',
+        'lg':    'var(--gap-lg)',
+        'xl':    'var(--gap-xl)',
+        '2xl':   'var(--gap-2xl)',
+        '3xl':   'var(--gap-3xl)',
         // Sections macro
         'sp-xs':   'var(--sp-xs)',
         'sp-sm':   'var(--sp-sm)',

@@ -37,55 +37,22 @@ export default function App() {
   const isLive = !!sourceVideo
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      {/* Header */}
-      <header style={{
-        padding: '0.75rem 1.5rem',
-        borderBottom: '1px solid var(--slate)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.75rem',
-        flexShrink: 0,
-      }}>
-        <span style={{ color: 'var(--violet)', fontSize: '1rem', fontWeight: 700, letterSpacing: '0.05em' }}>
-          ASCII//CONVERT
-        </span>
-        <span style={{ color: 'var(--slate)', fontSize: '0.75rem' }}>—</span>
-        <span style={{ color: 'var(--fg-muted)', fontSize: '0.7rem' }}>
-          image → ascii art
-        </span>
+    <div className="flex flex-col h-screen">
+      <header className="py-sm px-lg border-b border-base flex items-center gap-sm shrink-0">
+        <span className="text-violet text-base font-bold tracking-wide">ASCII//CONVERT</span>
+        <span className="text-slate text-xs">—</span>
+        <span className="text-fg-muted text-xs">image → ascii art</span>
       </header>
 
-      {/* Body */}
-      <div style={{
-        flex: 1,
-        display: 'grid',
-        gridTemplateColumns: '280px 1fr',
-        overflow: 'hidden',
-      }}
-        className="layout"
-      >
-        {/* Left: controls */}
-        <aside style={{
-          borderRight: '1px solid var(--slate)',
-          padding: '1.25rem',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.5rem',
-        }}>
+      <div className="flex-1 grid grid-cols-1 [grid-template-rows:auto_1fr] sm:grid-cols-[280px_1fr] sm:[grid-template-rows:1fr] overflow-hidden">
+        <aside className="border-r border-base p-md overflow-y-auto flex flex-col gap-lg">
           <UploadZone onImage={handleImage} onVideoStream={handleVideoStream} />
-          <div style={{ width: '100%', height: '1px', background: 'var(--slate)' }} />
+          <div className="w-full h-px bg-slate" />
           <ControlPanel settings={settings} onChange={patchSettings} />
         </aside>
 
-        {/* Right: canvas */}
-        <main style={{
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}>
-          <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        <main className="flex flex-col overflow-hidden">
+          <div className="flex-1 relative overflow-hidden">
             {sourceImage || sourceVideo ? (
               <AsciiCanvas
                 sourceImage={sourceImage}
@@ -95,36 +62,16 @@ export default function App() {
                 canvasRef={canvasRef}
               />
             ) : (
-              <div style={{
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--fg-muted)',
-                fontSize: '0.8rem',
-              }}>
+              <div className="h-full flex items-center justify-center text-fg-muted text-sm">
                 upload an image or enable webcam to begin
               </div>
             )}
           </div>
-          <div style={{
-            padding: '0.75rem 1rem',
-            borderTop: '1px solid var(--slate)',
-            flexShrink: 0,
-          }}>
+          <div className="py-sm px-md border-t border-base shrink-0">
             <DownloadBar canvasRef={canvasRef} asciiRows={asciiRows} isLive={isLive} />
           </div>
         </main>
       </div>
-
-      <style>{`
-        @media (max-width: 640px) {
-          .layout {
-            grid-template-columns: 1fr !important;
-            grid-template-rows: auto 1fr;
-          }
-        }
-      `}</style>
     </div>
   )
 }
