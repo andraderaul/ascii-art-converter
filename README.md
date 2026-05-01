@@ -31,6 +31,7 @@ Open `http://localhost:5173` in your browser.
 
 ```bash
 npm run build   # production build (TypeScript + Vite)
+npm run check   # Biome lint, format, and import checks
 npm run test    # run all tests (Vitest)
 ```
 
@@ -63,6 +64,14 @@ Source Image / Live Source
 ```
 
 The hidden canvas (`cols × rows` pixels) is used exclusively for pixel reading via `getImageData`. The visible canvas is independent and renders the characters. For Live Source, the loop runs via `requestAnimationFrame` throttled to ~15fps.
+
+## Privacy and AI keys
+
+ASCII Art Converter has no backend server. Source Images, Live Source frames, and API keys stay in your browser unless you explicitly use the optional AI analysis feature.
+
+When AI analysis is enabled, the app sends the rendered ASCII canvas image directly from your browser to the selected AI Provider (Anthropic, OpenAI, or Gemini) using the API key you provide. The key is stored in `localStorage` on your device and is never sent to any server operated by this project.
+
+Use your own provider key and avoid using this feature with sensitive images unless you are comfortable with that provider processing the rendered canvas.
 
 ## Project structure
 
@@ -116,3 +125,7 @@ Key artifacts of that process:
 - **[`docs/adr/`](docs/adr/)** — architectural decision records capturing trade-offs at the time decisions were made, including which alternatives were rejected and why
 
 The workflow treats AI as a collaborative pair: each architectural decision goes through a grilling session to surface trade-offs, the result is captured in an ADR, and the domain language is kept consistent via CONTEXT.md. Code is generated from that shared understanding, not the other way around.
+
+## License
+
+ASCII Art Converter is licensed under the GNU Affero General Public License v3.0 or later. See [`LICENSE`](LICENSE).
