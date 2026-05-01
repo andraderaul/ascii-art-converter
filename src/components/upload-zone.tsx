@@ -59,7 +59,7 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
       setError(null)
       setMode(next)
       if (next === 'webcam') {
-        startWebcam()
+        void startWebcam()
       }
     },
     [mode, stopWebcam, startWebcam],

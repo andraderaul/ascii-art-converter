@@ -16,14 +16,28 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error"
+      },
+      "performance": {
+        "noAwaitInLoops": "error",
+        "noBarrelFile": "error"
+      },
       "suspicious": {
         "noCommentText": "off",
-        "noUnknownAtRules": "off"
+        "noUnknownAtRules": "off",
+        "noConsole": "error"
       },
       "style": {
         "useConst": "error",
         "noNonNullAssertion": "error",
-        "useBlockStatements": "error"
+        "useBlockStatements": "error",
+        "useImportType": "error",
+        "useExportType": "error"
+      },
+      "nursery": {
+        "noFloatingPromises": "error"
       }
     }
   },
