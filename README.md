@@ -128,4 +128,4 @@ The workflow treats AI as a collaborative pair: each architectural decision goes
 
 ## License
 
-ASCII Art Converter is licensed under the GNU Affero General Public License v3.0 or later. See [`LICENSE`](LICENSE).
+ASCII Art Converter is licensed under the MIT License. See [`LICENSE`](LICENSE).
