@@ -15,3 +15,10 @@ export const CHARSET_MAPS: Record<Charset, string> = {
   binary:  ' 01',
   blocks:  ' ░▒▓█',
 }
+
+export interface AsciiCell {
+  char: string
+  r: number
+  g: number
+  b: number
+}

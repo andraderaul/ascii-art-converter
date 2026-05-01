@@ -12,6 +12,7 @@ export class OpenAIAdapter {
   private client: OpenAI
 
   constructor(key: string) {
+    // dangerouslyAllowBrowser: user supplies their own key; it stays in localStorage, never hits our servers — see ADR 0003
     this.client = new OpenAI({ apiKey: key, dangerouslyAllowBrowser: true })
   }
 

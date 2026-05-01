@@ -12,6 +12,7 @@ export class GeminiAdapter {
   private genAI: GoogleGenerativeAI
 
   constructor(key: string) {
+    // Gemini SDK has no dangerouslyAllowBrowser flag; key stays in localStorage, never hits our servers — see ADR 0003
     this.genAI = new GoogleGenerativeAI(key)
   }
 

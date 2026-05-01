@@ -1,7 +1,8 @@
 import { useEffect, useRef, type RefObject } from 'react'
-import { ConversionSettings } from '../types'
-import { convertImage } from '../utils/ascii-converter'
-import { resizeImage } from '../utils/image-utils'
+import { ConversionSettings } from '../ascii/types'
+import { convertImage } from '../ascii/converter'
+import { resizeImage } from '../ascii/image-utils'
+import { computeFrame, paintFrame } from '../ascii/renderer'
 
 interface Props {
   sourceImage: HTMLImageElement | null
@@ -9,14 +10,6 @@ interface Props {
   settings: ConversionSettings
   onConverted: (rows: string[]) => void
   canvasRef: RefObject<HTMLCanvasElement>
-}
-
-const COLOR_MODE_COLORS: Record<string, string> = {
-  matrix: '#00ff41',
-  bw:     '#c8c8e0',
-  retro:  '#ffe600',
-  sepia:  '#c4a46b',
-  neon:   '#ff2d78',
 }
 
 function renderFrame(
@@ -29,15 +22,11 @@ function renderFrame(
   const ctx = canvasEl.getContext('2d')!
   const hiddenCtx = hiddenEl.getContext('2d')!
 
-  const { resolution, brightness, contrast, colorMode, charset } = settings
-
-  const W = canvasEl.width
-  const H = canvasEl.height
+  const { resolution, brightness, contrast, charset } = settings
   const charW = resolution * 0.6
   const charH = resolution
-
-  const cols = Math.floor(W / charW)
-  const rows = Math.floor(H / charH)
+  const cols = Math.floor(canvasEl.width / charW)
+  const rows = Math.floor(canvasEl.height / charH)
 
   if (cols < 1 || rows < 1) return
 
@@ -45,33 +34,8 @@ function renderFrame(
   hiddenEl.height = rows
 
   const cells = convertImage(hiddenCtx, source, cols, rows, { brightness, contrast, charset })
-
-  ctx.fillStyle = '#0a0a0f'
-  ctx.fillRect(0, 0, W, H)
-  ctx.font = `${resolution}px ${getComputedStyle(document.body).getPropertyValue('--font-mono') || 'monospace'}`
-  ctx.textBaseline = 'top'
-
-  const asciiRows: string[] = []
-
-  for (let row = 0; row < rows; row++) {
-    let line = ''
-    for (let col = 0; col < cols; col++) {
-      const cell = cells[row][col]
-      const x = col * charW
-      const y = row * charH
-
-      if (colorMode === 'original') {
-        ctx.fillStyle = `rgb(${cell.r},${cell.g},${cell.b})`
-      } else {
-        ctx.fillStyle = COLOR_MODE_COLORS[colorMode] ?? '#c8c8e0'
-      }
-
-      ctx.fillText(cell.char, x, y)
-      line += cell.char
-    }
-    asciiRows.push(line)
-  }
-
+  const { instructions, asciiRows } = computeFrame(cells, settings)
+  paintFrame(ctx, instructions, resolution)
   onConverted?.(asciiRows)
 }
 

@@ -1,11 +1,13 @@
 import { useCallback, useRef, useState } from 'react'
-import { ConversionSettings } from './types'
+import { ConversionSettings } from './ascii/types'
 import UploadZone from './components/upload-zone'
 import ControlPanel from './components/control-panel'
 import AsciiCanvas from './components/ascii-canvas'
 import DownloadBar from './components/download-bar'
 import ApiKeyModal from './components/api-key-modal'
 import AnalysisModal, { type AnalysisState } from './components/analysis-modal'
+import AboutModal from './components/about-modal'
+import ErrorBoundary from './components/error-boundary'
 import { useAIConfig } from './ai/use-ai-config'
 import { analyzeCanvas } from './ai/analysis-service'
 import { AuthError, QuotaError } from './ai/errors'
@@ -27,6 +29,7 @@ export default function App() {
 
   const { config: aiConfig, save: saveAiConfig, remove: removeAiConfig } = useAIConfig()
   const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false)
+  const [aboutOpen, setAboutOpen] = useState(false)
   const [analysisState, setAnalysisState] = useState<AnalysisState | null>(null)
 
   const patchSettings = useCallback((patch: Partial<ConversionSettings>) => {
@@ -72,21 +75,37 @@ export default function App() {
         <span className="text-violet text-base font-bold tracking-wide">ASCII//CONVERT</span>
         <span className="text-slate text-xs">—</span>
         <span className="text-fg-muted text-xs">image → ascii art</span>
-        <button
-          onClick={() => setApiKeyModalOpen(true)}
-          className="ml-auto font-mono tracking-wide cursor-pointer transition-all"
-          style={{
-            fontSize: 'var(--text-xs)',
-            color: aiConfig ? 'var(--violet)' : 'var(--muted)',
-            background: 'none',
-            border: 'none',
-            letterSpacing: 'var(--tracking-wide)',
-            padding: '4px 8px',
-          }}
-          title="Configure AI key"
-        >
-          {aiConfig ? '⚿ ai configured' : '⚿ configure ai'}
-        </button>
+        <div className="ml-auto flex items-center gap-xs">
+          <button
+            onClick={() => setAboutOpen(true)}
+            className="font-mono tracking-wide cursor-pointer transition-all"
+            style={{
+              fontSize: 'var(--text-xs)',
+              color: 'var(--muted)',
+              background: 'none',
+              border: 'none',
+              letterSpacing: 'var(--tracking-wide)',
+              padding: '4px 8px',
+            }}
+          >
+            about
+          </button>
+          <button
+            onClick={() => setApiKeyModalOpen(true)}
+            className="font-mono tracking-wide cursor-pointer transition-all"
+            style={{
+              fontSize: 'var(--text-xs)',
+              color: aiConfig ? 'var(--violet)' : 'var(--muted)',
+              background: 'none',
+              border: 'none',
+              letterSpacing: 'var(--tracking-wide)',
+              padding: '4px 8px',
+            }}
+            title="Configure AI key"
+          >
+            {aiConfig ? '⚿ ai configured' : '⚿ configure ai'}
+          </button>
+        </div>
       </header>
 
       <div className="flex-1 grid grid-cols-1 [grid-template-rows:auto_1fr] sm:grid-cols-[280px_1fr] sm:[grid-template-rows:1fr] overflow-hidden">
@@ -98,19 +117,27 @@ export default function App() {
 
         <main className="flex flex-col overflow-hidden">
           <div className="flex-1 relative overflow-hidden">
-            {sourceImage || sourceVideo ? (
-              <AsciiCanvas
-                sourceImage={sourceImage}
-                sourceVideo={sourceVideo}
-                settings={settings}
-                onConverted={setAsciiRows}
-                canvasRef={canvasRef}
-              />
-            ) : (
-              <div className="h-full flex items-center justify-center text-fg-muted text-sm">
-                upload an image or enable webcam to begin
-              </div>
-            )}
+            <ErrorBoundary
+              fallback={
+                <div className="h-full flex items-center justify-center text-fg-muted text-sm">
+                  render failed — try a different image or adjust settings
+                </div>
+              }
+            >
+              {sourceImage || sourceVideo ? (
+                <AsciiCanvas
+                  sourceImage={sourceImage}
+                  sourceVideo={sourceVideo}
+                  settings={settings}
+                  onConverted={setAsciiRows}
+                  canvasRef={canvasRef}
+                />
+              ) : (
+                <div className="h-full flex items-center justify-center text-fg-muted text-sm">
+                  upload an image or enable webcam to begin
+                </div>
+              )}
+            </ErrorBoundary>
           </div>
           <div className="py-sm px-md border-t border-base shrink-0">
             <DownloadBar
@@ -140,6 +167,8 @@ export default function App() {
           onRetry={analysisState.status === 'parse-error' ? handleAnalyze : undefined}
         />
       )}
+
+      {aboutOpen && <AboutModal onClose={() => setAboutOpen(false)} />}
     </div>
   )
 }

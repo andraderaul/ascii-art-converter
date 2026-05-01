@@ -1,4 +1,4 @@
-import { ConversionSettings, ColorMode, Charset } from '../types'
+import { ConversionSettings, ColorMode, Charset } from '../ascii/types'
 import { cn } from '../utils/cn'
 
 interface Props {

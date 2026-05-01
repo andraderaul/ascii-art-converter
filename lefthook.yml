@@ -1,0 +1,11 @@
+pre-commit:
+  commands:
+    test:
+      run: npx vitest run
+
+pre-push:
+  commands:
+    typecheck:
+      run: npx tsc -b
+    test:
+      run: npx vitest run

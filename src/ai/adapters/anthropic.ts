@@ -12,6 +12,7 @@ export class AnthropicAdapter {
   private client: Anthropic
 
   constructor(key: string) {
+    // dangerouslyAllowBrowser: user supplies their own key; it stays in localStorage, never hits our servers — see ADR 0003
     this.client = new Anthropic({ apiKey: key, dangerouslyAllowBrowser: true })
   }
 

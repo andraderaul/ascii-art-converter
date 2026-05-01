@@ -1,4 +1,4 @@
-import { Charset, CHARSET_MAPS } from '../types'
+import { AsciiCell, Charset, CHARSET_MAPS } from './types'
 
 export function getAsciiChar(brightness: number, charset: Charset): string {
   const map = CHARSET_MAPS[charset]
@@ -12,13 +12,6 @@ function applyBrightnessContrast(value: number, brightness: number, contrast: nu
   v = (v - 0.5) * contrast + 0.5
   v = v * brightness
   return Math.max(0, Math.min(255, Math.round(v * 255)))
-}
-
-export interface AsciiCell {
-  char: string
-  r: number
-  g: number
-  b: number
 }
 
 export function convertImage(
@@ -42,6 +35,7 @@ export function convertImage(
       const r = data[i]
       const g = data[i + 1]
       const b = data[i + 2]
+      // ITU-R BT.601 luminosity coefficients
       const lum = 0.299 * r + 0.587 * g + 0.114 * b
       const adjusted = applyBrightnessContrast(lum, brightness, contrast)
       rowData.push({ char: getAsciiChar(adjusted, charset), r, g, b })

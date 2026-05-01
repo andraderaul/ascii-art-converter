@@ -2,7 +2,7 @@
 
 A client-side tool that converts images and webcam into interactive ASCII art, with real-time preview and export.
 
-No server. No external AI. Everything runs in the browser.
+No backend server. Everything runs in the browser. AI analysis is optional — it uses your own API key, stored locally, never sent to any server we operate.
 
 ## Features
 
@@ -11,6 +11,7 @@ No server. No external AI. Everything runs in the browser.
 - Adjust charset, color mode, resolution, brightness, and contrast in real time
 - Export as PNG (with colors) or TXT (plain ASCII)
 - Capture a frame from the Live Source without stopping the loop
+- Optional AI analysis (Anthropic, OpenAI, or Gemini) powered by your own API key
 
 ## Running locally
 
@@ -37,8 +38,8 @@ npm run test    # run all tests (Vitest)
 
 - **React 18** + **TypeScript** + **Vite**
 - **Tailwind CSS** with a design system via CSS custom properties
-- **Vitest** for unit tests
-- Zero runtime dependencies beyond React
+- **Vitest** + **@testing-library/react** for unit and component tests
+- Zero backend dependencies
 
 ## How it works
 
@@ -52,7 +53,10 @@ Source Image / Live Source
   convertImage() → grid of AsciiCell (char + original RGB)
         │
         ▼
-  Render on the visible canvas applying the Color Mode
+  computeFrame() → RenderInstruction[] (pure, no DOM)
+        │
+        ▼
+  paintFrame() → renders characters on the visible canvas
         │
         ▼
   PNG Export  /  TXT Export
@@ -65,13 +69,50 @@ The hidden canvas (`cols × rows` pixels) is used exclusively for pixel reading 
 ```
 src/
 ├── app.tsx                        # global state, orchestrates components
-├── types.ts                       # ConversionSettings, ColorMode, Charset, CHARSET_MAPS
+├── ascii/                         # ASCII domain module
+│   ├── types.ts                   # ConversionSettings, ColorMode, Charset, AsciiCell, CHARSET_MAPS
+│   ├── converter.ts               # convertImage(), luminosity math
+│   ├── image-utils.ts             # resizeImage() (caps Source Image at 800px)
+│   └── renderer.ts                # computeFrame() (pure), paintFrame() (side effects)
+├── ai/                            # AI analysis module
+│   ├── types.ts                   # AIConfig, Analysis, ThreatLevel
+│   ├── analysis-service.ts        # adapter selection and response validation
+│   ├── use-ai-config.ts           # localStorage hook for API keys
+│   ├── errors.ts                  # AuthError, ParseError, QuotaError
+│   └── adapters/                  # Anthropic, OpenAI, Gemini
 ├── components/
-│   ├── ascii-canvas.tsx           # renderFrame(), static and rAF render loops
+│   ├── ascii-canvas.tsx           # canvas lifecycle coordinator (static + rAF render loops)
 │   ├── control-panel.tsx          # ConversionSettings controls
 │   ├── upload-zone.tsx            # image upload and Live Source activation
-│   └── download-bar.tsx           # PNG Export and TXT Export
+│   ├── download-bar.tsx           # PNG Export and TXT Export
+│   ├── error-boundary.tsx         # generic React error boundary
+│   ├── about-modal.tsx            # project info and API key security model
+│   ├── api-key-modal.tsx          # AI provider key configuration
+│   └── analysis-modal.tsx         # AI analysis results
 └── utils/
-    ├── ascii-converter.ts         # convertImage(), luminosity math
-    └── image-utils.ts             # resizeImage() (caps Source Image at 800px)
+    └── cn.ts                      # clsx + tailwind-merge helper
 ```
+
+## Architectural decisions
+
+Significant design decisions are documented as ADRs in [`docs/adr/`](docs/adr/):
+
+| ADR | Decision |
+|-----|----------|
+| [0001](docs/adr/0001-hidden-canvas-for-pixel-sampling.md) | Hidden canvas for pixel sampling |
+| [0002](docs/adr/0002-webcam-rAF-main-thread.md) | Webcam rendering on main thread via rAF |
+| [0003](docs/adr/0003-send-ascii-canvas-to-ai-provider.md) | Send rendered ASCII canvas to AI provider |
+| [0004](docs/adr/0004-ascii-domain-module.md) | ASCII domain module structure |
+| [0005](docs/adr/0005-render-instruction-pure-impure-boundary.md) | Pure/impure boundary with RenderInstruction |
+
+## Built with AI-assisted development
+
+This project was built using an AI-assisted workflow with [Claude Code](https://claude.ai/code).
+
+Key artifacts of that process:
+
+- **[`CLAUDE.md`](CLAUDE.md)** — development spec and architecture reference, kept up to date as the codebase evolves; serves as context for every Claude Code session
+- **[`CONTEXT.md`](CONTEXT.md)** — domain language dictionary following DDD ubiquitous language practice; prevents terminology drift between the code and conversations
+- **[`docs/adr/`](docs/adr/)** — architectural decision records capturing trade-offs at the time decisions were made, including which alternatives were rejected and why
+
+The workflow treats AI as a collaborative pair: each architectural decision goes through a grilling session to surface trade-offs, the result is captured in an ADR, and the domain language is kept consistent via CONTEXT.md. Code is generated from that shared understanding, not the other way around.
