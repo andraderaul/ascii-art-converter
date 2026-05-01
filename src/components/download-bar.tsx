@@ -52,16 +52,17 @@ export default function DownloadBar({
   }
 
   const btnBase = cn(
-    '[padding:var(--btn-secondary-padding)]',
+    'py-[10px] px-xs sm:[padding:var(--btn-secondary-padding)]',
     '[font-size:var(--btn-secondary-size)]',
     'font-mono tracking-wide rounded-xs cursor-pointer transition-all duration-fast',
+    'flex-1 sm:flex-none min-h-[44px]',
   )
 
   const analyzeBtn = hasAiConfig ? (
     <button
       type="button"
       onClick={onAnalyze}
-      className={cn(btnBase, 'min-h-[44px] border border-violet bg-accent-bg text-violet')}
+      className={cn(btnBase, 'border border-violet bg-accent-bg text-violet')}
       style={{ borderColor: 'var(--violet)', background: 'var(--bg-accent-ghost)' }}
     >
       {isTouchDevice ? '◈ analyze' : '◈ scan & analyze'}
@@ -70,15 +71,12 @@ export default function DownloadBar({
 
   if (isLive) {
     return (
-      <div className="flex flex-wrap gap-sm justify-end">
+      <div className="flex gap-xs sm:gap-sm sm:justify-end">
         {analyzeBtn}
         <button
           type="button"
           onClick={capture}
-          className={cn(
-            btnBase,
-            'min-h-[44px] border border-hot-pink bg-danger-ghost text-hot-pink font-bold',
-          )}
+          className={cn(btnBase, 'border border-hot-pink bg-danger-ghost text-hot-pink font-bold')}
         >
           ◎ capture
         </button>
@@ -87,22 +85,19 @@ export default function DownloadBar({
   }
 
   return (
-    <div className="flex flex-wrap gap-sm justify-end">
+    <div className="flex gap-xs sm:gap-sm sm:justify-end">
       {analyzeBtn}
       <button
         type="button"
         onClick={exportPng}
-        className={cn(
-          btnBase,
-          'min-h-[44px] border-2 border-violet bg-accent-bg text-violet font-bold',
-        )}
+        className={cn(btnBase, 'border-2 border-violet bg-accent-bg text-violet font-bold')}
       >
         export png
       </button>
       <button
         type="button"
         onClick={exportTxt}
-        className={cn(btnBase, 'min-h-[44px] border border-info bg-info-bg text-info font-medium')}
+        className={cn(btnBase, 'border border-info bg-info-bg text-info font-medium')}
       >
         export txt
       </button>

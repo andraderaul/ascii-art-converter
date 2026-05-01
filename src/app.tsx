@@ -73,10 +73,10 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="py-sm px-lg border-b border-base flex items-center gap-sm shrink-0">
+      <header className="py-sm px-sm sm:px-lg border-b border-base flex items-center gap-sm shrink-0">
         <span className="text-violet text-base font-bold tracking-wide">ASCII//CONVERT</span>
-        <span className="text-slate text-xs">—</span>
-        <span className="text-fg-muted text-xs">image → ascii art</span>
+        <span className="text-slate text-xs hidden sm:block">—</span>
+        <span className="text-fg-muted text-xs hidden sm:block">image → ascii art</span>
         <div className="ml-auto flex items-center gap-xs">
           <button
             type="button"
@@ -107,12 +107,12 @@ export default function App() {
             }}
             title="Configure AI key"
           >
-            {aiConfig ? '⚿ ai configured' : '⚿ configure ai'}
+            ⚿ {aiConfig ? 'ai configured' : 'configure ai'}
           </button>
         </div>
       </header>
 
-      <div className="flex-1 grid grid-cols-1 [grid-template-rows:auto_1fr] sm:grid-cols-[280px_1fr] sm:[grid-template-rows:1fr] overflow-hidden">
+      <div className="flex-1 grid grid-cols-1 [grid-template-rows:1fr_auto] sm:grid-cols-[280px_1fr] sm:[grid-template-rows:1fr] overflow-hidden">
         <aside className="border-r border-base p-md overflow-y-auto flex flex-col gap-lg max-h-[40vh] sm:max-h-none order-last sm:order-first">
           <UploadZone onImage={handleImage} onVideoStream={handleVideoStream} />
           <div className="w-full h-px bg-slate" />

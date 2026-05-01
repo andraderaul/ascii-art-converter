@@ -30,7 +30,9 @@ export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Prop
   const [key, setKey] = useState(current?.key ?? '')
 
   function handleSave() {
-    if (!key.trim()) return
+    if (!key.trim()) {
+      return
+    }
     onSave({ provider, key: key.trim() })
     onClose()
   }
