@@ -15,6 +15,16 @@ const PROVIDERS: { value: AIProviderName; label: string }[] = [
   { value: 'gemini',    label: 'Google (Gemini)' },
 ]
 
+const inputCls = cn(
+  'w-full bg-abyss border border-slate text-ghost font-mono text-sm rounded-xs',
+  '[padding:var(--input-padding)]'
+)
+
+const btnBase = cn(
+  'font-mono tracking-wide rounded-xs cursor-pointer transition-all duration-fast',
+  '[padding:var(--btn-secondary-padding)] [font-size:var(--btn-secondary-size)]'
+)
+
 export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Props) {
   const [provider, setProvider] = useState<AIProviderName>(current?.provider ?? 'anthropic')
   const [key, setKey] = useState(current?.key ?? '')
@@ -32,50 +42,33 @@ export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Prop
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ background: 'rgba(10,10,15,0.85)' }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-void/85"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm flex flex-col gap-md"
-        style={{
-          background: 'var(--abyss)',
-          border: '1px solid var(--slate)',
-          borderTop: '2px solid var(--violet)',
-          padding: 'var(--gap-xl)',
-        }}
+        className="w-full max-w-sm flex flex-col gap-md bg-abyss border border-slate border-t-2 border-t-violet p-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <span className="text-violet font-bold tracking-wide" style={{ fontSize: 'var(--text-sm)' }}>
+          <span className="text-violet font-bold tracking-wide text-sm">
             ⚿ AI CONFIG
           </span>
           <button
             onClick={onClose}
-            style={{ color: 'var(--muted)', fontSize: 'var(--text-sm)', cursor: 'pointer', background: 'none', border: 'none' }}
+            className="text-muted text-sm cursor-pointer bg-transparent border-none"
           >
             ✕
           </button>
         </div>
 
         <div className="flex flex-col gap-sm">
-          <label style={{ color: 'var(--dim)', fontSize: 'var(--text-xs)', letterSpacing: 'var(--tracking-wide)' }}>
+          <label className="text-dim text-xs tracking-wide">
             PROVIDER
           </label>
           <select
             value={provider}
             onChange={(e) => setProvider(e.target.value as AIProviderName)}
-            style={{
-              background: 'var(--input-bg)',
-              border: 'var(--input-border)',
-              color: 'var(--input-color)',
-              padding: 'var(--input-padding)',
-              fontSize: 'var(--input-font-size)',
-              borderRadius: 'var(--input-radius)',
-              fontFamily: 'var(--font-mono)',
-              width: '100%',
-              cursor: 'pointer',
-            }}
+            className={cn(inputCls, 'cursor-pointer')}
           >
             {PROVIDERS.map((p) => (
               <option key={p.value} value={p.value}>{p.label}</option>
@@ -84,7 +77,7 @@ export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Prop
         </div>
 
         <div className="flex flex-col gap-sm">
-          <label style={{ color: 'var(--dim)', fontSize: 'var(--text-xs)', letterSpacing: 'var(--tracking-wide)' }}>
+          <label className="text-dim text-xs tracking-wide">
             API KEY
           </label>
           <input
@@ -93,18 +86,9 @@ export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Prop
             onChange={(e) => setKey(e.target.value)}
             placeholder="paste your key here"
             onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-            style={{
-              background: 'var(--input-bg)',
-              border: 'var(--input-border)',
-              color: 'var(--input-color)',
-              padding: 'var(--input-padding)',
-              fontSize: 'var(--input-font-size)',
-              borderRadius: 'var(--input-radius)',
-              fontFamily: 'var(--font-mono)',
-              width: '100%',
-            }}
+            className={inputCls}
           />
-          <span style={{ color: 'var(--muted)', fontSize: 'var(--text-xs)' }}>
+          <span className="text-muted text-xs">
             your key stays in your browser only — never sent to our servers
           </span>
         </div>
@@ -113,15 +97,7 @@ export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Prop
           {current && (
             <button
               onClick={handleRemove}
-              className={cn('font-mono tracking-wide cursor-pointer transition-all')}
-              style={{
-                padding: 'var(--btn-secondary-padding)',
-                fontSize: 'var(--btn-secondary-size)',
-                border: 'var(--border-danger)',
-                color: 'var(--hot-pink)',
-                background: 'var(--color-danger-bg)',
-                borderRadius: 'var(--btn-radius)',
-              }}
+              className={cn(btnBase, 'border border-hot-pink bg-danger-bg text-hot-pink')}
             >
               remove key
             </button>
@@ -129,16 +105,11 @@ export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Prop
           <button
             onClick={handleSave}
             disabled={!key.trim()}
-            className="ml-auto font-mono tracking-wide cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{
-              padding: 'var(--btn-secondary-padding)',
-              fontSize: 'var(--btn-secondary-size)',
-              border: '2px solid var(--violet)',
-              color: 'var(--violet)',
-              background: 'var(--color-accent-bg)',
-              borderRadius: 'var(--btn-radius)',
-              fontWeight: 'var(--weight-bold)',
-            }}
+            className={cn(
+              btnBase,
+              'ml-auto border-2 border-violet bg-accent-bg text-violet font-bold',
+              'disabled:opacity-40 disabled:cursor-not-allowed'
+            )}
           >
             save key
           </button>
