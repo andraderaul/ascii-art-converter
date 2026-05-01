@@ -6,6 +6,10 @@ interface Props {
   onChange: (patch: Partial<ConversionSettings>) => void
 }
 
+const RESOLUTION_RANGE = { min: 6, max: 24, step: 1 }
+const BRIGHTNESS_RANGE = { min: 0.5, max: 2.0, step: 0.05 }
+const CONTRAST_RANGE = { min: 0.5, max: 3.0, step: 0.05 }
+
 function Label({ children }: { children: React.ReactNode }) {
   return (
     <span className="text-fg-muted text-xs tracking-wide uppercase">
@@ -30,7 +34,7 @@ function ToggleGroup<T extends string>({
           key={opt}
           onClick={() => onChange(opt)}
           className={cn(
-            'py-xs px-sm text-xs font-mono rounded-xs border cursor-pointer transition-all duration-fast',
+            'min-h-[44px] py-xs px-sm text-xs font-mono rounded-xs border cursor-pointer transition-all duration-fast',
             value === opt
               ? 'border-violet bg-accent-soft text-violet'
               : 'border-base bg-transparent text-fg-muted'
@@ -86,11 +90,11 @@ export default function ControlPanel({ settings, onChange }: Props) {
         </div>
         <input
           type="range"
-          min={6}
-          max={24}
-          step={1}
+          min={RESOLUTION_RANGE.min}
+          max={RESOLUTION_RANGE.max}
+          step={RESOLUTION_RANGE.step}
           value={settings.resolution}
-          onChange={(e) => onChange({ resolution: parseInt(e.target.value) })}
+          onChange={(e) => onChange({ resolution: Number(e.target.value) })}
         />
       </div>
 
@@ -115,18 +119,18 @@ export default function ControlPanel({ settings, onChange }: Props) {
       <SliderRow
         label="brightness"
         value={settings.brightness}
-        min={0.5}
-        max={2.0}
-        step={0.05}
+        min={BRIGHTNESS_RANGE.min}
+        max={BRIGHTNESS_RANGE.max}
+        step={BRIGHTNESS_RANGE.step}
         onChange={(brightness) => onChange({ brightness })}
       />
 
       <SliderRow
         label="contrast"
         value={settings.contrast}
-        min={0.5}
-        max={3.0}
-        step={0.05}
+        min={CONTRAST_RANGE.min}
+        max={CONTRAST_RANGE.max}
+        step={CONTRAST_RANGE.step}
         onChange={(contrast) => onChange({ contrast })}
       />
     </div>

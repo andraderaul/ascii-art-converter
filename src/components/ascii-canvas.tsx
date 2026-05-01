@@ -2,7 +2,12 @@ import { useEffect, useRef, type RefObject } from 'react'
 import { ConversionSettings } from '../ascii/types'
 import { convertImage } from '../ascii/converter'
 import { resizeImage } from '../ascii/image-utils'
-import { computeFrame, paintFrame } from '../ascii/renderer'
+import { computeFrame, MONOSPACE_CHAR_WIDTH_RATIO, paintFrame } from '../ascii/renderer'
+
+const LIVE_SOURCE_TARGET_FPS = 15
+const LIVE_SOURCE_FRAME_INTERVAL_MS = 1000 / LIVE_SOURCE_TARGET_FPS
+const CANVAS_WIDTH = 800
+const CANVAS_HEIGHT = 600
 
 interface Props {
   sourceImage: HTMLImageElement | null
@@ -23,7 +28,7 @@ function renderFrame(
   const hiddenCtx = hiddenEl.getContext('2d')!
 
   const { resolution, brightness, contrast, charset } = settings
-  const charW = resolution * 0.6
+  const charW = resolution * MONOSPACE_CHAR_WIDTH_RATIO
   const charH = resolution
   const cols = Math.floor(canvasEl.width / charW)
   const rows = Math.floor(canvasEl.height / charH)
@@ -56,11 +61,10 @@ export default function AsciiCanvas({ sourceImage, sourceVideo, settings, onConv
     const video = sourceVideo
     let rafId: number
     let lastTime = 0
-    const INTERVAL = 66
 
     function loop(now: number) {
       rafId = requestAnimationFrame(loop)
-      if (now - lastTime < INTERVAL) return
+      if (now - lastTime < LIVE_SOURCE_FRAME_INTERVAL_MS) return
       lastTime = now
       if (video.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
         renderFrame(video, canvas!, hiddenRef.current, settings)
@@ -74,8 +78,8 @@ export default function AsciiCanvas({ sourceImage, sourceVideo, settings, onConv
   return (
     <canvas
       ref={canvasRef}
-      width={800}
-      height={600}
+      width={CANVAS_WIDTH}
+      height={CANVAS_HEIGHT}
       className="w-full h-full block bg-bg [image-rendering:pixelated]"
     />
   )

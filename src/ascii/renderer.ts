@@ -15,6 +15,8 @@ const COLOR_MODE_COLORS: Record<string, string> = {
   neon:   '#ff2d78',
 }
 
+export const MONOSPACE_CHAR_WIDTH_RATIO = 0.6
+
 // Pure: derives render instructions and ascii text from a cell grid — no DOM, fully testable.
 // See ADR 0005 for the pure/impure boundary rationale.
 export function computeFrame(
@@ -22,7 +24,7 @@ export function computeFrame(
   settings: Pick<ConversionSettings, 'resolution' | 'colorMode'>
 ): { instructions: RenderInstruction[]; asciiRows: string[] } {
   const { resolution, colorMode } = settings
-  const charW = resolution * 0.6
+  const charW = resolution * MONOSPACE_CHAR_WIDTH_RATIO
   const charH = resolution
 
   const instructions: RenderInstruction[] = []
