@@ -1,8 +1,8 @@
-import { useEffect, useRef, type RefObject } from 'react'
-import { ConversionSettings } from '../ascii/types'
+import { type RefObject, useEffect, useRef } from 'react'
 import { convertImage } from '../ascii/converter'
 import { resizeImage } from '../ascii/image-utils'
 import { computeFrame, MONOSPACE_CHAR_WIDTH_RATIO, paintFrame } from '../ascii/renderer'
+import type { ConversionSettings } from '../ascii/types'
 
 const LIVE_SOURCE_TARGET_FPS = 15
 const LIVE_SOURCE_FRAME_INTERVAL_MS = 1000 / LIVE_SOURCE_TARGET_FPS
@@ -22,7 +22,7 @@ function renderFrame(
   canvasEl: HTMLCanvasElement,
   hiddenEl: HTMLCanvasElement,
   settings: ConversionSettings,
-  onConverted?: (rows: string[]) => void
+  onConverted?: (rows: string[]) => void,
 ): void {
   const ctx = canvasEl.getContext('2d')!
   const hiddenCtx = hiddenEl.getContext('2d')!
@@ -44,7 +44,13 @@ function renderFrame(
   onConverted?.(asciiRows)
 }
 
-export default function AsciiCanvas({ sourceImage, sourceVideo, settings, onConverted, canvasRef }: Props) {
+export default function AsciiCanvas({
+  sourceImage,
+  sourceVideo,
+  settings,
+  onConverted,
+  canvasRef,
+}: Props) {
   const hiddenRef = useRef<HTMLCanvasElement>(document.createElement('canvas'))
 
   useEffect(() => {

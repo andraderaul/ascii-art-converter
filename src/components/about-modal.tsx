@@ -15,12 +15,22 @@ export default function AboutModal({ onClose }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
-          <span className="text-violet font-bold tracking-wide" style={{ fontSize: 'var(--text-base)' }}>
+          <span
+            className="text-violet font-bold tracking-wide"
+            style={{ fontSize: 'var(--text-base)' }}
+          >
             ASCII//CONVERT
           </span>
           <button
+            type="button"
             onClick={onClose}
-            style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: 'var(--text-base)' }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--muted)',
+              cursor: 'pointer',
+              fontSize: 'var(--text-base)',
+            }}
           >
             ✕
           </button>
@@ -35,19 +45,19 @@ export default function AboutModal({ onClose }: Props) {
         <div className="flex flex-col gap-sm">
           <span className="text-fg-muted text-xs tracking-wide uppercase">AI Scan</span>
           <p className="text-fg-muted" style={{ fontSize: 'var(--text-sm)', lineHeight: '1.6' }}>
-            There's an optional feature that lets an AI describe what it sees in your ASCII art.
-            To use it, you need your own API key from Anthropic, OpenAI, or Google.
-            Your key is saved only on your device and goes straight to the AI service —
-            we never see it or store it on any server.
+            There's an optional feature that lets an AI describe what it sees in your ASCII art. To
+            use it, you need your own API key from Anthropic, OpenAI, or Google. Your key is saved
+            only on your device and goes straight to the AI service — we never see it or store it on
+            any server.
           </p>
         </div>
 
         <div className="flex flex-col gap-sm">
           <span className="text-fg-muted text-xs tracking-wide uppercase">Made with AI</span>
           <p className="text-fg-muted" style={{ fontSize: 'var(--text-sm)', lineHeight: '1.6' }}>
-            This project was built in collaboration with AI — not just the code,
-            but the design decisions, documentation, and architecture too.
-            It's an experiment in what a thoughtful human + AI workflow looks like in practice.
+            This project was built in collaboration with AI — not just the code, but the design
+            decisions, documentation, and architecture too. It's an experiment in what a thoughtful
+            human + AI workflow looks like in practice.
           </p>
         </div>
 

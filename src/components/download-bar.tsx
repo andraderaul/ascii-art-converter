@@ -1,4 +1,4 @@
-import { type RefObject } from 'react'
+import type { RefObject } from 'react'
 import { cn } from '../utils/cn'
 
 interface Props {
@@ -9,7 +9,13 @@ interface Props {
   onAnalyze: () => void
 }
 
-export default function DownloadBar({ canvasRef, asciiRows, isLive, hasAiConfig, onAnalyze }: Props) {
+export default function DownloadBar({
+  canvasRef,
+  asciiRows,
+  isLive,
+  hasAiConfig,
+  onAnalyze,
+}: Props) {
   function exportPng() {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -41,26 +47,33 @@ export default function DownloadBar({ canvasRef, asciiRows, isLive, hasAiConfig,
   const btnBase = cn(
     '[padding:var(--btn-secondary-padding)]',
     '[font-size:var(--btn-secondary-size)]',
-    'font-mono tracking-wide rounded-xs cursor-pointer transition-all duration-fast'
+    'font-mono tracking-wide rounded-xs cursor-pointer transition-all duration-fast',
   )
+
+  const isTouchDevice = typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0
 
   const analyzeBtn = hasAiConfig ? (
     <button
+      type="button"
       onClick={onAnalyze}
-      className={cn(btnBase, 'border border-violet bg-accent-bg text-violet')}
+      className={cn(btnBase, 'min-h-[44px] border border-violet bg-accent-bg text-violet')}
       style={{ borderColor: 'var(--violet)', background: 'var(--bg-accent-ghost)' }}
     >
-      ◈ scan &amp; analyze
+      {isTouchDevice ? '◈ analyze' : '◈ scan & analyze'}
     </button>
   ) : null
 
   if (isLive) {
     return (
-      <div className="flex gap-sm justify-end">
+      <div className="flex flex-wrap gap-sm justify-end">
         {analyzeBtn}
         <button
+          type="button"
           onClick={capture}
-          className={cn(btnBase, 'border border-hot-pink bg-danger-ghost text-hot-pink font-bold')}
+          className={cn(
+            btnBase,
+            'min-h-[44px] border border-hot-pink bg-danger-ghost text-hot-pink font-bold',
+          )}
         >
           ◎ capture
         </button>
@@ -69,17 +82,22 @@ export default function DownloadBar({ canvasRef, asciiRows, isLive, hasAiConfig,
   }
 
   return (
-    <div className="flex gap-sm justify-end">
+    <div className="flex flex-wrap gap-sm justify-end">
       {analyzeBtn}
       <button
+        type="button"
         onClick={exportPng}
-        className={cn(btnBase, 'border-2 border-violet bg-accent-bg text-violet font-bold')}
+        className={cn(
+          btnBase,
+          'min-h-[44px] border-2 border-violet bg-accent-bg text-violet font-bold',
+        )}
       >
         export png
       </button>
       <button
+        type="button"
         onClick={exportTxt}
-        className={cn(btnBase, 'border border-info bg-info-bg text-info font-medium')}
+        className={cn(btnBase, 'min-h-[44px] border border-info bg-info-bg text-info font-medium')}
       >
         export txt
       </button>

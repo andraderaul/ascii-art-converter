@@ -11,18 +11,18 @@ interface Props {
 
 const PROVIDERS: { value: AIProviderName; label: string }[] = [
   { value: 'anthropic', label: 'Anthropic (Claude)' },
-  { value: 'openai',    label: 'OpenAI (GPT-4o)' },
-  { value: 'gemini',    label: 'Google (Gemini)' },
+  { value: 'openai', label: 'OpenAI (GPT-4o)' },
+  { value: 'gemini', label: 'Google (Gemini)' },
 ]
 
 const inputCls = cn(
   'w-full bg-abyss border border-slate text-ghost font-mono text-sm rounded-xs',
-  '[padding:var(--input-padding)]'
+  '[padding:var(--input-padding)]',
 )
 
 const btnBase = cn(
   'font-mono tracking-wide rounded-xs cursor-pointer transition-all duration-fast',
-  '[padding:var(--btn-secondary-padding)] [font-size:var(--btn-secondary-size)]'
+  '[padding:var(--btn-secondary-padding)] [font-size:var(--btn-secondary-size)]',
 )
 
 export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Props) {
@@ -50,10 +50,9 @@ export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Prop
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <span className="text-violet font-bold tracking-wide text-sm">
-            ⚿ AI CONFIG
-          </span>
+          <span className="text-violet font-bold tracking-wide text-sm">⚿ AI CONFIG</span>
           <button
+            type="button"
             onClick={onClose}
             className="text-muted text-sm cursor-pointer bg-transparent border-none"
           >
@@ -62,25 +61,29 @@ export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Prop
         </div>
 
         <div className="flex flex-col gap-sm">
-          <label className="text-dim text-xs tracking-wide">
+          <label htmlFor="ai-provider" className="text-dim text-xs tracking-wide">
             PROVIDER
           </label>
           <select
+            id="ai-provider"
             value={provider}
             onChange={(e) => setProvider(e.target.value as AIProviderName)}
             className={cn(inputCls, 'cursor-pointer')}
           >
             {PROVIDERS.map((p) => (
-              <option key={p.value} value={p.value}>{p.label}</option>
+              <option key={p.value} value={p.value}>
+                {p.label}
+              </option>
             ))}
           </select>
         </div>
 
         <div className="flex flex-col gap-sm">
-          <label className="text-dim text-xs tracking-wide">
+          <label htmlFor="ai-key" className="text-dim text-xs tracking-wide">
             API KEY
           </label>
           <input
+            id="ai-key"
             type="password"
             value={key}
             onChange={(e) => setKey(e.target.value)}
@@ -96,6 +99,7 @@ export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Prop
         <div className="flex gap-sm justify-between">
           {current && (
             <button
+              type="button"
               onClick={handleRemove}
               className={cn(btnBase, 'border border-hot-pink bg-danger-bg text-hot-pink')}
             >
@@ -103,12 +107,13 @@ export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Prop
             </button>
           )}
           <button
+            type="button"
             onClick={handleSave}
             disabled={!key.trim()}
             className={cn(
               btnBase,
               'ml-auto border-2 border-violet bg-accent-bg text-violet font-bold',
-              'disabled:opacity-40 disabled:cursor-not-allowed'
+              'disabled:opacity-40 disabled:cursor-not-allowed',
             )}
           >
             save key

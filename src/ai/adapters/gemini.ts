@@ -34,7 +34,10 @@ export class GeminiAdapter {
     }
 
     // Gemini sometimes wraps JSON in ```json blocks
-    const cleaned = text.replace(/^```json\s*/m, '').replace(/\s*```$/m, '').trim()
+    const cleaned = text
+      .replace(/^```json\s*/m, '')
+      .replace(/\s*```$/m, '')
+      .trim()
     try {
       return JSON.parse(cleaned)
     } catch {

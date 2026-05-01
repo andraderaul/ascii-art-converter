@@ -1,5 +1,7 @@
 pre-commit:
   commands:
+    check:
+      run: npm run check
     test:
       run: npx vitest run
 

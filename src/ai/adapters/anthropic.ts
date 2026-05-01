@@ -22,13 +22,15 @@ export class AnthropicAdapter {
       response = await this.client.messages.create({
         model: 'claude-opus-4-7',
         max_tokens: 256,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: 'image/png', data: base64 } },
-            { type: 'text', text: PROMPT },
-          ],
-        }],
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: 'image/png', data: base64 } },
+              { type: 'text', text: PROMPT },
+            ],
+          },
+        ],
       })
     } catch (err) {
       const status = (err as { status?: number }).status

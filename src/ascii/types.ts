@@ -10,10 +10,10 @@ export interface ConversionSettings {
 }
 
 export const CHARSET_MAPS: Record<Charset, string> = {
-  simple:  ' .:-=+*#%@',
+  simple: ' .:-=+*#%@',
   complex: ' .^!*<&%$#@',
-  binary:  ' 01',
-  blocks:  ' ░▒▓█',
+  binary: ' 01',
+  blocks: ' ░▒▓█',
 }
 
 export interface AsciiCell {

@@ -16,19 +16,19 @@ interface Props {
 
 // Dynamic — computed from data at runtime, inline style required
 const THREAT_COLOR: Record<ThreatLevel, string> = {
-  LOW:      'var(--cyan)',
+  LOW: 'var(--cyan)',
   MODERATE: 'var(--electric)',
-  HIGH:     'var(--hot-pink)',
+  HIGH: 'var(--hot-pink)',
   CRITICAL: 'var(--hot-pink)',
-  UNKNOWN:  'var(--muted)',
+  UNKNOWN: 'var(--muted)',
 }
 
 const THREAT_BG: Record<ThreatLevel, string> = {
-  LOW:      'rgba(0,229,255,0.07)',
+  LOW: 'rgba(0,229,255,0.07)',
   MODERATE: 'rgba(255,230,0,0.07)',
-  HIGH:     'rgba(255,45,120,0.07)',
+  HIGH: 'rgba(255,45,120,0.07)',
   CRITICAL: 'rgba(255,45,120,0.12)',
-  UNKNOWN:  'rgba(107,107,154,0.07)',
+  UNKNOWN: 'rgba(107,107,154,0.07)',
 }
 
 export default function AnalysisModal({ state, onClose, onRetry }: Props) {
@@ -47,6 +47,7 @@ export default function AnalysisModal({ state, onClose, onRetry }: Props) {
           </span>
           {state.status !== 'loading' && (
             <button
+              type="button"
               onClick={onClose}
               className="text-muted text-sm cursor-pointer bg-transparent border-none"
             >
@@ -60,9 +61,7 @@ export default function AnalysisModal({ state, onClose, onRetry }: Props) {
             <span className="animate-pulse text-violet text-xs tracking-wider">
               ▸ SCANNING VISUAL FEED...
             </span>
-            <span className="text-muted text-xs">
-              interfacing with AI Provider
-            </span>
+            <span className="text-muted text-xs">interfacing with AI Provider</span>
           </div>
         )}
 
@@ -82,18 +81,17 @@ export default function AnalysisModal({ state, onClose, onRetry }: Props) {
                 style={{
                   color: THREAT_COLOR[state.analysis.threatLevel],
                   // textShadow has no Tailwind equivalent
-                  textShadow: state.analysis.threatLevel === 'CRITICAL'
-                    ? `0 0 8px ${THREAT_COLOR[state.analysis.threatLevel]}`
-                    : undefined,
+                  textShadow:
+                    state.analysis.threatLevel === 'CRITICAL'
+                      ? `0 0 8px ${THREAT_COLOR[state.analysis.threatLevel]}`
+                      : undefined,
                 }}
               >
                 {state.analysis.threatLevel}
               </span>
             </div>
 
-            <p className="text-ghost text-sm leading-normal m-0">
-              {state.analysis.description}
-            </p>
+            <p className="text-ghost text-sm leading-normal m-0">{state.analysis.description}</p>
 
             <div className="flex flex-wrap gap-xs">
               {state.analysis.tags.map((tag) => (
@@ -138,11 +136,12 @@ export default function AnalysisModal({ state, onClose, onRetry }: Props) {
             </span>
             {onRetry && (
               <button
+                type="button"
                 onClick={onRetry}
                 className={cn(
                   'self-start mt-sm font-mono cursor-pointer rounded-xs',
                   'border border-cyan bg-info-bg text-cyan',
-                  '[padding:var(--btn-secondary-padding)] [font-size:var(--btn-secondary-size)]'
+                  '[padding:var(--btn-secondary-padding)] [font-size:var(--btn-secondary-size)]',
                 )}
               >
                 retry

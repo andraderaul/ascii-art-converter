@@ -1,4 +1,4 @@
-import { ConversionSettings, ColorMode, Charset } from '../ascii/types'
+import type { Charset, ColorMode, ConversionSettings } from '../ascii/types'
 import { cn } from '../utils/cn'
 
 interface Props {
@@ -11,11 +11,7 @@ const BRIGHTNESS_RANGE = { min: 0.5, max: 2.0, step: 0.05 }
 const CONTRAST_RANGE = { min: 0.5, max: 3.0, step: 0.05 }
 
 function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="text-fg-muted text-xs tracking-wide uppercase">
-      {children}
-    </span>
-  )
+  return <span className="text-fg-muted text-xs tracking-wide uppercase">{children}</span>
 }
 
 function ToggleGroup<T extends string>({
@@ -31,13 +27,14 @@ function ToggleGroup<T extends string>({
     <div className="flex gap-xs flex-wrap">
       {options.map((opt) => (
         <button
+          type="button"
           key={opt}
           onClick={() => onChange(opt)}
           className={cn(
             'min-h-[44px] py-xs px-sm text-xs font-mono rounded-xs border cursor-pointer transition-all duration-fast',
             value === opt
               ? 'border-violet bg-accent-soft text-violet'
-              : 'border-base bg-transparent text-fg-muted'
+              : 'border-base bg-transparent text-fg-muted',
           )}
         >
           {opt}

@@ -1,16 +1,16 @@
 import { useCallback, useRef, useState } from 'react'
-import { ConversionSettings } from './ascii/types'
-import UploadZone from './components/upload-zone'
-import ControlPanel from './components/control-panel'
-import AsciiCanvas from './components/ascii-canvas'
-import DownloadBar from './components/download-bar'
-import ApiKeyModal from './components/api-key-modal'
-import AnalysisModal, { type AnalysisState } from './components/analysis-modal'
-import AboutModal from './components/about-modal'
-import ErrorBoundary from './components/error-boundary'
-import { useAIConfig } from './ai/use-ai-config'
 import { analyzeCanvas } from './ai/analysis-service'
 import { AuthError, QuotaError } from './ai/errors'
+import { useAIConfig } from './ai/use-ai-config'
+import type { ConversionSettings } from './ascii/types'
+import AboutModal from './components/about-modal'
+import AnalysisModal, { type AnalysisState } from './components/analysis-modal'
+import ApiKeyModal from './components/api-key-modal'
+import AsciiCanvas from './components/ascii-canvas'
+import ControlPanel from './components/control-panel'
+import DownloadBar from './components/download-bar'
+import ErrorBoundary from './components/error-boundary'
+import UploadZone from './components/upload-zone'
 
 const DEFAULT_SETTINGS: ConversionSettings = {
   resolution: 12,
@@ -77,6 +77,7 @@ export default function App() {
         <span className="text-fg-muted text-xs">image → ascii art</span>
         <div className="ml-auto flex items-center gap-xs">
           <button
+            type="button"
             onClick={() => setAboutOpen(true)}
             className="font-mono tracking-wide cursor-pointer transition-all"
             style={{
@@ -91,6 +92,7 @@ export default function App() {
             about
           </button>
           <button
+            type="button"
             onClick={() => setApiKeyModalOpen(true)}
             className="font-mono tracking-wide cursor-pointer transition-all"
             style={{

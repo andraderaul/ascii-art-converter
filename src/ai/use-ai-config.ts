@@ -16,14 +16,18 @@ export function useAIConfig() {
   function save(next: AIConfig) {
     try {
       localStorage.setItem('ai_config', JSON.stringify(next))
-    } catch { /* localStorage unavailable */ }
+    } catch {
+      /* localStorage unavailable */
+    }
     setConfig(next)
   }
 
   function remove() {
     try {
       localStorage.removeItem('ai_config')
-    } catch { /* localStorage unavailable */ }
+    } catch {
+      /* localStorage unavailable */
+    }
     setConfig(null)
   }
 

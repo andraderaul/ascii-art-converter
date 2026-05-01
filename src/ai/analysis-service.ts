@@ -1,5 +1,5 @@
-import type { AIConfig, Analysis, ThreatLevel } from './types'
 import { ParseError } from './errors'
+import type { AIConfig, Analysis, ThreatLevel } from './types'
 
 const THREAT_LEVELS: ThreatLevel[] = ['LOW', 'MODERATE', 'HIGH', 'CRITICAL', 'UNKNOWN']
 

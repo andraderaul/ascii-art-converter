@@ -1,4 +1,4 @@
-import { AsciiCell, ConversionSettings } from './types'
+import type { AsciiCell, ConversionSettings } from './types'
 
 export interface RenderInstruction {
   char: string
@@ -9,10 +9,10 @@ export interface RenderInstruction {
 
 const COLOR_MODE_COLORS: Record<string, string> = {
   matrix: '#00ff41',
-  bw:     '#c8c8e0',
-  retro:  '#ffe600',
-  sepia:  '#c4a46b',
-  neon:   '#ff2d78',
+  bw: '#c8c8e0',
+  retro: '#ffe600',
+  sepia: '#c4a46b',
+  neon: '#ff2d78',
 }
 
 export const MONOSPACE_CHAR_WIDTH_RATIO = 0.6
@@ -21,7 +21,7 @@ export const MONOSPACE_CHAR_WIDTH_RATIO = 0.6
 // See ADR 0005 for the pure/impure boundary rationale.
 export function computeFrame(
   cells: AsciiCell[][],
-  settings: Pick<ConversionSettings, 'resolution' | 'colorMode'>
+  settings: Pick<ConversionSettings, 'resolution' | 'colorMode'>,
 ): { instructions: RenderInstruction[]; asciiRows: string[] } {
   const { resolution, colorMode } = settings
   const charW = resolution * MONOSPACE_CHAR_WIDTH_RATIO
@@ -34,9 +34,10 @@ export function computeFrame(
     let line = ''
     for (let col = 0; col < cells[row].length; col++) {
       const cell = cells[row][col]
-      const color = colorMode === 'original'
-        ? `rgb(${cell.r},${cell.g},${cell.b})`
-        : COLOR_MODE_COLORS[colorMode] ?? '#c8c8e0'
+      const color =
+        colorMode === 'original'
+          ? `rgb(${cell.r},${cell.g},${cell.b})`
+          : (COLOR_MODE_COLORS[colorMode] ?? '#c8c8e0')
       instructions.push({ char: cell.char, x: col * charW, y: row * charH, color })
       line += cell.char
     }
@@ -50,7 +51,7 @@ export function computeFrame(
 export function paintFrame(
   ctx: CanvasRenderingContext2D,
   instructions: RenderInstruction[],
-  resolution: number
+  resolution: number,
 ): void {
   const { width: W, height: H } = ctx.canvas
   ctx.fillStyle = '#0a0a0f'
