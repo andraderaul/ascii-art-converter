@@ -7,7 +7,8 @@ export function resizeImage(img: HTMLImageElement): HTMLCanvasElement | HTMLImag
   const canvas = document.createElement('canvas')
   canvas.width = MAX_WIDTH
   canvas.height = Math.round(img.naturalHeight * ratio)
-  const ctx = canvas.getContext('2d')!
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return img
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
 
   return canvas

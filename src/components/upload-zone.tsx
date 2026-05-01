@@ -14,6 +14,7 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
   const [dragging, setDragging] = useState(false)
   const [mode, setMode] = useState<SourceMode>('upload')
   const [live, setLive] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
   const stopWebcam = useCallback(() => {
@@ -35,6 +36,7 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
       video.playsInline = true
       video.muted = true
       await video.play()
+      setError(null)
       setLive(true)
       onVideoStream(video)
     } catch {
@@ -42,6 +44,7 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
       setMode('upload')
       setLive(false)
       onVideoStream(null)
+      setError('Camera access denied')
     }
   }, [onVideoStream])
 
@@ -49,6 +52,7 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
     (next: SourceMode) => {
       if (next === mode) return
       if (mode === 'webcam') stopWebcam()
+      setError(null)
       setMode(next)
       if (next === 'webcam') startWebcam()
     },
@@ -63,7 +67,12 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
       const url = URL.createObjectURL(file)
       const img = new Image()
       img.onload = () => {
+        setError(null)
         onImage(img)
+        URL.revokeObjectURL(url)
+      }
+      img.onerror = () => {
+        setError('Failed to load image')
         URL.revokeObjectURL(url)
       }
       img.src = url
@@ -166,6 +175,8 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
           )}
         </div>
       )}
+
+      {error && <span className="text-hot-pink text-xs tracking-wide">✕ {error}</span>}
     </div>
   )
 }

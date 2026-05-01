@@ -22,8 +22,9 @@ function renderFrame(
   settings: ConversionSettings,
   onConverted?: (rows: string[]) => void,
 ): void {
-  const ctx = canvasEl.getContext('2d')!
-  const hiddenCtx = hiddenEl.getContext('2d')!
+  const ctx = canvasEl.getContext('2d')
+  const hiddenCtx = hiddenEl.getContext('2d')
+  if (!ctx || !hiddenCtx) return
 
   const { resolution, brightness, contrast, charset } = settings
   const charW = resolution * MONOSPACE_CHAR_WIDTH_RATIO
@@ -78,7 +79,7 @@ export default function AsciiCanvas({
       if (now - lastTime < LIVE_SOURCE_FRAME_INTERVAL_MS) return
       lastTime = now
       if (video.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
-        renderFrame(video, canvas!, hiddenRef.current, settings)
+        renderFrame(video, canvas, hiddenRef.current, settings)
       }
     }
 
