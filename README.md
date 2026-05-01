@@ -2,6 +2,8 @@
 
 A client-side tool that converts images and webcam into interactive ASCII art, with real-time preview and export.
 
+**[Live demo →](https://ascii-art-converter-tawny.vercel.app/)**
+
 No backend server. Everything runs in the browser. AI analysis is optional — it uses your own API key, stored locally, never sent to any server we operate.
 
 ## Features
@@ -125,6 +127,17 @@ Key artifacts of that process:
 - **[`docs/adr/`](docs/adr/)** — architectural decision records capturing trade-offs at the time decisions were made, including which alternatives were rejected and why
 
 The workflow treats AI as a collaborative pair: each architectural decision goes through a grilling session to surface trade-offs, the result is captured in an ADR, and the domain language is kept consistent via CONTEXT.md. Code is generated from that shared understanding, not the other way around.
+
+## Contributing
+
+1. Fork the repo and create a branch from `main` (`git checkout -b feat/your-idea`)
+2. Make your changes — run `npm run test` and `npm run check` before pushing
+3. Open a PR with a short description of what and why
+
+A few things to keep consistent:
+- Use the domain terms from [`CONTEXT.md`](CONTEXT.md) in code, comments, and PR descriptions
+- If your change involves a significant design decision, add an ADR to [`docs/adr/`](docs/adr/)
+- Keep `CLAUDE.md` up to date if you change the architecture
 
 ## License
 
