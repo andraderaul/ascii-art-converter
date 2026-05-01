@@ -28,16 +28,34 @@ describe('resizeImage', () => {
     const { resizeImage } = await import('./image-utils')
     const img = { naturalWidth: 1600, naturalHeight: 900 } as HTMLImageElement
 
-    vi.stubGlobal('Image', class {
-      src = ''
-      width = 0
-      height = 0
-    })
-
     const result = resizeImage(img)
     expect(result).not.toBe(img)
     expect(mockCanvas.width).toBe(800)
     expect(mockCanvas.height).toBe(450)
+
+    vi.unstubAllGlobals()
+  })
+
+  it('returns the canvas directly — no async Image decode (regression: all-black bug)', async () => {
+    const mockCtx = { drawImage: vi.fn() }
+    const mockCanvas = {
+      width: 0,
+      height: 0,
+      getContext: vi.fn(() => mockCtx),
+      toDataURL: vi.fn(),
+    }
+    vi.stubGlobal('document', { createElement: vi.fn(() => mockCanvas) })
+    const ImageSpy = vi.fn()
+    vi.stubGlobal('Image', ImageSpy)
+
+    const { resizeImage } = await import('./image-utils')
+    const img = { naturalWidth: 1600, naturalHeight: 900 } as HTMLImageElement
+
+    const result = resizeImage(img)
+
+    expect(result).toBe(mockCanvas)
+    expect(ImageSpy).not.toHaveBeenCalled()
+    expect(mockCanvas.toDataURL).not.toHaveBeenCalled()
 
     vi.unstubAllGlobals()
   })
