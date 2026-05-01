@@ -6,8 +6,6 @@ import type { ConversionSettings } from '../ascii/types'
 
 const LIVE_SOURCE_TARGET_FPS = 15
 const LIVE_SOURCE_FRAME_INTERVAL_MS = 1000 / LIVE_SOURCE_TARGET_FPS
-const CANVAS_WIDTH = 800
-const CANVAS_HEIGHT = 600
 
 interface Props {
   sourceImage: HTMLImageElement | null
@@ -52,11 +50,18 @@ export default function AsciiCanvas({
   canvasRef,
 }: Props) {
   const hiddenRef = useRef<HTMLCanvasElement>(document.createElement('canvas'))
+  const renderStaticRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas || !sourceImage) return
-    renderFrame(resizeImage(sourceImage), canvas, hiddenRef.current, settings, onConverted)
+    if (!canvas || !sourceImage) {
+      renderStaticRef.current = null
+      return
+    }
+    const fn = () =>
+      renderFrame(resizeImage(sourceImage), canvas, hiddenRef.current, settings, onConverted)
+    renderStaticRef.current = fn
+    fn()
   }, [sourceImage, settings, onConverted, canvasRef])
 
   // rAF loop throttled to ~15fps — see ADR 0002 for Web Worker upgrade path
@@ -81,12 +86,24 @@ export default function AsciiCanvas({
     return () => cancelAnimationFrame(rafId)
   }, [sourceVideo, settings, canvasRef])
 
+  // Sync canvas pixel buffer to display size — eliminates CSS scaling distortion
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const observer = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect
+      if (width === 0 || height === 0) return
+      canvas.width = Math.floor(width)
+      canvas.height = Math.floor(height)
+      renderStaticRef.current?.()
+    })
+
+    observer.observe(canvas)
+    return () => observer.disconnect()
+  }, [canvasRef])
+
   return (
-    <canvas
-      ref={canvasRef}
-      width={CANVAS_WIDTH}
-      height={CANVAS_HEIGHT}
-      className="w-full h-full block bg-bg [image-rendering:pixelated]"
-    />
+    <canvas ref={canvasRef} className="w-full h-full block bg-bg [image-rendering:pixelated]" />
   )
 }
