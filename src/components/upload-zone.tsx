@@ -7,13 +7,15 @@ type SourceMode = 'upload' | 'webcam'
 interface Props {
   onImage: (img: HTMLImageElement) => void
   onVideoStream: (video: HTMLVideoElement | null) => void
+  onFacingModeChange?: (isMirrored: boolean) => void
 }
 
-export default function UploadZone({ onImage, onVideoStream }: Props) {
+export default function UploadZone({ onImage, onVideoStream, onFacingModeChange }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
   const [mode, setMode] = useState<SourceMode>('upload')
   const [live, setLive] = useState(false)
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user')
   const [error, setError] = useState<string | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
@@ -26,27 +28,44 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
     onVideoStream(null)
   }, [onVideoStream])
 
-  const startWebcam = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-      streamRef.current = stream
-      const video = document.createElement('video')
-      video.srcObject = stream
-      video.autoplay = true
-      video.playsInline = true
-      video.muted = true
-      await video.play()
-      setError(null)
-      setLive(true)
-      onVideoStream(video)
-    } catch {
-      streamRef.current = null
-      setMode('upload')
-      setLive(false)
-      onVideoStream(null)
-      setError('Camera access denied')
-    }
-  }, [onVideoStream])
+  const startWebcam = useCallback(
+    async (facing: 'user' | 'environment' = 'user') => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: facing },
+        })
+        streamRef.current = stream
+        const video = document.createElement('video')
+        video.srcObject = stream
+        video.autoplay = true
+        video.playsInline = true
+        video.muted = true
+        await video.play()
+        setError(null)
+        setLive(true)
+        setFacingMode(facing)
+        onVideoStream(video)
+        onFacingModeChange?.(facing === 'user')
+      } catch {
+        streamRef.current = null
+        setMode('upload')
+        setLive(false)
+        setFacingMode('user')
+        onVideoStream(null)
+        setError('Camera access denied')
+      }
+    },
+    [onVideoStream, onFacingModeChange],
+  )
+
+  const switchCamera = useCallback(async () => {
+    const next: 'user' | 'environment' = facingMode === 'user' ? 'environment' : 'user'
+    streamRef.current?.getTracks().forEach((t) => {
+      t.stop()
+    })
+    streamRef.current = null
+    await startWebcam(next)
+  }, [facingMode, startWebcam])
 
   const switchMode = useCallback(
     (next: SourceMode) => {
@@ -59,7 +78,7 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
       setError(null)
       setMode(next)
       if (next === 'webcam') {
-        void startWebcam()
+        void startWebcam('user')
       }
     },
     [mode, stopWebcam, startWebcam],
@@ -184,6 +203,15 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
             <span className="text-fg-muted text-xs text-center">
               adjust controls to tune the feed
             </span>
+          )}
+          {live && isTouchDevice && (
+            <button
+              type="button"
+              onClick={() => void switchCamera()}
+              className="min-h-[44px] px-sm py-2xs text-xs font-mono tracking-wide rounded-xs border border-base bg-transparent text-fg-muted cursor-pointer transition-all duration-fast"
+            >
+              ⇄ {facingMode === 'user' ? 'front' : 'rear'}
+            </button>
           )}
         </div>
       )}

@@ -13,6 +13,7 @@ interface Props {
   settings: ConversionSettings
   onConverted: (rows: string[]) => void
   canvasRef: RefObject<HTMLCanvasElement>
+  isMirrored?: boolean
 }
 
 function renderFrame(
@@ -53,6 +54,7 @@ export default function AsciiCanvas({
   settings,
   onConverted,
   canvasRef,
+  isMirrored,
 }: Props) {
   const hiddenRef = useRef<HTMLCanvasElement>(document.createElement('canvas'))
   const renderStaticRef = useRef<(() => void) | null>(null)
@@ -117,6 +119,10 @@ export default function AsciiCanvas({
   }, [canvasRef])
 
   return (
-    <canvas ref={canvasRef} className="w-full h-full block bg-bg [image-rendering:pixelated]" />
+    <canvas
+      ref={canvasRef}
+      className="w-full h-full block bg-bg [image-rendering:pixelated]"
+      style={isMirrored ? { transform: 'scaleX(-1)' } : undefined}
+    />
   )
 }

@@ -25,6 +25,7 @@ export default function App() {
   const [sourceImage, setSourceImage] = useState<HTMLImageElement | null>(null)
   const [sourceVideo, setSourceVideo] = useState<HTMLVideoElement | null>(null)
   const [asciiRows, setAsciiRows] = useState<string[]>([])
+  const [isMirrored, setIsMirrored] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const { config: aiConfig, save: saveAiConfig, remove: removeAiConfig } = useAIConfig()
@@ -44,6 +45,13 @@ export default function App() {
   const handleVideoStream = useCallback((video: HTMLVideoElement | null) => {
     setSourceImage(null)
     setSourceVideo(video)
+    if (!video) {
+      setIsMirrored(false)
+    }
+  }, [])
+
+  const handleFacingModeChange = useCallback((mirrored: boolean) => {
+    setIsMirrored(mirrored)
   }, [])
 
   async function handleAnalyze() {
@@ -114,7 +122,11 @@ export default function App() {
 
       <div className="flex-1 grid grid-cols-1 [grid-template-rows:1fr_auto] sm:grid-cols-[280px_1fr] sm:[grid-template-rows:1fr] overflow-hidden">
         <aside className="border-r border-base p-md overflow-y-auto flex flex-col gap-lg max-h-[40vh] sm:max-h-none order-last sm:order-first">
-          <UploadZone onImage={handleImage} onVideoStream={handleVideoStream} />
+          <UploadZone
+            onImage={handleImage}
+            onVideoStream={handleVideoStream}
+            onFacingModeChange={handleFacingModeChange}
+          />
           <div className="w-full h-px bg-slate" />
           <ControlPanel settings={settings} onChange={patchSettings} />
         </aside>
@@ -135,6 +147,7 @@ export default function App() {
                   settings={settings}
                   onConverted={setAsciiRows}
                   canvasRef={canvasRef}
+                  isMirrored={isMirrored}
                 />
               ) : (
                 <div className="h-full flex items-center justify-center text-fg-muted text-sm">
