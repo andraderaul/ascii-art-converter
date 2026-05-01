@@ -34,12 +34,24 @@ const THREAT_BG: Record<ThreatLevel, string> = {
 export default function AnalysisModal({ state, onClose, onRetry }: Props) {
   return (
     <div
+      role="presentation"
       className="fixed inset-0 z-50 flex items-center justify-center bg-void/90"
-      onClick={state.status !== 'loading' ? onClose : undefined}
     >
+      {state.status !== 'loading' && (
+        <button
+          type="button"
+          aria-label="Close"
+          className="absolute inset-0 w-full h-full cursor-default"
+          style={{ background: 'none', border: 'none' }}
+          onClick={onClose}
+          tabIndex={-1}
+        />
+      )}
       <div
-        className="w-full max-w-sm flex flex-col gap-md bg-abyss border border-slate border-t-2 border-t-violet p-xl min-h-[220px]"
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Neural scan results"
+        className="relative w-full max-w-sm flex flex-col gap-md bg-abyss border border-slate border-t-2 border-t-violet p-xl min-h-[220px]"
       >
         <div className="flex items-center justify-between">
           <span className="text-violet font-bold tracking-wider text-xs">

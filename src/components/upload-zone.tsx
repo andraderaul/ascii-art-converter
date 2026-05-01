@@ -120,8 +120,8 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
       </div>
 
       {mode === 'upload' ? (
-        <div
-          onClick={() => inputRef.current?.click()}
+        <label
+          htmlFor="file-upload"
           onDrop={onDrop}
           onDragOver={(e) => {
             e.preventDefault()
@@ -139,13 +139,14 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
           </span>
           <span className="text-fg-muted text-xs">jpg · png · webp</span>
           <input
+            id="file-upload"
             ref={inputRef}
             type="file"
             accept="image/jpeg,image/png,image/webp"
             className="hidden"
             onChange={onFileChange}
           />
-        </div>
+        </label>
       ) : (
         <div
           className={cn(

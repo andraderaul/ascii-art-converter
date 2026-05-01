@@ -42,12 +42,22 @@ export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Prop
 
   return (
     <div
+      role="presentation"
       className="fixed inset-0 z-50 flex items-center justify-center bg-void/85"
-      onClick={onClose}
     >
+      <button
+        type="button"
+        aria-label="Close"
+        className="absolute inset-0 w-full h-full cursor-default"
+        style={{ background: 'none', border: 'none' }}
+        onClick={onClose}
+        tabIndex={-1}
+      />
       <div
-        className="w-full max-w-sm flex flex-col gap-md bg-abyss border border-slate border-t-2 border-t-violet p-xl"
-        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="AI configuration"
+        className="relative w-full max-w-sm flex flex-col gap-md bg-abyss border border-slate border-t-2 border-t-violet p-xl"
       >
         <div className="flex items-center justify-between">
           <span className="text-violet font-bold tracking-wide text-sm">⚿ AI CONFIG</span>

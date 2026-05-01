@@ -5,14 +5,24 @@ interface Props {
 export default function AboutModal({ onClose }: Props) {
   return (
     <div
+      role="presentation"
       className="fixed inset-0 flex items-center justify-center z-50"
       style={{ background: 'rgba(10,10,15,0.85)' }}
-      onClick={onClose}
     >
+      <button
+        type="button"
+        aria-label="Close"
+        className="absolute inset-0 w-full h-full cursor-default"
+        style={{ background: 'none', border: 'none' }}
+        onClick={onClose}
+        tabIndex={-1}
+      />
       <div
-        className="flex flex-col gap-lg p-xl rounded-sm border border-base"
+        role="dialog"
+        aria-modal="true"
+        aria-label="About"
+        className="relative flex flex-col gap-lg p-xl rounded-sm border border-base"
         style={{ background: 'var(--bg-elevated)', maxWidth: 480, width: '90%' }}
-        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
           <span
