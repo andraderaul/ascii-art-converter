@@ -1,5 +1,6 @@
 import type { RefObject } from 'react'
 import { cn } from '../utils/cn'
+import { isTouchDevice } from '../utils/device'
 
 interface Props {
   canvasRef: RefObject<HTMLCanvasElement | null>
@@ -49,8 +50,6 @@ export default function DownloadBar({
     '[font-size:var(--btn-secondary-size)]',
     'font-mono tracking-wide rounded-xs cursor-pointer transition-all duration-fast',
   )
-
-  const isTouchDevice = typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0
 
   const analyzeBtn = hasAiConfig ? (
     <button

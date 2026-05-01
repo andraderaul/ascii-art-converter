@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '../utils/cn'
+import { isTouchDevice } from '../utils/device'
 
 type SourceMode = 'upload' | 'webcam'
 
@@ -7,8 +8,6 @@ interface Props {
   onImage: (img: HTMLImageElement) => void
   onVideoStream: (video: HTMLVideoElement | null) => void
 }
-
-const isTouchDevice = typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0
 
 export default function UploadZone({ onImage, onVideoStream }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)

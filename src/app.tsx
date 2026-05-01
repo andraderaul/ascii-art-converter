@@ -12,12 +12,14 @@ import DownloadBar from './components/download-bar'
 import ErrorBoundary from './components/error-boundary'
 import UploadZone from './components/upload-zone'
 
+import { isTouchDevice } from './utils/device'
+
 const DEFAULT_SETTINGS: ConversionSettings = {
-  resolution: 12,
+  resolution: isTouchDevice ? 16 : 12,
   brightness: 1.0,
   contrast: 1.0,
   colorMode: 'matrix',
-  charset: 'complex',
+  charset: isTouchDevice ? 'simple' : 'complex',
 }
 
 export default function App() {
