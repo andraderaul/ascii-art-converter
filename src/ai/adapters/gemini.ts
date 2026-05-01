@@ -28,8 +28,12 @@ export class GeminiAdapter {
     } catch (err) {
       const msg = (err as { message?: string }).message ?? ''
       const status = (err as { status?: number }).status
-      if (msg.includes('API_KEY_INVALID') || status === 401 || status === 403) throw new AuthError()
-      if (status === 429 || msg.includes('RESOURCE_EXHAUSTED')) throw new QuotaError()
+      if (msg.includes('API_KEY_INVALID') || status === 401 || status === 403) {
+        throw new AuthError()
+      }
+      if (status === 429 || msg.includes('RESOURCE_EXHAUSTED')) {
+        throw new QuotaError()
+      }
       throw new ParseError()
     }
 

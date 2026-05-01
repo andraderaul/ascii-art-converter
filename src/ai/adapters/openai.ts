@@ -34,8 +34,12 @@ export class OpenAIAdapter {
       })
     } catch (err) {
       const status = (err as { status?: number }).status
-      if (status === 401 || status === 403) throw new AuthError()
-      if (status === 429) throw new QuotaError()
+      if (status === 401 || status === 403) {
+        throw new AuthError()
+      }
+      if (status === 429) {
+        throw new QuotaError()
+      }
       throw new ParseError()
     }
 

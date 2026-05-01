@@ -48,7 +48,9 @@ export default function App() {
 
   async function handleAnalyze() {
     const canvas = canvasRef.current
-    if (!canvas || !aiConfig) return
+    if (!canvas || !aiConfig) {
+      return
+    }
 
     const dataUrl = canvas.toDataURL('image/png')
     setAnalysisState({ status: 'loading' })
@@ -111,7 +113,7 @@ export default function App() {
       </header>
 
       <div className="flex-1 grid grid-cols-1 [grid-template-rows:auto_1fr] sm:grid-cols-[280px_1fr] sm:[grid-template-rows:1fr] overflow-hidden">
-        <aside className="border-r border-base p-md overflow-y-auto flex flex-col gap-lg">
+        <aside className="border-r border-base p-md overflow-y-auto flex flex-col gap-lg max-h-[40vh] sm:max-h-none order-last sm:order-first">
           <UploadZone onImage={handleImage} onVideoStream={handleVideoStream} />
           <div className="w-full h-px bg-slate" />
           <ControlPanel settings={settings} onChange={patchSettings} />

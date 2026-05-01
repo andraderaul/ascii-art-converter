@@ -19,7 +19,9 @@ export default function DownloadBar({
 }: Props) {
   function exportPng() {
     const canvas = canvasRef.current
-    if (!canvas) return
+    if (!canvas) {
+      return
+    }
     const a = document.createElement('a')
     a.href = canvas.toDataURL('image/png')
     a.download = 'ascii-art.png'
@@ -27,7 +29,9 @@ export default function DownloadBar({
   }
 
   function exportTxt() {
-    if (!asciiRows.length) return
+    if (!asciiRows.length) {
+      return
+    }
     const blob = new Blob([asciiRows.join('\n')], { type: 'text/plain' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
@@ -38,7 +42,9 @@ export default function DownloadBar({
 
   function capture() {
     const canvas = canvasRef.current
-    if (!canvas) return
+    if (!canvas) {
+      return
+    }
     const a = document.createElement('a')
     a.href = canvas.toDataURL('image/png')
     a.download = `ascii-capture-${Date.now()}.png`

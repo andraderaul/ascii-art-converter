@@ -50,11 +50,17 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
 
   const switchMode = useCallback(
     (next: SourceMode) => {
-      if (next === mode) return
-      if (mode === 'webcam') stopWebcam()
+      if (next === mode) {
+        return
+      }
+      if (mode === 'webcam') {
+        stopWebcam()
+      }
       setError(null)
       setMode(next)
-      if (next === 'webcam') startWebcam()
+      if (next === 'webcam') {
+        startWebcam()
+      }
     },
     [mode, stopWebcam, startWebcam],
   )
@@ -63,7 +69,9 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
 
   const load = useCallback(
     (file: File) => {
-      if (!file.type.startsWith('image/')) return
+      if (!file.type.startsWith('image/')) {
+        return
+      }
       const url = URL.createObjectURL(file)
       const img = new Image()
       img.onload = () => {
@@ -85,7 +93,9 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
       e.preventDefault()
       setDragging(false)
       const file = e.dataTransfer.files[0]
-      if (file) load(file)
+      if (file) {
+        load(file)
+      }
     },
     [load],
   )
@@ -93,7 +103,9 @@ export default function UploadZone({ onImage, onVideoStream }: Props) {
   const onFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0]
-      if (file) load(file)
+      if (file) {
+        load(file)
+      }
     },
     [load],
   )

@@ -24,7 +24,9 @@ function renderFrame(
 ): void {
   const ctx = canvasEl.getContext('2d')
   const hiddenCtx = hiddenEl.getContext('2d')
-  if (!ctx || !hiddenCtx) return
+  if (!ctx || !hiddenCtx) {
+    return
+  }
 
   const { resolution, brightness, contrast, charset } = settings
   const charW = resolution * MONOSPACE_CHAR_WIDTH_RATIO
@@ -32,7 +34,9 @@ function renderFrame(
   const cols = Math.floor(canvasEl.width / charW)
   const rows = Math.floor(canvasEl.height / charH)
 
-  if (cols < 1 || rows < 1) return
+  if (cols < 1 || rows < 1) {
+    return
+  }
 
   hiddenEl.width = cols
   hiddenEl.height = rows
@@ -68,15 +72,19 @@ export default function AsciiCanvas({
   // rAF loop throttled to ~15fps — see ADR 0002 for Web Worker upgrade path
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas || !sourceVideo) return
+    if (!canvas || !sourceVideo) {
+      return
+    }
 
     const video = sourceVideo
     let rafId: number
     let lastTime = 0
 
-    function loop(now: number) {
+    const loop = (now: number) => {
       rafId = requestAnimationFrame(loop)
-      if (now - lastTime < LIVE_SOURCE_FRAME_INTERVAL_MS) return
+      if (now - lastTime < LIVE_SOURCE_FRAME_INTERVAL_MS) {
+        return
+      }
       lastTime = now
       if (video.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
         renderFrame(video, canvas, hiddenRef.current, settings)
@@ -90,11 +98,15 @@ export default function AsciiCanvas({
   // Sync canvas pixel buffer to display size — eliminates CSS scaling distortion
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    if (!canvas) {
+      return
+    }
 
     const observer = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect
-      if (width === 0 || height === 0) return
+      if (width === 0 || height === 0) {
+        return
+      }
       canvas.width = Math.floor(width)
       canvas.height = Math.floor(height)
       renderStaticRef.current?.()
