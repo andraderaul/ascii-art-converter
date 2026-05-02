@@ -32,6 +32,7 @@ export default function Slider({
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
+        style={{ touchAction: 'pan-y' }}
       />
     </div>
   )
