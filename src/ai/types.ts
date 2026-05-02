@@ -16,3 +16,10 @@ export interface Analysis {
 export interface AIProvider {
   analyze(imageBase64: string): Promise<unknown>
 }
+
+export type AnalysisState =
+  | { status: 'loading' }
+  | { status: 'success'; analysis: Analysis }
+  | { status: 'auth-error' }
+  | { status: 'parse-error' }
+  | { status: 'quota-error' }

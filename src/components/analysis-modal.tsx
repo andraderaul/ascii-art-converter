@@ -1,12 +1,5 @@
-import type { Analysis, ThreatLevel } from '../ai/types'
+import type { AnalysisState, ThreatLevel } from '../ai/types'
 import { cn } from '../utils/cn'
-
-type AnalysisState =
-  | { status: 'loading' }
-  | { status: 'success'; analysis: Analysis }
-  | { status: 'auth-error' }
-  | { status: 'parse-error' }
-  | { status: 'quota-error' }
 
 interface Props {
   state: AnalysisState
@@ -165,5 +158,3 @@ export default function AnalysisModal({ state, onClose, onRetry }: Props) {
     </div>
   )
 }
-
-export type { AnalysisState }
