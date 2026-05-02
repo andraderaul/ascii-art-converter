@@ -1,4 +1,1 @@
 import '@testing-library/jest-dom'
-
-// Required for React 18 to flush async state updates in tests
-globalThis.IS_REACT_ACT_ENVIRONMENT = true
