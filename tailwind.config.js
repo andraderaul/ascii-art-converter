@@ -40,6 +40,7 @@ export default {
         'accent-soft': 'var(--bg-accent-soft)',
         'danger-ghost': 'var(--bg-danger-ghost)',
         'info-ghost': 'var(--bg-info-ghost)',
+        'modal-overlay': 'var(--bg-modal-overlay)',
         // Semantic backgrounds
         'accent-bg': 'var(--color-accent-bg)',
         'info-bg': 'var(--color-info-bg)',
