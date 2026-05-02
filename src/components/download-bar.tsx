@@ -1,6 +1,6 @@
 import type { RefObject } from 'react'
-import { cn } from '../utils/cn'
 import { isTouchDevice } from '../utils/device'
+import Button from './ui/button'
 
 interface Props {
   canvasRef: RefObject<HTMLCanvasElement | null>
@@ -52,35 +52,19 @@ export default function DownloadBar({
     triggerDownload(canvas, `ascii-capture-${Date.now()}.png`)
   }
 
-  const btnBase = cn(
-    'py-[10px] px-xs sm:[padding:var(--btn-secondary-padding)]',
-    '[font-size:var(--btn-secondary-size)]',
-    'font-mono tracking-wide rounded-xs cursor-pointer transition-all duration-fast',
-    'flex-1 sm:flex-none min-h-[44px]',
-  )
-
   const analyzeBtn = hasAiConfig ? (
-    <button
-      type="button"
-      onClick={onAnalyze}
-      className={cn(btnBase, 'border border-violet bg-accent-bg text-violet')}
-      style={{ borderColor: 'var(--violet)', background: 'var(--bg-accent-ghost)' }}
-    >
+    <Button variant="analyze" onClick={onAnalyze} className="flex-1 sm:flex-none">
       {isTouchDevice ? '◈ analyze' : '◈ scan & analyze'}
-    </button>
+    </Button>
   ) : null
 
   if (isLive) {
     return (
       <div className="flex gap-xs sm:gap-sm sm:justify-end">
         {analyzeBtn}
-        <button
-          type="button"
-          onClick={capture}
-          className={cn(btnBase, 'border border-hot-pink bg-danger-ghost text-hot-pink font-bold')}
-        >
+        <Button variant="danger" onClick={capture} className="flex-1 sm:flex-none">
           ◎ capture
-        </button>
+        </Button>
       </div>
     )
   }
@@ -88,20 +72,12 @@ export default function DownloadBar({
   return (
     <div className="flex gap-xs sm:gap-sm sm:justify-end">
       {analyzeBtn}
-      <button
-        type="button"
-        onClick={exportPng}
-        className={cn(btnBase, 'border-2 border-violet bg-accent-bg text-violet font-bold')}
-      >
+      <Button variant="primary" onClick={exportPng} className="flex-1 sm:flex-none">
         export png
-      </button>
-      <button
-        type="button"
-        onClick={exportTxt}
-        className={cn(btnBase, 'border border-info bg-info-bg text-info font-medium')}
-      >
+      </Button>
+      <Button variant="secondary" onClick={exportTxt} className="flex-1 sm:flex-none">
         export txt
-      </button>
+      </Button>
     </div>
   )
 }

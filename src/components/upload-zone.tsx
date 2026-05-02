@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react'
 import { useWebcamState } from '../hooks/use-webcam-state'
 import { cn } from '../utils/cn'
 import { isTouchDevice } from '../utils/device'
+import Button from './ui/button'
 import ToggleGroup from './ui/toggle-group'
 
 interface Props {
@@ -120,13 +121,9 @@ export default function UploadZone({ onImage, onVideoStream, onFacingModeChange 
             </span>
           )}
           {live && isTouchDevice && (
-            <button
-              type="button"
-              onClick={() => void switchCamera()}
-              className="min-h-[44px] px-sm py-2xs text-xs font-mono tracking-wide rounded-xs border border-base bg-transparent text-fg-muted cursor-pointer transition-all duration-fast"
-            >
+            <Button variant="ghost" onClick={() => void switchCamera()} className="px-sm py-2xs">
               ⇄ {facingMode === 'user' ? 'front' : 'rear'}
-            </button>
+            </Button>
           )}
         </div>
       )}

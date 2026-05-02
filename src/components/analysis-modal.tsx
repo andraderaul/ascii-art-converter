@@ -1,5 +1,5 @@
 import type { AnalysisState, ThreatLevel } from '../ai/types'
-import { cn } from '../utils/cn'
+import Button from './ui/button'
 import Modal from './ui/modal'
 
 interface Props {
@@ -112,17 +112,9 @@ export default function AnalysisModal({ state, onClose, onRetry }: Props) {
             Analysis feed returned unexpected data. No threat assessment available.
           </span>
           {onRetry && (
-            <button
-              type="button"
-              onClick={onRetry}
-              className={cn(
-                'self-start mt-sm font-mono cursor-pointer rounded-xs',
-                'border border-cyan bg-info-bg text-cyan',
-                '[padding:var(--btn-secondary-padding)] [font-size:var(--btn-secondary-size)]',
-              )}
-            >
+            <Button variant="secondary" onClick={onRetry} className="self-start mt-sm">
               retry
-            </button>
+            </Button>
           )}
         </div>
       )}
