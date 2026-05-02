@@ -1,4 +1,5 @@
 import type { AnalysisState, ThreatLevel } from '../ai/types'
+import Badge from './ui/badge'
 import Button from './ui/button'
 import Modal from './ui/modal'
 
@@ -76,12 +77,7 @@ export default function AnalysisModal({ state, onClose, onRetry }: Props) {
 
           <div className="flex flex-wrap gap-xs">
             {state.analysis.tags.map((tag) => (
-              <span
-                key={tag}
-                className="text-cyan font-mono text-xs tracking-wide px-2 py-0.5 bg-info-ghost border border-cyan/20"
-              >
-                #{tag}
-              </span>
+              <Badge key={tag}>#{tag}</Badge>
             ))}
           </div>
         </>

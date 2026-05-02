@@ -3,6 +3,7 @@ import { useWebcamState } from '../hooks/use-webcam-state'
 import { cn } from '../utils/cn'
 import { isTouchDevice } from '../utils/device'
 import Button from './ui/button'
+import ErrorText from './ui/error-text'
 import ToggleGroup from './ui/toggle-group'
 
 interface Props {
@@ -128,9 +129,7 @@ export default function UploadZone({ onImage, onVideoStream, onFacingModeChange 
         </div>
       )}
 
-      {displayError && (
-        <span className="text-hot-pink text-xs tracking-wide">✕ {displayError}</span>
-      )}
+      {displayError && <ErrorText>{displayError}</ErrorText>}
     </div>
   )
 }
