@@ -1,7 +1,7 @@
 import type { Charset, ColorMode, ConversionSettings } from '../ascii/types'
-import { cn } from '../utils/cn'
 import Label from './ui/label'
 import Slider from './ui/slider'
+import ToggleGroup from './ui/toggle-group'
 
 interface Props {
   settings: ConversionSettings
@@ -11,36 +11,6 @@ interface Props {
 const RESOLUTION_RANGE = { min: 6, max: 24, step: 1 }
 const BRIGHTNESS_RANGE = { min: 0.5, max: 2.0, step: 0.05 }
 const CONTRAST_RANGE = { min: 0.5, max: 3.0, step: 0.05 }
-
-function ToggleGroup<T extends string>({
-  options,
-  value,
-  onChange,
-}: {
-  options: T[]
-  value: T
-  onChange: (v: T) => void
-}) {
-  return (
-    <div className="flex gap-xs flex-wrap">
-      {options.map((opt) => (
-        <button
-          type="button"
-          key={opt}
-          onClick={() => onChange(opt)}
-          className={cn(
-            'min-h-[44px] py-xs px-sm text-xs font-mono rounded-xs border cursor-pointer transition-all duration-fast',
-            value === opt
-              ? 'border-violet bg-accent-soft text-violet'
-              : 'border-base bg-transparent text-fg-muted',
-          )}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
-  )
-}
 
 export default function ControlPanel({ settings, onChange }: Props) {
   return (

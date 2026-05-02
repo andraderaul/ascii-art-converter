@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react'
 import { useWebcamState } from '../hooks/use-webcam-state'
 import { cn } from '../utils/cn'
 import { isTouchDevice } from '../utils/device'
+import ToggleGroup from './ui/toggle-group'
 
 interface Props {
   onImage: (img: HTMLImageElement) => void
@@ -64,32 +65,13 @@ export default function UploadZone({ onImage, onVideoStream, onFacingModeChange 
 
   return (
     <div className="flex flex-col gap-sm">
-      <div className="flex gap-2xs">
-        <button
-          type="button"
-          onClick={() => switchMode('upload' as const)}
-          className={cn(
-            'flex-1 min-h-[44px] py-2xs text-xs font-mono tracking-wide rounded-xs border cursor-pointer transition-all duration-fast',
-            mode === 'upload'
-              ? 'border-violet bg-accent-dim text-violet'
-              : 'border-base bg-transparent text-fg-muted',
-          )}
-        >
-          ↑ upload
-        </button>
-        <button
-          type="button"
-          onClick={() => switchMode('webcam' as const)}
-          className={cn(
-            'flex-1 min-h-[44px] py-2xs text-xs font-mono tracking-wide rounded-xs border cursor-pointer transition-all duration-fast',
-            mode === 'webcam'
-              ? 'border-violet bg-accent-dim text-violet'
-              : 'border-base bg-transparent text-fg-muted',
-          )}
-        >
-          ◉ webcam
-        </button>
-      </div>
+      <ToggleGroup
+        options={['upload', 'webcam'] as const}
+        value={mode}
+        onChange={switchMode}
+        fullWidth
+        labels={{ upload: '↑ upload', webcam: '◉ webcam' }}
+      />
 
       {mode === 'upload' ? (
         <label
