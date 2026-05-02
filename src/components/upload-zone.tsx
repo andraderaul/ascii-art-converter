@@ -1,5 +1,4 @@
 import { useCallback, useRef, useState } from 'react'
-import type { SourceMode } from '../hooks/use-webcam-state'
 import { useWebcamState } from '../hooks/use-webcam-state'
 import { cn } from '../utils/cn'
 import { isTouchDevice } from '../utils/device'
@@ -68,7 +67,7 @@ export default function UploadZone({ onImage, onVideoStream, onFacingModeChange 
       <div className="flex gap-2xs">
         <button
           type="button"
-          onClick={() => switchMode('upload' as SourceMode)}
+          onClick={() => switchMode('upload' as const)}
           className={cn(
             'flex-1 min-h-[44px] py-2xs text-xs font-mono tracking-wide rounded-xs border cursor-pointer transition-all duration-fast',
             mode === 'upload'
@@ -80,7 +79,7 @@ export default function UploadZone({ onImage, onVideoStream, onFacingModeChange 
         </button>
         <button
           type="button"
-          onClick={() => switchMode('webcam' as SourceMode)}
+          onClick={() => switchMode('webcam' as const)}
           className={cn(
             'flex-1 min-h-[44px] py-2xs text-xs font-mono tracking-wide rounded-xs border cursor-pointer transition-all duration-fast',
             mode === 'webcam'
