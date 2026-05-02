@@ -1,4 +1,4 @@
-import type { AsciiCell, ConversionSettings } from './types'
+import type { AsciiCell, ColorMode, ConversionSettings } from './types'
 
 export interface RenderInstruction {
   char: string
@@ -7,7 +7,7 @@ export interface RenderInstruction {
   color: string
 }
 
-const COLOR_MODE_COLORS: Record<string, string> = {
+const COLOR_MODE_COLORS: Partial<Record<ColorMode, string>> = {
   matrix: '#00ff41',
   bw: '#c8c8e0',
   retro: '#ffe600',
