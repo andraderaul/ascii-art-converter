@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Primitivas
+        // Primitives
         violet: 'var(--violet)',
         'deep-violet': 'var(--deep-violet)',
         'soft-violet': 'var(--soft-violet)',
@@ -22,7 +22,7 @@ export default {
         muted: 'var(--muted)',
         dim: 'var(--dim)',
         ghost: 'var(--ghost)',
-        // Semânticas
+        // Semantic
         accent: 'var(--accent)',
         fg: 'var(--fg)',
         'fg-muted': 'var(--fg-muted)',
@@ -34,13 +34,13 @@ export default {
         info: 'var(--color-info)',
         danger: 'var(--color-danger)',
         warning: 'var(--color-warning)',
-        // Superfícies de estado com transparência
+        // Transparent state surfaces
         'accent-ghost': 'var(--bg-accent-ghost)',
         'accent-dim': 'var(--bg-accent-dim)',
         'accent-soft': 'var(--bg-accent-soft)',
         'danger-ghost': 'var(--bg-danger-ghost)',
         'info-ghost': 'var(--bg-info-ghost)',
-        // Fundos semânticos
+        // Semantic backgrounds
         'accent-bg': 'var(--color-accent-bg)',
         'info-bg': 'var(--color-info-bg)',
         'danger-bg': 'var(--color-danger-bg)',
@@ -85,7 +85,7 @@ export default {
         xl: 'var(--gap-xl)',
         '2xl': 'var(--gap-2xl)',
         '3xl': 'var(--gap-3xl)',
-        // Sections macro
+        // Section macro spacing
         'sp-xs': 'var(--sp-xs)',
         'sp-sm': 'var(--sp-sm)',
         'sp-md': 'var(--sp-md)',

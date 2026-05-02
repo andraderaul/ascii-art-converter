@@ -7,7 +7,7 @@
    ============================================================ */
 
 :root {
-  /* Cores — Primitivas */
+  /* Colors — Primitives */
   --violet: #b829ff;
   --deep-violet: #7b1fa2;
   --soft-violet: #d888ff;
@@ -33,7 +33,7 @@
   --ghost: #c8c8e0;
   --white: #eeeef8;
 
-  /* Cores — Semântica */
+  /* Colors — Semantic */
   --accent: var(--violet);
   --accent-deep: var(--deep-violet);
   --accent-soft: var(--soft-violet);
@@ -70,7 +70,7 @@
   --bg-danger-ghost: rgba(255, 45, 120, 0.08);
   --bg-info-ghost: rgba(0, 229, 255, 0.06);
 
-  /* Tipografia */
+  /* Typography */
   --font-mono: "IBM Plex Mono", "Departure Mono", monospace;
   --font-display: "Departure Mono", "IBM Plex Mono", monospace;
 
@@ -97,7 +97,7 @@
   --tracking-wider: 0.12em;
   --tracking-widest: 0.18em;
 
-  /* Espaçamento — Seções */
+  /* Spacing — Sections */
   --sp-xs: 16px;
   --sp-sm: 32px;
   --sp-md: 64px;
@@ -105,7 +105,7 @@
   --sp-xl: 128px;
   --sp-2xl: 160px;
 
-  /* Espaçamento — Gaps internos */
+  /* Spacing — Internal gaps */
   --gap-xs: 4px;
   --gap-sm: 8px;
   --gap-md: 16px;
@@ -115,7 +115,7 @@
   --gap-2xs: 6px;
   --gap-3xl: 64px;
 
-  /* Bordas */
+  /* Borders */
   --border-width-thin: 1px;
   --border-width-base: 1px;
   --border-width-accent: 2px;
@@ -140,14 +140,14 @@
   --radius-md: 6px;
   --radius-pill: 999px;
 
-  /* Componentes — Cards */
+  /* Components — Cards */
   --card-bg: var(--abyss);
   --card-border: var(--border-base);
   --card-padding: var(--gap-xl);
   --card-gap: var(--gap-lg);
   --card-radius: var(--radius-xs);
 
-  /* Componentes — Botões */
+  /* Components — Buttons */
   --btn-font: var(--font-mono);
   --btn-tracking: var(--tracking-wide);
   --btn-radius: var(--radius-xs);
@@ -172,7 +172,7 @@
   --btn-ghost-bg: transparent;
   --btn-ghost-size: 13px;
 
-  /* Componentes — Inputs */
+  /* Components — Inputs */
   --input-bg: var(--abyss);
   --input-border: var(--border-base);
   --input-border-focus: 1px solid var(--violet);
@@ -182,7 +182,7 @@
   --input-font-size: var(--text-sm);
   --input-radius: var(--radius-xs);
 
-  /* Animações & Easing */
+  /* Animations & Easing */
   --ease-flick: cubic-bezier(0.36, 2.09, 0.07, -1.52);
   --ease-smooth: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-sharp: cubic-bezier(0.4, 0, 0.6, 1);
@@ -198,12 +198,12 @@
   --transition-fast: var(--duration-fast) var(--ease-sharp);
   --transition-bounce: var(--duration-base) var(--ease-flick);
 
-  /* Seções */
+  /* Sections */
   --section-gap: var(--gap-2xl);
 }
 
 /* ============================================================
-   UTILITÁRIOS BASE
+   BASE UTILITIES
    ============================================================ */
 
 *,
