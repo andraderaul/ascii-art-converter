@@ -1,3 +1,15 @@
+## [1.1.1](https://github.com/andraderaul/ascii-art-converter/compare/v1.1.0...v1.1.1) (2026-05-02)
+
+### Bug Fixes
+
+* improve slider drag on mobile with touch-action pan-y ([ea4aadc](https://github.com/andraderaul/ascii-art-converter/commit/ea4aadc22bc3f7d22d6e3a7589e3141a3d2afdff))
+
+### Code Refactoring
+
+* extract Badge and ErrorText to ui/ ([7d2e2b0](https://github.com/andraderaul/ascii-art-converter/commit/7d2e2b009d8728d32f5e08b488bfa3b01a0da5a2))
+* extract Button to ui/, unify 5 variants across download-bar, analysis-modal, upload-zone ([d78f333](https://github.com/andraderaul/ascii-art-converter/commit/d78f333d61b766a4d5aa25c5e76cb48be89c46ba))
+* update prompt ([5b05764](https://github.com/andraderaul/ascii-art-converter/commit/5b057644b7c154f5ae87787d7c18c1b82bf5095f))
+
 ## [1.1.0](https://github.com/andraderaul/ascii-art-converter/compare/v1.0.0...v1.1.0) (2026-05-02)
 
 ### Features
