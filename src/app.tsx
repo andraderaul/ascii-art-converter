@@ -54,7 +54,7 @@ export default function App() {
     setIsMirrored(mirrored)
   }, [])
 
-  async function handleAnalyze() {
+  const handleAnalyze = useCallback(async () => {
     const canvas = canvasRef.current
     if (!canvas || !aiConfig) {
       return
@@ -75,7 +75,7 @@ export default function App() {
         setAnalysisState({ status: 'parse-error' })
       }
     }
-  }
+  }, [aiConfig])
 
   const isLive = !!sourceVideo
 
