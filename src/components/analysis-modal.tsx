@@ -75,7 +75,7 @@ export default function AnalysisModal({ state, onClose, onRetry }: Props) {
 
           <p className="text-ghost text-sm leading-normal m-0">{state.analysis.description}</p>
 
-          <div className="flex flex-wrap gap-xs">
+          <div className="flex flex-wrap gap-xs lowercase">
             {state.analysis.tags.map((tag) => (
               <Badge key={tag}>#{tag}</Badge>
             ))}
