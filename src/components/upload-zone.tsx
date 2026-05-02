@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
+import type { SourceMode } from '../hooks/use-webcam-state'
+import { useWebcamState } from '../hooks/use-webcam-state'
 import { cn } from '../utils/cn'
 import { isTouchDevice } from '../utils/device'
-
-type SourceMode = 'upload' | 'webcam'
 
 interface Props {
   onImage: (img: HTMLImageElement) => void
@@ -13,78 +13,10 @@ interface Props {
 export default function UploadZone({ onImage, onVideoStream, onFacingModeChange }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
-  const [mode, setMode] = useState<SourceMode>('upload')
-  const [live, setLive] = useState(false)
-  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user')
-  const [error, setError] = useState<string | null>(null)
-  const streamRef = useRef<MediaStream | null>(null)
+  const [imageError, setImageError] = useState<string | null>(null)
 
-  const stopWebcam = useCallback(() => {
-    streamRef.current?.getTracks().forEach((t) => {
-      t.stop()
-    })
-    streamRef.current = null
-    setLive(false)
-    onVideoStream(null)
-  }, [onVideoStream])
-
-  const startWebcam = useCallback(
-    async (facing: 'user' | 'environment' = 'user') => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: facing },
-        })
-        streamRef.current = stream
-        const video = document.createElement('video')
-        video.srcObject = stream
-        video.autoplay = true
-        video.playsInline = true
-        video.muted = true
-        await video.play()
-        setError(null)
-        setLive(true)
-        setFacingMode(facing)
-        onVideoStream(video)
-        onFacingModeChange?.(facing === 'user')
-      } catch {
-        streamRef.current = null
-        setMode('upload')
-        setLive(false)
-        setFacingMode('user')
-        onVideoStream(null)
-        setError('Camera access denied')
-      }
-    },
-    [onVideoStream, onFacingModeChange],
-  )
-
-  const switchCamera = useCallback(async () => {
-    const next: 'user' | 'environment' = facingMode === 'user' ? 'environment' : 'user'
-    streamRef.current?.getTracks().forEach((t) => {
-      t.stop()
-    })
-    streamRef.current = null
-    await startWebcam(next)
-  }, [facingMode, startWebcam])
-
-  const switchMode = useCallback(
-    (next: SourceMode) => {
-      if (next === mode) {
-        return
-      }
-      if (mode === 'webcam') {
-        stopWebcam()
-      }
-      setError(null)
-      setMode(next)
-      if (next === 'webcam') {
-        void startWebcam('user')
-      }
-    },
-    [mode, stopWebcam, startWebcam],
-  )
-
-  useEffect(() => () => stopWebcam(), [stopWebcam])
+  const { state, switchCamera, switchMode } = useWebcamState(onVideoStream, onFacingModeChange)
+  const { mode, live, facingMode, error } = state
 
   const load = useCallback(
     (file: File) => {
@@ -94,12 +26,12 @@ export default function UploadZone({ onImage, onVideoStream, onFacingModeChange 
       const url = URL.createObjectURL(file)
       const img = new Image()
       img.onload = () => {
-        setError(null)
+        setImageError(null)
         onImage(img)
         URL.revokeObjectURL(url)
       }
       img.onerror = () => {
-        setError('Failed to load image')
+        setImageError('Failed to load image')
         URL.revokeObjectURL(url)
       }
       img.src = url
@@ -129,12 +61,14 @@ export default function UploadZone({ onImage, onVideoStream, onFacingModeChange 
     [load],
   )
 
+  const displayError = error ?? imageError
+
   return (
     <div className="flex flex-col gap-sm">
       <div className="flex gap-2xs">
         <button
           type="button"
-          onClick={() => switchMode('upload')}
+          onClick={() => switchMode('upload' as SourceMode)}
           className={cn(
             'flex-1 min-h-[44px] py-2xs text-xs font-mono tracking-wide rounded-xs border cursor-pointer transition-all duration-fast',
             mode === 'upload'
@@ -146,7 +80,7 @@ export default function UploadZone({ onImage, onVideoStream, onFacingModeChange 
         </button>
         <button
           type="button"
-          onClick={() => switchMode('webcam')}
+          onClick={() => switchMode('webcam' as SourceMode)}
           className={cn(
             'flex-1 min-h-[44px] py-2xs text-xs font-mono tracking-wide rounded-xs border cursor-pointer transition-all duration-fast',
             mode === 'webcam'
@@ -216,7 +150,9 @@ export default function UploadZone({ onImage, onVideoStream, onFacingModeChange 
         </div>
       )}
 
-      {error && <span className="text-hot-pink text-xs tracking-wide">✕ {error}</span>}
+      {displayError && (
+        <span className="text-hot-pink text-xs tracking-wide">✕ {displayError}</span>
+      )}
     </div>
   )
 }
