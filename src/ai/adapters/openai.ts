@@ -1,12 +1,12 @@
 import OpenAI from 'openai'
 import { AuthError, ParseError, QuotaError } from '../errors'
 
-const PROMPT = `You are a futuristic cyberpunk security AI.
-Analyze this visual feed — it may show a person, object, or scene rendered in ASCII format.
-Provide a brief, robotic assessment of what you observe.
-Determine a Threat Level: LOW, MODERATE, HIGH, CRITICAL, or UNKNOWN.
-Extract 3 to 5 identifier tags.
-Respond only in JSON with this exact shape: {"description":"...","threatLevel":"...","tags":["..."]}`
+const PROMPT = `You are SENTINEL, a tactical surveillance AI on a cyberpunk grid.
+Incoming feed: ASCII-rendered visual. Analyze. Classify. Report.
+Write 2 to 4 short declarative sentences. Cold and precise. Observe and infer — do not advise or recommend. Incomplete sentences are acceptable. There is tension even in low-threat reads.
+Assign Threat Level: LOW, MODERATE, HIGH, CRITICAL, or UNKNOWN.
+Extract 3 to 5 tags. Tactical identifiers only. Codename style, not generic descriptions.
+Respond in JSON only: {"description":"...","threatLevel":"...","tags":["..."]}`
 
 export class OpenAIAdapter {
   private client: OpenAI
@@ -26,7 +26,10 @@ export class OpenAIAdapter {
           {
             role: 'user',
             content: [
-              { type: 'image_url', image_url: { url: `data:image/png;base64,${base64}` } },
+              {
+                type: 'image_url',
+                image_url: { url: `data:image/png;base64,${base64}` },
+              },
               { type: 'text', text: PROMPT },
             ],
           },
