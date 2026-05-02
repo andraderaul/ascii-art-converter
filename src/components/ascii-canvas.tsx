@@ -21,6 +21,7 @@ function renderFrame(
   canvasEl: HTMLCanvasElement,
   hiddenEl: HTMLCanvasElement,
   settings: ConversionSettings,
+  fontFamily: string,
   onConverted?: (rows: string[]) => void,
 ): void {
   const ctx = canvasEl.getContext('2d')
@@ -44,7 +45,7 @@ function renderFrame(
 
   const cells = convertImage(hiddenCtx, source, cols, rows, { brightness, contrast, charset })
   const { instructions, asciiRows } = computeFrame(cells, settings)
-  paintFrame(ctx, instructions, resolution)
+  paintFrame(ctx, instructions, resolution, fontFamily)
   onConverted?.(asciiRows)
 }
 
@@ -58,6 +59,9 @@ export default function AsciiCanvas({
 }: Props) {
   const hiddenRef = useRef<HTMLCanvasElement>(document.createElement('canvas'))
   const renderStaticRef = useRef<(() => void) | null>(null)
+  const fontFamilyRef = useRef(
+    getComputedStyle(document.body).getPropertyValue('--font-mono').trim() || 'monospace',
+  )
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -66,7 +70,14 @@ export default function AsciiCanvas({
       return
     }
     const fn = () =>
-      renderFrame(resizeImage(sourceImage), canvas, hiddenRef.current, settings, onConverted)
+      renderFrame(
+        resizeImage(sourceImage),
+        canvas,
+        hiddenRef.current,
+        settings,
+        fontFamilyRef.current,
+        onConverted,
+      )
     renderStaticRef.current = fn
     fn()
   }, [sourceImage, settings, onConverted, canvasRef])
@@ -89,7 +100,7 @@ export default function AsciiCanvas({
       }
       lastTime = now
       if (video.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
-        renderFrame(video, canvas, hiddenRef.current, settings)
+        renderFrame(video, canvas, hiddenRef.current, settings, fontFamilyRef.current)
       }
     }
 

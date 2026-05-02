@@ -52,11 +52,12 @@ export function paintFrame(
   ctx: CanvasRenderingContext2D,
   instructions: RenderInstruction[],
   resolution: number,
+  fontFamily: string,
 ): void {
   const { width: W, height: H } = ctx.canvas
   ctx.fillStyle = '#0a0a0f'
   ctx.fillRect(0, 0, W, H)
-  ctx.font = `${resolution}px ${getComputedStyle(document.body).getPropertyValue('--font-mono') || 'monospace'}`
+  ctx.font = `${resolution}px ${fontFamily}`
   ctx.textBaseline = 'top'
 
   for (const { char, x, y, color } of instructions) {
