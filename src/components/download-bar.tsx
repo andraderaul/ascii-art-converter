@@ -10,6 +10,13 @@ interface Props {
   onAnalyze: () => void
 }
 
+function triggerDownload(canvas: HTMLCanvasElement, filename: string) {
+  const a = document.createElement('a')
+  a.href = canvas.toDataURL('image/png')
+  a.download = filename
+  a.click()
+}
+
 export default function DownloadBar({
   canvasRef,
   asciiRows,
@@ -22,10 +29,7 @@ export default function DownloadBar({
     if (!canvas) {
       return
     }
-    const a = document.createElement('a')
-    a.href = canvas.toDataURL('image/png')
-    a.download = 'ascii-art.png'
-    a.click()
+    triggerDownload(canvas, 'ascii-art.png')
   }
 
   function exportTxt() {
@@ -45,10 +49,7 @@ export default function DownloadBar({
     if (!canvas) {
       return
     }
-    const a = document.createElement('a')
-    a.href = canvas.toDataURL('image/png')
-    a.download = `ascii-capture-${Date.now()}.png`
-    a.click()
+    triggerDownload(canvas, `ascii-capture-${Date.now()}.png`)
   }
 
   const btnBase = cn(
