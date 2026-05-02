@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react'
 
 export type SourceMode = 'upload' | 'webcam'
+type FacingMode = 'user' | 'environment'
 
 type State = {
   mode: SourceMode
   live: boolean
-  facingMode: 'user' | 'environment'
+  facingMode: FacingMode
   error: string | null
 }
 
 type Action =
   | { type: 'SWITCH_MODE'; mode: SourceMode }
-  | { type: 'WEBCAM_STARTED'; facingMode: 'user' | 'environment' }
+  | { type: 'WEBCAM_STARTED'; facingMode: FacingMode }
   | { type: 'WEBCAM_STOPPED' }
   | { type: 'WEBCAM_ERROR'; message: string }
 
@@ -25,13 +26,30 @@ export const INITIAL_STATE: State = {
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'SWITCH_MODE':
-      return { ...state, mode: action.mode, live: false, facingMode: 'user', error: null }
+      return {
+        ...state,
+        mode: action.mode,
+        live: false,
+        facingMode: 'user',
+        error: null,
+      }
     case 'WEBCAM_STARTED':
-      return { ...state, live: true, facingMode: action.facingMode, error: null }
+      return {
+        ...state,
+        live: true,
+        facingMode: action.facingMode,
+        error: null,
+      }
     case 'WEBCAM_STOPPED':
       return { ...state, live: false, facingMode: 'user' }
     case 'WEBCAM_ERROR':
-      return { ...state, mode: 'upload', live: false, facingMode: 'user', error: action.message }
+      return {
+        ...state,
+        mode: 'upload',
+        live: false,
+        facingMode: 'user',
+        error: action.message,
+      }
   }
 }
 
@@ -52,7 +70,7 @@ export function useWebcamState(
   }, [onVideoStream])
 
   const startWebcam = useCallback(
-    async (facing: 'user' | 'environment' = 'user') => {
+    async (facing: FacingMode = 'user') => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: facing },
@@ -77,7 +95,7 @@ export function useWebcamState(
   )
 
   const switchCamera = useCallback(async () => {
-    const next: 'user' | 'environment' = state.facingMode === 'user' ? 'environment' : 'user'
+    const next: FacingMode = state.facingMode === 'user' ? 'environment' : 'user'
     streamRef.current?.getTracks().forEach((t) => {
       t.stop()
     })
