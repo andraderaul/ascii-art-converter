@@ -39,6 +39,7 @@ export default {
         'accent-dim': 'var(--bg-accent-dim)',
         'accent-soft': 'var(--bg-accent-soft)',
         'danger-ghost': 'var(--bg-danger-ghost)',
+        'info-ghost': 'var(--bg-info-ghost)',
         // Fundos semânticos
         'accent-bg': 'var(--color-accent-bg)',
         'info-bg': 'var(--color-info-bg)',

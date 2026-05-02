@@ -68,6 +68,7 @@
   --bg-accent-dim: rgba(184, 41, 255, 0.08);
   --bg-accent-soft: rgba(184, 41, 255, 0.12);
   --bg-danger-ghost: rgba(255, 45, 120, 0.08);
+  --bg-info-ghost: rgba(0, 229, 255, 0.06);
 
   /* Tipografia */
   --font-mono: "IBM Plex Mono", "Departure Mono", monospace;

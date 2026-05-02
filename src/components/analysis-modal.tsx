@@ -102,11 +102,7 @@ export default function AnalysisModal({ state, onClose, onRetry }: Props) {
               {state.analysis.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-cyan font-mono text-xs tracking-wide px-2 py-0.5"
-                  style={{
-                    background: 'rgba(0,229,255,0.06)',
-                    border: '1px solid rgba(0,229,255,0.2)',
-                  }}
+                  className="text-cyan font-mono text-xs tracking-wide px-2 py-0.5 bg-info-ghost border border-cyan/20"
                 >
                   #{tag}
                 </span>
