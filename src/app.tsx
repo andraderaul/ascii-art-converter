@@ -13,6 +13,12 @@ import DownloadBar from './components/download-bar'
 import ErrorBoundary from './components/error-boundary'
 import UploadZone from './components/upload-zone'
 
+type ActiveModal =
+  | { kind: 'apiKey' }
+  | { kind: 'about' }
+  | { kind: 'analysis'; state: AnalysisState }
+  | null
+
 const DEFAULT_SETTINGS: ConversionSettings = {
   resolution: 12,
   brightness: 1.0,
@@ -30,9 +36,7 @@ export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const { config: aiConfig, save: saveAiConfig, remove: removeAiConfig } = useAIConfig()
-  const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false)
-  const [aboutOpen, setAboutOpen] = useState(false)
-  const [analysisState, setAnalysisState] = useState<AnalysisState | null>(null)
+  const [activeModal, setActiveModal] = useState<ActiveModal>(null)
 
   const patchSettings = useCallback((patch: Partial<ConversionSettings>) => {
     setSettings((prev) => ({ ...prev, ...patch }))
@@ -62,18 +66,18 @@ export default function App() {
     }
 
     const dataUrl = canvas.toDataURL('image/png')
-    setAnalysisState({ status: 'loading' })
+    setActiveModal({ kind: 'analysis', state: { status: 'loading' } })
 
     try {
       const analysis = await analyzeCanvas(dataUrl, aiConfig)
-      setAnalysisState({ status: 'success', analysis })
+      setActiveModal({ kind: 'analysis', state: { status: 'success', analysis } })
     } catch (err) {
       if (err instanceof AuthError) {
-        setAnalysisState({ status: 'auth-error' })
+        setActiveModal({ kind: 'analysis', state: { status: 'auth-error' } })
       } else if (err instanceof QuotaError) {
-        setAnalysisState({ status: 'quota-error' })
+        setActiveModal({ kind: 'analysis', state: { status: 'quota-error' } })
       } else {
-        setAnalysisState({ status: 'parse-error' })
+        setActiveModal({ kind: 'analysis', state: { status: 'parse-error' } })
       }
     }
   }, [aiConfig])
@@ -89,7 +93,7 @@ export default function App() {
         <div className="ml-auto flex items-center gap-xs">
           <button
             type="button"
-            onClick={() => setAboutOpen(true)}
+            onClick={() => setActiveModal({ kind: 'about' })}
             className="font-mono tracking-wide cursor-pointer transition-all"
             style={{
               fontSize: 'var(--text-xs)',
@@ -104,7 +108,7 @@ export default function App() {
           </button>
           <button
             type="button"
-            onClick={() => setApiKeyModalOpen(true)}
+            onClick={() => setActiveModal({ kind: 'apiKey' })}
             className="font-mono tracking-wide cursor-pointer transition-all"
             style={{
               fontSize: 'var(--text-xs)',
@@ -169,24 +173,24 @@ export default function App() {
         </main>
       </div>
 
-      {apiKeyModalOpen && (
+      {activeModal?.kind === 'apiKey' && (
         <ApiKeyModal
           current={aiConfig}
           onSave={saveAiConfig}
           onRemove={removeAiConfig}
-          onClose={() => setApiKeyModalOpen(false)}
+          onClose={() => setActiveModal(null)}
         />
       )}
 
-      {analysisState && (
+      {activeModal?.kind === 'analysis' && (
         <AnalysisModal
-          state={analysisState}
-          onClose={() => setAnalysisState(null)}
-          onRetry={analysisState.status === 'parse-error' ? handleAnalyze : undefined}
+          state={activeModal.state}
+          onClose={() => setActiveModal(null)}
+          onRetry={activeModal.state.status === 'parse-error' ? handleAnalyze : undefined}
         />
       )}
 
-      {aboutOpen && <AboutModal onClose={() => setAboutOpen(false)} />}
+      {activeModal?.kind === 'about' && <AboutModal onClose={() => setActiveModal(null)} />}
     </div>
   )
 }
