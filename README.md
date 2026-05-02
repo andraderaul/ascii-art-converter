@@ -4,6 +4,8 @@ A client-side tool that converts images and webcam into interactive ASCII art, w
 
 **[Live demo →](https://ascii-art-converter-tawny.vercel.app/)**
 
+![ASCII Art Converter demo](gifs/demo.gif)
+
 No backend server. Everything runs in the browser. AI analysis is optional — it uses your own API key, stored locally, never sent to any server we operate.
 
 ## Features
@@ -14,6 +16,8 @@ No backend server. Everything runs in the browser. AI analysis is optional — i
 - Export as PNG (with colors) or TXT (plain ASCII)
 - Capture a frame from the Live Source without stopping the loop
 - Optional AI analysis (Anthropic, OpenAI, or Gemini) powered by your own API key
+
+![AI analysis panel](gifs/ai-demo.png)
 
 ## Running locally
 
