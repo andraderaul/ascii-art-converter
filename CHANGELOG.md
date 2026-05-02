@@ -1,0 +1,37 @@
+## [1.1.0](https://github.com/andraderaul/ascii-art-converter/compare/v1.0.0...v1.1.0) (2026-05-02)
+
+### Features
+
+* AI narrative analysis via user-provided API key ([6779dcb](https://github.com/andraderaul/ascii-art-converter/commit/6779dcb53e855e809630fae9c545c2c2f1118069))
+* extract shared Modal primitive with backdrop blur and two variants ([56dbc58](https://github.com/andraderaul/ascii-art-converter/commit/56dbc5881e71fc0334745e5432727c43c820ed71))
+* mobile-responsive header, download bar, and layout fixes ([685dea9](https://github.com/andraderaul/ascii-art-converter/commit/685dea9469aef5a9f25acc1c9a0f2e4a51ffc872))
+
+### Bug Fixes
+
+* memoize handleAnalyze with useCallback ([b6264ad](https://github.com/andraderaul/ascii-art-converter/commit/b6264ad04af8bcfcacc52bc51a8ad7dacea5dc63))
+* narrow COLOR_MODE_COLORS to Partial<Record<ColorMode, string>> ([071cc4b](https://github.com/andraderaul/ascii-art-converter/commit/071cc4b975d52d8c8ad8f1b935a3d3165b200297))
+* remove non-null assertions and surface upload/webcam errors ([0f650f5](https://github.com/andraderaul/ascii-art-converter/commit/0f650f566522e12c56a57d90a634cdf90f14e4b5))
+* replace modal backdrop divs and drop zone with accessible elements ([0b1681c](https://github.com/andraderaul/ascii-art-converter/commit/0b1681c67aa88d94eeb76e383575438243063fbc))
+* return canvas directly from resizeImage to eliminate async decode race ([42d3a02](https://github.com/andraderaul/ascii-art-converter/commit/42d3a02a541c0bc10633285c26a6b318d0b34fbc))
+* sync canvas pixel buffer to display size via ResizeObserver ([b05b0f3](https://github.com/andraderaul/ascii-art-converter/commit/b05b0f374056c92a2974f0cac5898477c98a4f83))
+
+### Performance Improvements
+
+* read CSS font family once on mount instead of every paintFrame call ([c5d803e](https://github.com/andraderaul/ascii-art-converter/commit/c5d803e0fda9c8ec29e6bf48a1dd855986ad7dd5))
+
+### Code Refactoring
+
+* create device utils ([a1458cc](https://github.com/andraderaul/ascii-art-converter/commit/a1458cccee72542f0318b980331208cd9aa1f3fe))
+* enhance type safety in useWebcamState hook ([23c4ff7](https://github.com/andraderaul/ascii-art-converter/commit/23c4ff7a72590c9080fd464ad100c8cf62ae6170))
+* extract Slider and Label to ui/, unify Resolution control ([c07e0a7](https://github.com/andraderaul/ascii-art-converter/commit/c07e0a7cfc9dc17606fb3363752f61f86570cf72))
+* extract ToggleGroup to ui/, unify upload-zone tabs ([893ddf8](https://github.com/andraderaul/ascii-art-converter/commit/893ddf833e7a7b53141055e31600a597e95f56f1))
+* extract triggerDownload to eliminate exportPng/capture duplication ([de7bb6f](https://github.com/andraderaul/ascii-art-converter/commit/de7bb6f4b0b74feb47ec5d3ffcf1605d388c8474))
+* extract useWebcamState hook with useReducer from UploadZone ([159d2f2](https://github.com/andraderaul/ascii-art-converter/commit/159d2f2f79c9222b48165d1e135d262027d896f7))
+* move AnalysisState from analysis-modal.tsx to ai/types.ts ([20f6d24](https://github.com/andraderaul/ascii-art-converter/commit/20f6d246de38d63bf800fd9b3bd56c72038b4c4a))
+* name ASCII conversion and rendering constants ([ff755f4](https://github.com/andraderaul/ascii-art-converter/commit/ff755f447cbc2b24403cd53da87f5592e8deb03f))
+* remove over-extracted constants from converter ([70fb9a0](https://github.com/andraderaul/ascii-art-converter/commit/70fb9a00ce025aee35e622b4e3dfd7d794643591))
+* replace 3 modal useState with ActiveModal discriminated union ([87542b6](https://github.com/andraderaul/ascii-art-converter/commit/87542b65dab8273ec887fd96ac6e9b35a0c29058))
+* replace inline styles with Tailwind classes in AI modals ([dc8550c](https://github.com/andraderaul/ascii-art-converter/commit/dc8550c29d06eee3b9949122ec9f4e7c85c8de75))
+* restructure ASCII domain module, add quality gates and portfolio docs ([18cf58e](https://github.com/andraderaul/ascii-art-converter/commit/18cf58e6303f62f68e18e131244b1cea173517d3))
+* tailwind ([dea021f](https://github.com/andraderaul/ascii-art-converter/commit/dea021f134d36eca3c8f52aa0bf9f526fd70551a))
+* use as const instead of as SourceMode cast in UploadZone ([c327678](https://github.com/andraderaul/ascii-art-converter/commit/c3276786b35fec4e9df9f6899d3ec4d11599ba7e))
