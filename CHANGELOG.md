@@ -1,3 +1,21 @@
+## [1.2.0](https://github.com/andraderaul/ascii-art-converter/compare/v1.1.1...v1.2.0) (2026-05-03)
+
+### Features
+
+* add toast error system for storage and export failures ([44263ff](https://github.com/andraderaul/ascii-art-converter/commit/44263fff43ceba7b419fb0381c994fd5e3fb9698))
+* enhance DownloadBar with recording functionality ([d406be3](https://github.com/andraderaul/ascii-art-converter/commit/d406be356fd0c1db461feab6ff7181220804d18f))
+
+### Documentation
+
+* add adr seven ([9c77ace](https://github.com/andraderaul/ascii-art-converter/commit/9c77aceff245a29451fa40915869a81add0f47c4))
+* add demo GIF and AI analysis screenshot to README ([0400663](https://github.com/andraderaul/ascii-art-converter/commit/04006630ee86837e4b0279bf2dc2e601913d30e4))
+
+### Code Refactoring
+
+* improve download ([c8c6f05](https://github.com/andraderaul/ascii-art-converter/commit/c8c6f057ccd7edafa2c3ad35f08a4887193be369))
+* improve slider gesture ([8d4d87a](https://github.com/andraderaul/ascii-art-converter/commit/8d4d87a29afa6ed1a56ea1f9228f37da4c916f33))
+* update tags ([86926a8](https://github.com/andraderaul/ascii-art-converter/commit/86926a8ba86252aa5082d4ebc848e934ce45137e))
+
 ## [1.1.1](https://github.com/andraderaul/ascii-art-converter/compare/v1.1.0...v1.1.1) (2026-05-02)
 
 ### Bug Fixes
