@@ -17,6 +17,32 @@ function triggerDownload(canvas: HTMLCanvasElement, filename: string) {
   a.click()
 }
 
+async function shareOrDownload(canvas: HTMLCanvasElement, filename: string) {
+  return new Promise<void>((resolve) => {
+    canvas.toBlob(async (blob) => {
+      if (!blob) {
+        triggerDownload(canvas, filename)
+        resolve()
+        return
+      }
+      const file = new File([blob], filename, { type: 'image/png' })
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file] })
+        } catch (err) {
+          // AbortError = user dismissed the sheet, not an error worth falling back from
+          if ((err as Error).name !== 'AbortError') {
+            triggerDownload(canvas, filename)
+          }
+        }
+      } else {
+        triggerDownload(canvas, filename)
+      }
+      resolve()
+    }, 'image/png')
+  })
+}
+
 export default function DownloadBar({
   canvasRef,
   asciiRows,
@@ -24,12 +50,12 @@ export default function DownloadBar({
   hasAiConfig,
   onAnalyze,
 }: Props) {
-  function exportPng() {
+  async function exportPng() {
     const canvas = canvasRef.current
     if (!canvas) {
       return
     }
-    triggerDownload(canvas, 'ascii-art.png')
+    await shareOrDownload(canvas, 'ascii-art.png')
   }
 
   function exportTxt() {
@@ -44,12 +70,12 @@ export default function DownloadBar({
     URL.revokeObjectURL(a.href)
   }
 
-  function capture() {
+  async function capture() {
     const canvas = canvasRef.current
     if (!canvas) {
       return
     }
-    triggerDownload(canvas, `ascii-capture-${Date.now()}.png`)
+    await shareOrDownload(canvas, `ascii-capture-${Date.now()}.png`)
   }
 
   const analyzeBtn = hasAiConfig ? (
