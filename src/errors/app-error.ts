@@ -36,9 +36,15 @@ export const Errors = {
 
   captureFailed: (): AppError => createError({ type: 'capture_failed', message: 'capture failed' }),
 
-  storageFailed: (): AppError =>
+  storageSaveFailed: (): AppError =>
     createError({
-      type: 'storage_failed',
-      message: 'could not save — local storage unavailable',
+      type: 'storage_save_failed',
+      message: 'ai configured (session only — storage unavailable)',
+    }),
+
+  storageRemoveFailed: (): AppError =>
+    createError({
+      type: 'storage_remove_failed',
+      message: 'storage unavailable — config removed until page reload',
     }),
 }

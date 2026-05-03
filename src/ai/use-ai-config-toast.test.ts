@@ -35,7 +35,7 @@ describe('useAIConfig storage toast', () => {
       capturedSave?.(STORED_CONFIG)
     })
 
-    expect(mockToast).toHaveBeenCalledWith('could not save — local storage unavailable')
+    expect(mockToast).toHaveBeenCalledWith('ai configured (session only — storage unavailable)')
   })
 
   it('toasts when remove throws', async () => {
@@ -58,6 +58,6 @@ describe('useAIConfig storage toast', () => {
       capturedRemove?.()
     })
 
-    expect(mockToast).toHaveBeenCalledWith('could not save — local storage unavailable')
+    expect(mockToast).toHaveBeenCalledWith('storage unavailable — config removed until page reload')
   })
 })

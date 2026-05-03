@@ -20,7 +20,7 @@ export function useAIConfig() {
     try {
       localStorage.setItem('ai_config', JSON.stringify(next))
     } catch {
-      toastError(Errors.storageFailed().message)
+      toastError(Errors.storageSaveFailed().message)
     }
     setConfig(next)
   }
@@ -29,7 +29,7 @@ export function useAIConfig() {
     try {
       localStorage.removeItem('ai_config')
     } catch {
-      toastError(Errors.storageFailed().message)
+      toastError(Errors.storageRemoveFailed().message)
     }
     setConfig(null)
   }
