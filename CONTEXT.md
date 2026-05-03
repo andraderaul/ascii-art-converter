@@ -57,8 +57,16 @@ A webcam stream ativa como entrada da conversão, em oposição à Source Image 
 _Avoid_: stream, câmera, video source
 
 **Capture**:
-O ato de exportar um frame do Live Source como PNG em um instante determinado pelo usuário. Não interrompe o Live Source — o loop continua rodando após o Capture.
+O ato de exportar um frame do Live Source como PNG em um instante determinado pelo usuário. Não interrompe o Live Source — o loop continua rodando após o Capture. Disponível inclusive durante um Recording ativo.
 _Avoid_: snapshot, screenshot, foto, tirar foto
+
+**Record** (verb) / **Recording** (noun):
+O ato de gravar o canvas ASCII em vídeo enquanto o Live Source está ativo. Iniciado e interrompido pelo usuário; ao parar, dispara um Video Export automático. Um contador de tempo visível ("● 0:42") informa a duração sem impor limite. Disponível apenas onde `MediaRecorder` + `canvas.captureStream()` forem suportados — em browsers não suportados o controle não é exibido (progressive enhancement).
+_Avoid_: gravar, filmagem, screen record
+
+**Video Export**:
+O arquivo de vídeo produzido ao término de um Recording. Formato determinado em runtime por `MediaRecorder.isTypeSupported()` — preferência por `video/webm`, fallback para `video/mp4`. Export automático ao parar o Recording, consistente com o comportamento do Capture e do PNG Export.
+_Avoid_: download de vídeo, salvar vídeo
 
 **Analyze**:
 O ato de enviar o canvas ASCII renderizado a um AI Provider externo e receber uma **Analysis** em resposta. Disponível apenas quando uma AI Config está presente.
