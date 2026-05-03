@@ -2,6 +2,7 @@ import type { RefObject } from 'react'
 import { Errors } from '../errors/app-error'
 import { formatElapsedTime } from '../hooks/use-recording'
 import { isTouchDevice } from '../utils/device'
+import { shareOrDownloadBlob } from '../utils/share'
 import { useToastError } from './toast-provider'
 import Button from './ui/button'
 
@@ -18,35 +19,24 @@ interface Props {
   onStopRecording?: () => void
 }
 
-function triggerDownload(canvas: HTMLCanvasElement, filename: string) {
-  const a = document.createElement('a')
-  a.href = canvas.toDataURL('image/png')
-  a.download = filename
-  a.click()
-}
-
-async function shareOrDownload(canvas: HTMLCanvasElement, filename: string) {
-  return new Promise<void>((resolve) => {
+async function shareOrDownloadCanvas(canvas: HTMLCanvasElement, filename: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
     canvas.toBlob(async (blob) => {
       if (!blob) {
-        triggerDownload(canvas, filename)
+        // toBlob failed — fall back to synchronous toDataURL download
+        const a = document.createElement('a')
+        a.href = canvas.toDataURL('image/png')
+        a.download = filename
+        a.click()
         resolve()
         return
       }
-      const file = new File([blob], filename, { type: 'image/png' })
-      if (navigator.canShare?.({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file] })
-        } catch (err) {
-          // AbortError = user dismissed the sheet, not an error worth falling back from
-          if ((err as Error).name !== 'AbortError') {
-            triggerDownload(canvas, filename)
-          }
-        }
-      } else {
-        triggerDownload(canvas, filename)
+      try {
+        await shareOrDownloadBlob(blob, filename)
+        resolve()
+      } catch (err) {
+        reject(err)
       }
-      resolve()
     }, 'image/png')
   })
 }
@@ -71,7 +61,7 @@ export default function DownloadBar({
       return
     }
     try {
-      await shareOrDownload(canvas, 'ascii-art.png')
+      await shareOrDownloadCanvas(canvas, 'ascii-art.png')
     } catch {
       toastError(Errors.exportFailed('png').message)
     }
@@ -99,7 +89,7 @@ export default function DownloadBar({
       return
     }
     try {
-      await shareOrDownload(canvas, `ascii-capture-${Date.now()}.png`)
+      await shareOrDownloadCanvas(canvas, `ascii-capture-${Date.now()}.png`)
     } catch {
       toastError(Errors.captureFailed().message)
     }

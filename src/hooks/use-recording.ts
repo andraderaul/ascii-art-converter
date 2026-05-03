@@ -1,5 +1,6 @@
 import type { RefObject } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { shareOrDownloadBlob } from '../utils/share'
 
 const PREFERRED_MIME_TYPES = [
   'video/webm;codecs=vp9',
@@ -90,12 +91,7 @@ export function useRecording(canvasRef: RefObject<HTMLCanvasElement | null>) {
 
       const blob = new Blob(chunksRef.current, { type: mimeType })
       const ext = mimeToExtension(mimeType)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `ascii-recording-${Date.now()}.${ext}`
-      a.click()
-      URL.revokeObjectURL(url)
+      void shareOrDownloadBlob(blob, `ascii-recording-${Date.now()}.${ext}`)
 
       recorderRef.current = null
       chunksRef.current = []
