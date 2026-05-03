@@ -1,0 +1,44 @@
+export type AppError = {
+  type: string
+  message: string
+  cause?: unknown
+}
+
+export function createError(params: { type: string; message: string; cause?: unknown }): AppError {
+  return {
+    type: params.type,
+    message: params.message,
+    ...(params.cause !== undefined && { cause: params.cause }),
+  }
+}
+
+export function isAppError(err: unknown): err is AppError {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'type' in err &&
+    'message' in err &&
+    typeof (err as AppError).type === 'string' &&
+    typeof (err as AppError).message === 'string'
+  )
+}
+
+export function normalizeError(err: unknown): AppError {
+  if (isAppError(err)) {
+    return err
+  }
+  return createError({ type: 'unknown_error', message: 'unexpected error', cause: err })
+}
+
+export const Errors = {
+  exportFailed: (format: 'png' | 'txt'): AppError =>
+    createError({ type: 'export_failed', message: `export ${format.toUpperCase()} failed` }),
+
+  captureFailed: (): AppError => createError({ type: 'capture_failed', message: 'capture failed' }),
+
+  storageFailed: (): AppError =>
+    createError({
+      type: 'storage_failed',
+      message: 'could not save — local storage unavailable',
+    }),
+}

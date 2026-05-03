@@ -1,5 +1,7 @@
 import type { RefObject } from 'react'
+import { Errors } from '../errors/app-error'
 import { isTouchDevice } from '../utils/device'
+import { useToastError } from './toast-provider'
 import Button from './ui/button'
 
 interface Props {
@@ -50,24 +52,34 @@ export default function DownloadBar({
   hasAiConfig,
   onAnalyze,
 }: Props) {
+  const toastError = useToastError()
+
   async function exportPng() {
     const canvas = canvasRef.current
     if (!canvas) {
       return
     }
-    await shareOrDownload(canvas, 'ascii-art.png')
+    try {
+      await shareOrDownload(canvas, 'ascii-art.png')
+    } catch {
+      toastError(Errors.exportFailed('png').message)
+    }
   }
 
   function exportTxt() {
     if (!asciiRows.length) {
       return
     }
-    const blob = new Blob([asciiRows.join('\n')], { type: 'text/plain' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = 'ascii-art.txt'
-    a.click()
-    URL.revokeObjectURL(a.href)
+    try {
+      const blob = new Blob([asciiRows.join('\n')], { type: 'text/plain' })
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = 'ascii-art.txt'
+      a.click()
+      URL.revokeObjectURL(a.href)
+    } catch {
+      toastError(Errors.exportFailed('txt').message)
+    }
   }
 
   async function capture() {
@@ -75,7 +87,11 @@ export default function DownloadBar({
     if (!canvas) {
       return
     }
-    await shareOrDownload(canvas, `ascii-capture-${Date.now()}.png`)
+    try {
+      await shareOrDownload(canvas, `ascii-capture-${Date.now()}.png`)
+    } catch {
+      toastError(Errors.captureFailed().message)
+    }
   }
 
   const analyzeBtn = hasAiConfig ? (
