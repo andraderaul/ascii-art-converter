@@ -2,7 +2,7 @@ import { createContext, type ReactNode, useContext } from 'react'
 import { useToast } from '../hooks/use-toast'
 import Toast from './ui/toast'
 
-const ToastContext = createContext<(message: string) => void>(() => {})
+export const ToastContext = createContext<(message: string) => void>(() => {})
 
 export function useToastError() {
   return useContext(ToastContext)
