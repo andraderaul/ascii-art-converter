@@ -12,6 +12,7 @@ import ControlPanel from './components/control-panel'
 import DownloadBar from './components/download-bar'
 import ErrorBoundary from './components/error-boundary'
 import UploadZone from './components/upload-zone'
+import { useRecording } from './hooks/use-recording'
 
 type ActiveModal =
   | { kind: 'apiKey' }
@@ -37,6 +38,13 @@ export default function App() {
 
   const { config: aiConfig, save: saveAiConfig, remove: removeAiConfig } = useAIConfig()
   const [activeModal, setActiveModal] = useState<ActiveModal>(null)
+  const {
+    isSupported: canRecord,
+    isRecording,
+    elapsedSeconds,
+    startRecording,
+    stopRecording,
+  } = useRecording(canvasRef)
 
   const patchSettings = useCallback((patch: Partial<ConversionSettings>) => {
     setSettings((prev) => ({ ...prev, ...patch }))
@@ -168,6 +176,11 @@ export default function App() {
               isLive={isLive}
               hasAiConfig={!!aiConfig}
               onAnalyze={handleAnalyze}
+              canRecord={canRecord}
+              isRecording={isRecording}
+              elapsedSeconds={elapsedSeconds}
+              onStartRecording={startRecording}
+              onStopRecording={stopRecording}
             />
           </div>
         </main>
