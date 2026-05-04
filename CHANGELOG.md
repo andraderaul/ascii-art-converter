@@ -1,3 +1,13 @@
+## [1.2.2](https://github.com/andraderaul/ascii-art-converter/compare/v1.2.1...v1.2.2) (2026-05-04)
+
+### Bug Fixes
+
+* **ai:** introduce NetworkError and guard unknown providers ([ba5be74](https://github.com/andraderaul/ascii-art-converter/commit/ba5be74a75558fba9ce4d27fbf6f509185382124))
+
+### Documentation
+
+* update CLAUDE.md to reflect current codebase state ([d167df0](https://github.com/andraderaul/ascii-art-converter/commit/d167df08c8da5e98c0bf55f14d6832746709165b))
+
 ## [1.2.1](https://github.com/andraderaul/ascii-art-converter/compare/v1.2.0...v1.2.1) (2026-05-04)
 
 ### Bug Fixes
