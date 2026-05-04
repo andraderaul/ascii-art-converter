@@ -28,6 +28,7 @@ export default function ControlPanel({ settings, onChange }: Props) {
       <div className="flex flex-col gap-2xs">
         <Label>color mode</Label>
         <ToggleGroup<ColorMode>
+          ariaLabel="Color mode"
           options={['matrix', 'bw', 'retro', 'sepia', 'neon', 'original']}
           value={settings.colorMode}
           onChange={(colorMode) => onChange({ colorMode })}
@@ -37,6 +38,7 @@ export default function ControlPanel({ settings, onChange }: Props) {
       <div className="flex flex-col gap-2xs">
         <Label>charset</Label>
         <ToggleGroup<Charset>
+          ariaLabel="Charset"
           options={['simple', 'complex', 'binary', 'blocks']}
           value={settings.charset}
           onChange={(charset) => onChange({ charset })}

@@ -15,6 +15,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={error}>
       {children}
       <div
+        aria-live="polite"
         className="fixed flex flex-col gap-xs pointer-events-none"
         style={{ bottom: 'var(--gap-md)', right: 'var(--gap-md)', zIndex: 1000 }}
       >

@@ -104,7 +104,7 @@ export function useWebcamState(
   }, [state.facingMode, startWebcam])
 
   const switchMode = useCallback(
-    (next: SourceMode) => {
+    async (next: SourceMode) => {
       if (next === state.mode) {
         return
       }
@@ -113,7 +113,7 @@ export function useWebcamState(
       }
       dispatch({ type: 'SWITCH_MODE', mode: next })
       if (next === 'webcam') {
-        void startWebcam('user')
+        await startWebcam('user')
       }
     },
     [state.mode, stopWebcam, startWebcam],

@@ -20,10 +20,10 @@ export class GeminiAdapter {
     let text: string
     try {
       const model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
-      const result = await model.generateContent([
-        { inlineData: { mimeType: 'image/png', data: base64 } },
-        PROMPT,
-      ])
+      const result = await model.generateContent(
+        [{ inlineData: { mimeType: 'image/png', data: base64 } }, PROMPT],
+        { signal: AbortSignal.timeout(30_000) },
+      )
       text = result.response.text()
     } catch (err) {
       const msg = (err as { message?: string }).message ?? ''

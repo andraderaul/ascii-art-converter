@@ -68,6 +68,7 @@ export default function UploadZone({ onImage, onVideoStream, onFacingModeChange 
   return (
     <div className="flex flex-col gap-sm">
       <ToggleGroup
+        ariaLabel="Source mode"
         options={['upload', 'webcam'] as const}
         value={mode}
         onChange={switchMode}

@@ -19,22 +19,25 @@ export class OpenAIAdapter {
   async analyze(base64: string): Promise<unknown> {
     let response: OpenAI.Chat.ChatCompletion
     try {
-      response = await this.client.chat.completions.create({
-        model: 'gpt-4o',
-        max_tokens: 256,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'image_url',
-                image_url: { url: `data:image/png;base64,${base64}` },
-              },
-              { type: 'text', text: PROMPT },
-            ],
-          },
-        ],
-      })
+      response = await this.client.chat.completions.create(
+        {
+          model: 'gpt-4o',
+          max_tokens: 256,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'image_url',
+                  image_url: { url: `data:image/png;base64,${base64}` },
+                },
+                { type: 'text', text: PROMPT },
+              ],
+            },
+          ],
+        },
+        { signal: AbortSignal.timeout(30_000) },
+      )
     } catch (err) {
       const status = (err as { status?: number }).status
       if (status === 401 || status === 403) {

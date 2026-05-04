@@ -6,15 +6,20 @@ export default function ToggleGroup<T extends string>({
   onChange,
   fullWidth = false,
   labels,
+  ariaLabel,
 }: {
   options: readonly T[]
   value: T
   onChange: (v: T) => void
   fullWidth?: boolean
   labels?: Partial<Record<T, React.ReactNode>>
+  ariaLabel?: string
 }) {
   return (
-    <div className={cn('flex', fullWidth ? 'gap-2xs' : 'gap-xs flex-wrap')}>
+    <fieldset
+      aria-label={ariaLabel}
+      className={cn('flex border-none p-0 m-0', fullWidth ? 'gap-2xs' : 'gap-xs flex-wrap')}
+    >
       {options.map((opt) => (
         <button
           type="button"
@@ -31,6 +36,6 @@ export default function ToggleGroup<T extends string>({
           {labels?.[opt] ?? opt}
         </button>
       ))}
-    </div>
+    </fieldset>
   )
 }

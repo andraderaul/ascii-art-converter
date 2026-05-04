@@ -28,7 +28,6 @@ export default function Modal({
       {closeable && (
         <button
           type="button"
-          aria-label="Close"
           className="absolute inset-0 w-full h-full cursor-default bg-transparent border-none"
           onClick={onClose}
           tabIndex={-1}

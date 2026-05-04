@@ -115,6 +115,8 @@ export default function AsciiCanvas({
       return
     }
 
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null
+
     const observer = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect
       if (width === 0 || height === 0) {
@@ -122,11 +124,21 @@ export default function AsciiCanvas({
       }
       canvas.width = Math.floor(width)
       canvas.height = Math.floor(height)
-      renderStaticRef.current?.()
+      if (debounceTimer) {
+        clearTimeout(debounceTimer)
+      }
+      debounceTimer = setTimeout(() => {
+        renderStaticRef.current?.()
+      }, 50)
     })
 
     observer.observe(canvas)
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      if (debounceTimer) {
+        clearTimeout(debounceTimer)
+      }
+    }
   }, [canvasRef])
 
   return (

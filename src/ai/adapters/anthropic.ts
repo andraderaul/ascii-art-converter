@@ -19,19 +19,25 @@ export class AnthropicAdapter {
   async analyze(base64: string): Promise<unknown> {
     let response: Anthropic.Message
     try {
-      response = await this.client.messages.create({
-        model: 'claude-opus-4-7',
-        max_tokens: 256,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'image', source: { type: 'base64', media_type: 'image/png', data: base64 } },
-              { type: 'text', text: PROMPT },
-            ],
-          },
-        ],
-      })
+      response = await this.client.messages.create(
+        {
+          model: 'claude-opus-4-7',
+          max_tokens: 256,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'image',
+                  source: { type: 'base64', media_type: 'image/png', data: base64 },
+                },
+                { type: 'text', text: PROMPT },
+              ],
+            },
+          ],
+        },
+        { signal: AbortSignal.timeout(30_000) },
+      )
     } catch (err) {
       const status = (err as { status?: number }).status
       if (status === 401 || status === 403) {
