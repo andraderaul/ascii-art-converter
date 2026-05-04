@@ -1,3 +1,9 @@
+## [1.2.3](https://github.com/andraderaul/ascii-art-converter/compare/v1.2.2...v1.2.3) (2026-05-04)
+
+### Bug Fixes
+
+* should-fix and accessibility items from TODO ([a7508dc](https://github.com/andraderaul/ascii-art-converter/commit/a7508dc8a46ccecfd7e7e776f6ca7fd83e3e6419))
+
 ## [1.2.2](https://github.com/andraderaul/ascii-art-converter/compare/v1.2.1...v1.2.2) (2026-05-04)
 
 ### Bug Fixes
