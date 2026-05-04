@@ -8,14 +8,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev        # start Vite dev server
 npm run build      # tsc -b && vite build
 npm run test       # run all tests (vitest)
+npm run test:coverage          # vitest run --coverage
 npx vitest run src/ascii/renderer.test.ts  # run a single test file
-```
 
-No lint script is configured.
+npm run lint       # biome lint .
+npm run lint:fix   # biome lint . --write
+npm run check      # biome check . (lint + format)
+npm run check:fix  # biome check . --write
+npm run format     # biome format . --write
+```
 
 ## Architecture
 
-Single-page React/TS/Vite app. Fully client-side — no backend server. AI analysis is optional and uses the user's own API key.
+Single-page React/TS/Vite app. Fully client-side — no backend server. AI analysis is optional and uses the user's own API key (Anthropic, OpenAI, or Gemini).
 
 ### Conversion pipeline
 
@@ -27,6 +32,20 @@ Single-page React/TS/Vite app. Fully client-side — no backend server. AI analy
 6. `paintFrame()` is the only function that writes to `CanvasRenderingContext2D` for rendering
 7. For Live Source, `renderFrame` is called in a `requestAnimationFrame` loop throttled to ~15fps (see ADR 0002). For static Source Image, it runs once per settings change via `useEffect`
 8. `onConverted` callback sends the plain-text rows up to `App`, where they're held in `asciiRows` state for TXT Export
+
+### AI analysis
+
+Optional feature — user supplies their own API key. `use-ai-config` stores the `AIConfig` in `sessionStorage`. `analyzeCanvas()` in `analysis-service.ts` dynamically imports the correct adapter (Anthropic, OpenAI, or Gemini), calls it, and validates the response with `validate()`. AI errors (`AuthError`, `QuotaError`, `ParseError`) are typed classes caught in `app.tsx` and routed to `AnalysisModal` for type-specific feedback (see ADR 0003, ADR 0006).
+
+### Error handling
+
+Two coexisting error flows (see ADR 0006):
+- **AI errors** — typed classes (`AuthError`, `QuotaError`, `ParseError`) thrown by adapters, caught in `app.tsx`, shown in `AnalysisModal`
+- **Operational errors** — `AppError` plain-object shape (`type`, `message`, `cause?`) for Export, Capture, and localStorage failures; surfaced via the toast system (`use-toast` + `ToastProvider`)
+
+### Recording
+
+`useRecording` wraps `canvas.captureStream(15)` + `MediaRecorder` with runtime format detection (vp9 → vp8 → webm → mp4). The Record control is hidden entirely on browsers without support — no GIF fallback (see ADR 0007). On completion, `shareOrDownloadBlob` opens the Web Share API on mobile or triggers a direct download on desktop.
 
 ### Domain language (from CONTEXT.md)
 
@@ -43,6 +62,8 @@ Use these terms precisely — avoid the listed alternatives:
 | **Resolution** | Chars-per-canvas (controlled by character size) | fontSize, granularity |
 | **Export** | Taking the result out (PNG or TXT) | download |
 | **Capture** | Exporting a single frame from Live Source (doesn't stop the loop) | snapshot, screenshot |
+| **Recording** | Capturing Live Source as a video file via MediaRecorder | video export, screen record |
+| **AI Analysis** | Optional AI-powered description + threat-level of the ASCII canvas | AI scan, AI detection |
 
 ### Design system
 
@@ -50,10 +71,38 @@ All visual tokens live as CSS custom properties in `src/index.css`. Tailwind is 
 
 ### Key files
 
+**ASCII core**
 - `src/ascii/types.ts` — `ConversionSettings`, `ColorMode`, `Charset`, `CHARSET_MAPS`, `AsciiCell`
 - `src/ascii/converter.ts` — `convertImage()`, `getAsciiChar()`, luminosity math
 - `src/ascii/image-utils.ts` — `resizeImage()` (caps Source Image at 800px wide before sampling)
 - `src/ascii/renderer.ts` — `computeFrame()` (pure), `paintFrame()` (side effects) — see ADR 0005
+
+**AI analysis**
+- `src/ai/types.ts` — `AIConfig`, `AIProviderName`, `AIProvider`, `Analysis`, `ThreatLevel`, `AnalysisState`
+- `src/ai/analysis-service.ts` — `analyzeCanvas()`, lazy-imports correct adapter, validates response
+- `src/ai/adapters/` — `AnthropicAdapter`, `OpenAIAdapter`, `GeminiAdapter`
+- `src/ai/errors.ts` — `AuthError`, `QuotaError`, `ParseError`
+- `src/ai/use-ai-config.ts` — `AIConfig` state + `sessionStorage` persistence
+
+**Errors & utilities**
+- `src/errors/app-error.ts` — `AppError`, `createError`, `normalizeError`, `Errors` namespace
+- `src/hooks/use-recording.ts` — `useRecording`, `isRecordingSupported`, format detection
+- `src/hooks/use-toast.ts` — toast queue state
+- `src/hooks/use-webcam-state.ts` — webcam lifecycle state
+- `src/utils/cn.ts` — `cn()` (clsx + tailwind-merge)
+- `src/utils/device.ts` — device/browser detection helpers
+- `src/utils/share.ts` — `shareOrDownloadBlob()` (Web Share API with download fallback)
+
+**Components**
 - `src/components/ascii-canvas.tsx` — lifecycle coordinator: drives static and rAF render paths
+- `src/components/control-panel.tsx` — ConversionSettings controls
+- `src/components/download-bar.tsx` — Export and Capture controls
+- `src/components/analysis-modal.tsx` — AI Analysis results with threat-level display
+- `src/components/api-key-modal.tsx` — API key configuration
+- `src/components/about-modal.tsx` — About/info modal
+- `src/components/toast-provider.tsx` — renders the toast queue
 - `src/components/error-boundary.tsx` — generic React error boundary with customizable fallback
-- `docs/adr/` — architectural decisions (0001–0005)
+- `src/components/ui/` — design system primitives: `badge`, `button`, `error-text`, `label`, `modal`, `slider`, `toast`, `toggle-group`
+
+**ADRs**
+- `docs/adr/` — architectural decisions 0001–0007
