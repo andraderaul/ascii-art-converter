@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { analyzeCanvas } from './ai/analysis-service'
-import { AuthError, QuotaError } from './ai/errors'
+import { AuthError, NetworkError, QuotaError } from './ai/errors'
 import type { AnalysisState } from './ai/types'
 import { useAIConfig } from './ai/use-ai-config'
 import type { ConversionSettings } from './ascii/types'
@@ -84,6 +84,8 @@ export default function App() {
         setActiveModal({ kind: 'analysis', state: { status: 'auth-error' } })
       } else if (err instanceof QuotaError) {
         setActiveModal({ kind: 'analysis', state: { status: 'quota-error' } })
+      } else if (err instanceof NetworkError) {
+        setActiveModal({ kind: 'analysis', state: { status: 'network-error' } })
       } else {
         setActiveModal({ kind: 'analysis', state: { status: 'parse-error' } })
       }

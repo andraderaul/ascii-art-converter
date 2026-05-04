@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { AuthError, ParseError, QuotaError } from '../errors'
+import { AuthError, NetworkError, ParseError, QuotaError } from '../errors'
 
 const PROMPT = `You are SENTINEL, a tactical surveillance AI on a cyberpunk grid.
 Incoming feed: ASCII-rendered visual. Analyze. Classify. Report.
@@ -34,7 +34,7 @@ export class GeminiAdapter {
       if (status === 429 || msg.includes('RESOURCE_EXHAUSTED')) {
         throw new QuotaError()
       }
-      throw new ParseError()
+      throw new NetworkError()
     }
 
     // Gemini sometimes wraps JSON in ```json blocks

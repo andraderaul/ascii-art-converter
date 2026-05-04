@@ -32,6 +32,10 @@ export async function analyzeCanvas(dataUrl: string, config: AIConfig): Promise<
     return validate(raw)
   }
 
+  if (config.provider !== 'gemini') {
+    throw new Error(`unknown provider: ${config.provider}`)
+  }
+
   const { GeminiAdapter } = await import('./adapters/gemini')
   const raw = await new GeminiAdapter(config.key).analyze(base64)
   return validate(raw)

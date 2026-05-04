@@ -5,6 +5,13 @@ export class AuthError extends Error {
   }
 }
 
+export class NetworkError extends Error {
+  constructor() {
+    super('Network or server error')
+    this.name = 'NetworkError'
+  }
+}
+
 export class ParseError extends Error {
   constructor() {
     super('Unexpected response from AI Provider')

@@ -23,3 +23,4 @@ export type AnalysisState =
   | { status: 'auth-error' }
   | { status: 'parse-error' }
   | { status: 'quota-error' }
+  | { status: 'network-error' }

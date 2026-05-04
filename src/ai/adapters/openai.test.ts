@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { AuthError, ParseError, QuotaError } from '../errors'
+import { AuthError, NetworkError, ParseError, QuotaError } from '../errors'
 import { OpenAIAdapter } from './openai'
 
 const mockCreate = vi.fn()
@@ -50,10 +50,10 @@ describe('OpenAIAdapter', () => {
     await expect(makeAdapter().analyze('base64data')).rejects.toBeInstanceOf(QuotaError)
   })
 
-  it('throws ParseError on other error status codes', async () => {
+  it('throws NetworkError on other error status codes', async () => {
     mockCreate.mockRejectedValueOnce({ status: 500 })
 
-    await expect(makeAdapter().analyze('base64data')).rejects.toBeInstanceOf(ParseError)
+    await expect(makeAdapter().analyze('base64data')).rejects.toBeInstanceOf(NetworkError)
   })
 
   it('throws ParseError when message content is null', async () => {

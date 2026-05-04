@@ -114,6 +114,19 @@ export default function AnalysisModal({ state, onClose, onRetry }: Props) {
           )}
         </div>
       )}
+      {state.status === 'network-error' && (
+        <div className="flex-1 flex flex-col gap-sm justify-center py-md">
+          <span className="text-electric text-sm tracking-wide">◈ TRANSMISSION FAILURE</span>
+          <span className="text-dim text-xs leading-normal">
+            Connection to provider lost. Check your network and try again.
+          </span>
+          {onRetry && (
+            <Button variant="secondary" onClick={onRetry} className="self-start mt-sm">
+              retry
+            </Button>
+          )}
+        </div>
+      )}
     </Modal>
   )
 }
