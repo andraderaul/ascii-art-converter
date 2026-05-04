@@ -1,3 +1,13 @@
+## [1.2.1](https://github.com/andraderaul/ascii-art-converter/compare/v1.2.0...v1.2.1) (2026-05-04)
+
+### Bug Fixes
+
+* give honest toast messages when localStorage is unavailable ([5b55e3c](https://github.com/andraderaul/ascii-art-converter/commit/5b55e3ca766aff11027f25acac08ab1118b9ff65))
+
+### Code Refactoring
+
+* streamline blob sharing and downloading in recording and download components ([bd3965c](https://github.com/andraderaul/ascii-art-converter/commit/bd3965cf2b81ab695a0f808256b3c8e6ef68debc))
+
 ## [1.2.0](https://github.com/andraderaul/ascii-art-converter/compare/v1.1.1...v1.2.0) (2026-05-03)
 
 ### Features
