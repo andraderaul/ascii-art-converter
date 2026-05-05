@@ -69,7 +69,7 @@
   --bg-accent-soft: rgba(184, 41, 255, 0.12);
   --bg-danger-ghost: rgba(255, 45, 120, 0.08);
   --bg-info-ghost: rgba(0, 229, 255, 0.06);
-  --bg-modal-overlay: rgba(10, 10, 15, 0.88);
+  --bg-modal-overlay: rgba(8, 8, 18, 0.72);
 
   /* Typography */
   --font-mono: "IBM Plex Mono", "Departure Mono", monospace;
