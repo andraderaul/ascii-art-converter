@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/andraderaul/ascii-art-converter/compare/v1.3.0...v1.3.1) (2026-05-05)
+
+### Bug Fixes
+
+* **modal:** fix overlay appearing completely dark due to same color as background ([ab85c02](https://github.com/andraderaul/ascii-art-converter/commit/ab85c023e7ae1a56131696f5461975f354008bb3)), closes [#0a0a0f](https://github.com/andraderaul/ascii-art-converter/issues/0a0a0f)
+
 ## [1.3.0](https://github.com/andraderaul/ascii-art-converter/compare/v1.2.3...v1.3.0) (2026-05-05)
 
 ### Features
