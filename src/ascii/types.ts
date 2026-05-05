@@ -1,5 +1,22 @@
 export type ColorMode = 'matrix' | 'bw' | 'retro' | 'sepia' | 'neon' | 'original'
-export type Charset = 'simple' | 'complex' | 'binary' | 'blocks'
+export type Charset =
+  // ascii gradient
+  | 'classic'
+  | 'sharp'
+  | 'detailed'
+  | 'ascii'
+  // unicode blocks
+  | 'blocks'
+  | 'halfblock'
+  // writing systems
+  | 'braille'
+  | 'katakana'
+  // shapes
+  | 'geometric'
+  | 'circles'
+  // specialized
+  | 'box'
+  | 'binary'
 
 export interface ConversionSettings {
   resolution: number
@@ -10,10 +27,23 @@ export interface ConversionSettings {
 }
 
 export const CHARSET_MAPS: Record<Charset, string> = {
-  simple: ' .:-=+*#%@',
-  complex: ' .^!*<&%$#@',
-  binary: ' 01',
+  // ascii gradient
+  classic: ' .:-=+*#%@',
+  sharp: ' .^!*<&%$#@',
+  detailed: ' .\'`^",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$',
+  ascii: ' .,;|+=i1lt*xX0#@',
+  // unicode blocks
   blocks: ' ░▒▓█',
+  halfblock: ' ▄▀█',
+  // writing systems
+  braille: ' ⠁⠃⠇⡇⣇⣧⣷⣿',
+  katakana: ' ･ｦｧｱｲｴｵｸｶｷｺｻｼｽｾｿﾁﾂﾃﾄﾅﾆﾇﾉﾊﾌﾍﾎﾏﾐﾑﾒﾔﾗﾘﾙﾚﾛﾜﾝ',
+  // shapes
+  geometric: ' ·•○◇◆□■▲▼◀▶★✦',
+  circles: ' ·∘○◎●',
+  // specialized
+  box: ' ╴─│┼╪╬█',
+  binary: ' 01',
 }
 
 export interface AsciiCell {

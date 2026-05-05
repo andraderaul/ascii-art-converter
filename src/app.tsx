@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS: ConversionSettings = {
   brightness: 1.0,
   contrast: 1.0,
   colorMode: 'matrix',
-  charset: 'complex',
+  charset: 'sharp',
 }
 
 export default function App() {

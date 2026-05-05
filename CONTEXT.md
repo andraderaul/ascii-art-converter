@@ -84,6 +84,47 @@ _Avoid_: key, api key, credentials
 O serviço externo de IA que executa o **Analyze** (ex: Anthropic, OpenAI, Gemini). Cada AI Provider tem um adapter dedicado que implementa o contrato `AIProvider`.
 _Avoid_: provider (genérico), model, LLM
 
+## Charsets
+
+Cada Charset é uma string de caracteres ordenados do mais escuro (menor luminosidade → `' '`) ao mais claro. O conversor divide 0–255 em `map.length - 1` buckets e indexa a string. A ordem define o gradiente expressivo; o comprimento define a granularidade.
+
+**Gradiente ASCII** — mesma técnica (luminosidade → char imprimível), diferem no contraste e granularidade:
+
+| Charset | Origem / contexto |
+|---|---|
+| **classic** | Gradiente manual canônico da era BBS — 10 níveis, legível em qualquer terminal |
+| **sharp** | Variante com pontuação mais agressiva (`^!*<&%$`) — output de contraste alto |
+| **detailed** | Escala Paul Bourke (1997), referência histórica — 70+ caracteres, máxima granularidade |
+| **ascii** | Gradiente somente ASCII 7-bit — sem Unicode. Máxima compatibilidade (impressoras, terminais legados) |
+
+**Blocos Unicode** — gradiente por preenchimento de célula:
+
+| Charset | Origem / contexto |
+|---|---|
+| **blocks** | IBM CP437 (DOS). Gradiente de blocos Unicode (`░▒▓█`) |
+| **halfblock** | Técnica half-block da demoscene — `▄▀█` subdividem cada célula em dois pixels verticais, dobrando a resolução percebida |
+
+**Sistemas de escrita** — ordenação por peso visual aproximado, não luminância exata:
+
+| Charset | Origem / contexto |
+|---|---|
+| **braille** | Popularizado por viewers de terminal como `chafa`. Cada char representa 2×4 pontos; ordenado por popcount de 0 a 8 dots (`⠀→⣿`). Maior densidade visual percebida sem mudar cols/rows |
+| **katakana** | Estética Shift-JIS art japonesa (1980s–2000s) e o visual Matrix. Usa formas halfwidth (U+FF65–U+FF9F) para compatibilidade monospace |
+
+**Formas geométricas** — símbolos Unicode ordenados por área preenchida:
+
+| Charset | Origem / contexto |
+|---|---|
+| **geometric** | Símbolos geométricos variados (círculos, quadrados, triângulos, estrelas) — uso estético |
+| **circles** | Progressão de círculos do vazio ao cheio (`·∘○◎●`) — cinco níveis, saída minimalista |
+
+**Especializados**:
+
+| Charset | Origem / contexto |
+|---|---|
+| **box** | Arte TUI/terminal desde o DOS. Caracteres box-drawing Unicode (─│┼╬) ordenados por densidade de linhas |
+| **binary** | Minimalista — dois estados (`0` e `1`). Produz saída de código/glitch |
+
 ## Flagged ambiguities
 
 - `color` (valor de ColorMode) era ambíguo — poderia significar "tem cor" ou "usa as cores originais". Resolvido: o valor se chama `original`.

@@ -7,7 +7,7 @@ import ControlPanel from './control-panel'
 const DEFAULT_SETTINGS: ConversionSettings = {
   resolution: 12,
   colorMode: 'matrix',
-  charset: 'simple',
+  charset: 'classic',
   brightness: 1.0,
   contrast: 1.0,
 }
@@ -39,9 +39,9 @@ describe('ControlPanel', () => {
     const user = userEvent.setup()
     const { onChange } = renderPanel()
 
-    await user.click(screen.getByRole('button', { name: 'complex' }))
+    await user.click(screen.getByRole('button', { name: 'sharp' }))
 
-    expect(onChange).toHaveBeenCalledWith({ charset: 'complex' })
+    expect(onChange).toHaveBeenCalledWith({ charset: 'sharp' })
   })
 
   it('calls onChange with brightness patch when brightness slider changes', () => {

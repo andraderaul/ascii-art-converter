@@ -6,7 +6,7 @@ import AsciiCanvas from './ascii-canvas'
 
 const SETTINGS: ConversionSettings = {
   resolution: 12,
-  charset: 'simple',
+  charset: 'classic',
   colorMode: 'matrix',
   brightness: 1,
   contrast: 1,

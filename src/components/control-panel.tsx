@@ -39,7 +39,20 @@ export default function ControlPanel({ settings, onChange }: Props) {
         <Label>charset</Label>
         <ToggleGroup<Charset>
           ariaLabel="Charset"
-          options={['simple', 'complex', 'binary', 'blocks']}
+          options={[
+            'classic',
+            'sharp',
+            'detailed',
+            'ascii',
+            'blocks',
+            'halfblock',
+            'braille',
+            'katakana',
+            'geometric',
+            'circles',
+            'box',
+            'binary',
+          ]}
           value={settings.charset}
           onChange={(charset) => onChange({ charset })}
         />
