@@ -109,7 +109,7 @@ Cada Charset é uma string de caracteres ordenados do mais escuro (menor luminos
 | Charset | Origem / contexto |
 |---|---|
 | **braille** | Popularizado por viewers de terminal como `chafa`. Cada char representa 2×4 pontos; ordenado por popcount de 0 a 8 dots (`⠀→⣿`). Maior densidade visual percebida sem mudar cols/rows |
-| **katakana** | Estética Shift-JIS art japonesa (1980s–2000s) e o visual Matrix. Usa formas halfwidth (U+FF65–U+FF9F) para compatibilidade monospace |
+| **katakana** | Estética Shift-JIS art japonesa (1980s–2000s). Usa formas halfwidth (U+FF65–U+FF9F) para compatibilidade monospace. O Matrix usou katakana espelhado horizontalmente — não reproduzível via charset string sem alterar a pipeline de renderização |
 
 **Formas geométricas** — símbolos Unicode ordenados por área preenchida:
 
