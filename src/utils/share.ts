@@ -1,3 +1,5 @@
+import { isTouchDevice } from './device'
+
 function triggerBlobDownload(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -14,7 +16,7 @@ function triggerBlobDownload(blob: Blob, filename: string): void {
  */
 export async function shareOrDownloadBlob(blob: Blob, filename: string): Promise<void> {
   const file = new File([blob], filename, { type: blob.type })
-  if (navigator.canShare?.({ files: [file] })) {
+  if (isTouchDevice && navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({ files: [file] })
       return
