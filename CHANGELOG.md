@@ -1,3 +1,13 @@
+## [1.3.0](https://github.com/andraderaul/ascii-art-converter/compare/v1.2.3...v1.3.0) (2026-05-05)
+
+### Features
+
+* **charset:** expand charset library from 4 to 12 options ([4010b78](https://github.com/andraderaul/ascii-art-converter/commit/4010b7894f3440250b75f912190301ab395c5a13))
+
+### Bug Fixes
+
+* improve file download in desktop ([e895b25](https://github.com/andraderaul/ascii-art-converter/commit/e895b258e13e486f95f57fbdea5a6124a1921a8a))
+
 ## [1.2.3](https://github.com/andraderaul/ascii-art-converter/compare/v1.2.2...v1.2.3) (2026-05-04)
 
 ### Bug Fixes
