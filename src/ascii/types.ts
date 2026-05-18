@@ -1,4 +1,17 @@
-export type ColorMode = 'matrix' | 'bw' | 'retro' | 'sepia' | 'neon' | 'original'
+export const COLOR_MODES = [
+  'matrix',
+  'bw',
+  'retro',
+  'sepia',
+  'neon',
+  'original',
+  'synthwave',
+  'matrix-dual',
+  'acid',
+  'infrared',
+] as const
+
+export type ColorMode = (typeof COLOR_MODES)[number]
 export type Charset =
   // ascii gradient
   | 'classic'

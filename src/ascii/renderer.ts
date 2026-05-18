@@ -1,3 +1,4 @@
+import { computeLuminosity } from './converter'
 import type { AsciiCell, ColorMode, ConversionSettings } from './types'
 
 export interface RenderInstruction {
@@ -13,6 +14,17 @@ const COLOR_MODE_COLORS: Partial<Record<ColorMode, string>> = {
   retro: '#ffe600',
   sepia: '#c4a46b',
   neon: '#ff2d78',
+}
+
+const DUAL_COLOR_LUM_THRESHOLD = 0.5
+
+type DualColorPair = readonly [bright: string, dark: string]
+
+const DUAL_COLOR_MODES: Partial<Record<ColorMode, DualColorPair>> = {
+  synthwave: ['#00ffff', '#ff00ff'],
+  'matrix-dual': ['#00ff41', '#9d00ff'],
+  acid: ['#ccff00', '#ff0099'],
+  infrared: ['#ff4500', '#0066ff'],
 }
 
 export const MONOSPACE_CHAR_WIDTH_RATIO = 0.6
@@ -34,10 +46,18 @@ export function computeFrame(
     let line = ''
     for (let col = 0; col < cells[row].length; col++) {
       const cell = cells[row][col]
-      const color =
-        colorMode === 'original'
-          ? `rgb(${cell.r},${cell.g},${cell.b})`
-          : (COLOR_MODE_COLORS[colorMode] ?? '#c8c8e0')
+      const dualColors = DUAL_COLOR_MODES[colorMode]
+      let color: string
+      if (dualColors) {
+        color =
+          computeLuminosity(cell.r, cell.g, cell.b) >= DUAL_COLOR_LUM_THRESHOLD
+            ? dualColors[0]
+            : dualColors[1]
+      } else if (colorMode === 'original') {
+        color = `rgb(${cell.r},${cell.g},${cell.b})`
+      } else {
+        color = COLOR_MODE_COLORS[colorMode] ?? '#c8c8e0'
+      }
       instructions.push({ char: cell.char, x: col * charW, y: row * charH, color })
       line += cell.char
     }
