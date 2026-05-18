@@ -20,7 +20,7 @@ const DUAL_COLOR_MODES: Partial<Record<ColorMode, [string, string]>> = {
   synthwave: ['#00ffff', '#ff00ff'],
   'matrix-dual': ['#00ff41', '#9d00ff'],
   acid: ['#ccff00', '#ff0099'],
-  infrared: ['#0066ff', '#ff4500'],
+  infrared: ['#ff4500', '#0066ff'],
 }
 
 export const MONOSPACE_CHAR_WIDTH_RATIO = 0.6
