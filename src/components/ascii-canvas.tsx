@@ -153,7 +153,7 @@ export default function AsciiCanvas({
       {isRecording && (
         <div
           data-testid="rec-indicator"
-          className="absolute top-2 right-2 flex items-center gap-2xs font-mono text-xs text-hot-pink animate-pulse pointer-events-none select-none"
+          className="absolute top-xs right-xs flex items-center gap-2xs font-mono text-xs text-hot-pink motion-safe:animate-pulse pointer-events-none select-none"
           aria-hidden="true"
         >
           ● REC

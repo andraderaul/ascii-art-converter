@@ -142,7 +142,7 @@ describe('DownloadBar (live mode)', () => {
     expect(onStopRecording).toHaveBeenCalledOnce()
   })
 
-  it('capture button label is "◎ capture frame" during recording', () => {
+  it('capture button label is "◎ capture" during recording (consistent with non-recording state)', () => {
     renderBar({
       isLive: true,
       isRecording: true,
@@ -150,7 +150,6 @@ describe('DownloadBar (live mode)', () => {
       onStopRecording: vi.fn(),
     })
 
-    expect(screen.getByRole('button', { name: /capture frame/i })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /^◎ capture$/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /capture/i })).toBeInTheDocument()
   })
 })

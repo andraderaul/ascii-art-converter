@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { useRef } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ConversionSettings } from '../ascii/types'
@@ -54,20 +54,20 @@ describe('AsciiCanvas', () => {
   })
 
   it('shows REC indicator when isRecording is true', () => {
-    const { container } = render(<Wrapper isRecording={true} />)
+    render(<Wrapper isRecording={true} />)
 
-    expect(container.querySelector('[data-testid="rec-indicator"]')).toBeInTheDocument()
+    expect(screen.getByTestId('rec-indicator')).toBeInTheDocument()
   })
 
   it('does not show REC indicator when isRecording is false', () => {
-    const { container } = render(<Wrapper isRecording={false} />)
+    render(<Wrapper isRecording={false} />)
 
-    expect(container.querySelector('[data-testid="rec-indicator"]')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('rec-indicator')).not.toBeInTheDocument()
   })
 
   it('does not show REC indicator when isRecording is omitted', () => {
-    const { container } = render(<Wrapper />)
+    render(<Wrapper />)
 
-    expect(container.querySelector('[data-testid="rec-indicator"]')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('rec-indicator')).not.toBeInTheDocument()
   })
 })

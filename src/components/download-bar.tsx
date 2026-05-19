@@ -113,7 +113,7 @@ export default function DownloadBar({
             ● {formatElapsedTime(elapsedSeconds)}
           </div>
           <Button variant="danger" onClick={capture} className="flex-1 sm:flex-none">
-            ◎ capture frame
+            ◎ capture
           </Button>
           <Button variant="danger" onClick={onStopRecording} className="flex-1 sm:flex-none">
             ⏹ stop
