@@ -19,9 +19,18 @@ interface Props {
   webcamState: WebcamState
   onSwitchMode: (next: SourceMode) => void | Promise<void>
   onSwitchCamera: () => void | Promise<void>
+  isMirrored: boolean
+  onMirrorToggle: () => void
 }
 
-export default function UploadZone({ onImage, webcamState, onSwitchMode, onSwitchCamera }: Props) {
+export default function UploadZone({
+  onImage,
+  webcamState,
+  onSwitchMode,
+  onSwitchCamera,
+  isMirrored,
+  onMirrorToggle,
+}: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
   const [imageError, setImageError] = useState<string | null>(null)
@@ -124,8 +133,26 @@ export default function UploadZone({ onImage, webcamState, onSwitchMode, onSwitc
             </span>
           )}
           {live && isTouchDevice && (
-            <Button variant="ghost" onClick={() => void onSwitchCamera()} className="px-sm py-2xs">
+            <Button
+              variant="ghost"
+              onClick={() => void onSwitchCamera()}
+              className="px-sm py-2xs min-h-[44px]"
+            >
               ⇄ {facingMode === 'user' ? 'front' : 'rear'}
+            </Button>
+          )}
+          {live && (
+            <Button
+              variant="ghost"
+              onClick={onMirrorToggle}
+              aria-pressed={isMirrored}
+              aria-label={isMirrored ? 'disable mirror' : 'enable mirror'}
+              className={cn(
+                'px-sm py-2xs min-h-[44px]',
+                isMirrored && 'border-violet text-violet bg-accent-ghost',
+              )}
+            >
+              ⇋ mirror
             </Button>
           )}
         </div>
