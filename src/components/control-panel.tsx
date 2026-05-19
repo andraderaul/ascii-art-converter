@@ -24,6 +24,7 @@ export default function ControlPanel({ settings, onChange }: Props) {
         step={RESOLUTION_RANGE.step}
         onChange={(resolution) => onChange({ resolution })}
         format={(v) => `${v}px`}
+        defaultValue={12}
       />
 
       <div className="flex flex-col gap-2xs">
@@ -66,6 +67,7 @@ export default function ControlPanel({ settings, onChange }: Props) {
         max={BRIGHTNESS_RANGE.max}
         step={BRIGHTNESS_RANGE.step}
         onChange={(brightness) => onChange({ brightness })}
+        defaultValue={1.0}
       />
 
       <Slider
@@ -75,6 +77,7 @@ export default function ControlPanel({ settings, onChange }: Props) {
         max={CONTRAST_RANGE.max}
         step={CONTRAST_RANGE.step}
         onChange={(contrast) => onChange({ contrast })}
+        defaultValue={1.0}
       />
     </div>
   )
