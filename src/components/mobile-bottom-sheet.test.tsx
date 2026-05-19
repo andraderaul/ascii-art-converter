@@ -1,8 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import MobileBottomSheet from './mobile-bottom-sheet'
 
 describe('MobileBottomSheet', () => {
+  afterEach(() => {
+    // restore body overflow after each test
+    document.body.style.overflow = ''
+  })
+
   it('renders children when open', () => {
     render(
       <MobileBottomSheet isOpen={true} onClose={vi.fn()}>
@@ -43,30 +48,80 @@ describe('MobileBottomSheet', () => {
     expect(onClose).toHaveBeenCalledOnce()
   })
 
-  it('calls onClose on swipe-down gesture of 80px+', () => {
+  it('calls onClose when Escape key is pressed', () => {
     const onClose = vi.fn()
     render(
       <MobileBottomSheet isOpen={true} onClose={onClose}>
         <div>Sheet content</div>
       </MobileBottomSheet>,
     )
-    const panel = screen.getByRole('dialog')
-    fireEvent.touchStart(panel, { touches: [{ clientY: 100 }] })
-    fireEvent.touchMove(panel, { touches: [{ clientY: 190 }] })
-    fireEvent.touchEnd(panel)
+    fireEvent.keyDown(document, { key: 'Escape' })
     expect(onClose).toHaveBeenCalledOnce()
   })
 
-  it('does not close on short swipe-down (< 80px)', () => {
+  it('locks body scroll when open', () => {
+    render(
+      <MobileBottomSheet isOpen={true} onClose={vi.fn()}>
+        <div>content</div>
+      </MobileBottomSheet>,
+    )
+    expect(document.body.style.overflow).toBe('hidden')
+  })
+
+  it('restores body scroll when closed', () => {
+    const { rerender } = render(
+      <MobileBottomSheet isOpen={true} onClose={vi.fn()}>
+        <div>content</div>
+      </MobileBottomSheet>,
+    )
+    expect(document.body.style.overflow).toBe('hidden')
+    rerender(
+      <MobileBottomSheet isOpen={false} onClose={vi.fn()}>
+        <div>content</div>
+      </MobileBottomSheet>,
+    )
+    expect(document.body.style.overflow).toBe('')
+  })
+
+  it('calls onClose on swipe-down gesture of 80px+ on the drag handle', () => {
     const onClose = vi.fn()
     render(
       <MobileBottomSheet isOpen={true} onClose={onClose}>
         <div>Sheet content</div>
       </MobileBottomSheet>,
     )
+    const handle = screen.getByTestId('drag-handle')
+    fireEvent.touchStart(handle, { touches: [{ clientY: 100 }] })
+    fireEvent.touchMove(handle, { touches: [{ clientY: 190 }] })
+    fireEvent.touchEnd(handle)
+    expect(onClose).toHaveBeenCalledOnce()
+  })
+
+  it('does not close on short swipe-down (< 80px) on handle', () => {
+    const onClose = vi.fn()
+    render(
+      <MobileBottomSheet isOpen={true} onClose={onClose}>
+        <div>Sheet content</div>
+      </MobileBottomSheet>,
+    )
+    const handle = screen.getByTestId('drag-handle')
+    fireEvent.touchStart(handle, { touches: [{ clientY: 100 }] })
+    fireEvent.touchMove(handle, { touches: [{ clientY: 150 }] })
+    fireEvent.touchEnd(handle)
+    expect(onClose).not.toHaveBeenCalled()
+  })
+
+  it('does not close when scrolling inside the sheet body (not the handle)', () => {
+    const onClose = vi.fn()
+    render(
+      <MobileBottomSheet isOpen={true} onClose={onClose}>
+        <div>Sheet content</div>
+      </MobileBottomSheet>,
+    )
+    // Touch the dialog content area (not the handle)
     const panel = screen.getByRole('dialog')
     fireEvent.touchStart(panel, { touches: [{ clientY: 100 }] })
-    fireEvent.touchMove(panel, { touches: [{ clientY: 150 }] })
+    fireEvent.touchMove(panel, { touches: [{ clientY: 190 }] })
     fireEvent.touchEnd(panel)
     expect(onClose).not.toHaveBeenCalled()
   })
