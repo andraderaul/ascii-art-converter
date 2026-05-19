@@ -4,6 +4,7 @@ import { CHARSET_MAPS, COLOR_MODES } from '../ascii/types'
 import { cn } from '../utils/cn'
 import Label from './ui/label'
 import Slider from './ui/slider'
+import Tooltip from './ui/tooltip'
 
 interface Props {
   settings: ConversionSettings
@@ -60,12 +61,25 @@ export default function ControlPanel({ settings, onChange }: Props) {
         onChange={(resolution) => onChange({ resolution })}
         format={(v) => `${v}px`}
         defaultValue={12}
+        tooltip={
+          <Tooltip
+            id="tooltip-resolution"
+            content="chars per canvas — smaller value = more detail"
+          />
+        }
+        tooltipId="tooltip-resolution"
       />
 
       {/* Color Mode picker with swatches — solid and gradient groups */}
       <div className="flex flex-col gap-2xs">
-        <Label>color mode</Label>
-        <div className="flex flex-col gap-xs">
+        <div className="flex items-center gap-2xs">
+          <Label>color mode</Label>
+          <Tooltip
+            id="tooltip-color-mode"
+            content="colorization scheme applied to rendered chars"
+          />
+        </div>
+        <div className="flex flex-col gap-xs" aria-describedby="tooltip-color-mode">
           <div className="flex flex-wrap gap-2xs">
             {SOLID_MODES.map((mode) => (
               <button
@@ -118,33 +132,40 @@ export default function ControlPanel({ settings, onChange }: Props) {
 
       {/* Grouped Charset picker — role="group" + aria-labelledby for screen readers */}
       <div className="flex flex-col gap-xs">
-        <Label>charset</Label>
-        {CHARSET_CATEGORIES.map(({ label, charsets }) => (
-          <fieldset key={label} className="flex flex-col gap-2xs border-none p-0 m-0">
-            <legend className="text-fg-subtle font-mono text-xs uppercase tracking-wide mb-2xs">
-              {label}
-            </legend>
-            <div className="flex flex-wrap gap-2xs">
-              {charsets.map((cs) => (
-                <button
-                  key={cs}
-                  type="button"
-                  aria-label={cs}
-                  onClick={() => onChange({ charset: cs })}
-                  className={cn(
-                    'flex flex-col px-sm py-2xs rounded-xs border font-mono text-xs transition-colors text-left',
-                    settings.charset === cs
-                      ? 'border-violet text-violet'
-                      : 'border-base text-fg-muted hover:border-dim',
-                  )}
-                >
-                  <span>{cs}</span>
-                  <span className="text-fg-subtle text-xs tracking-widest">{sampleChars(cs)}</span>
-                </button>
-              ))}
-            </div>
-          </fieldset>
-        ))}
+        <div className="flex items-center gap-2xs">
+          <Label>charset</Label>
+          <Tooltip id="tooltip-charset" content="symbol set mapping luminosity to a character" />
+        </div>
+        <div aria-describedby="tooltip-charset">
+          {CHARSET_CATEGORIES.map(({ label, charsets }) => (
+            <fieldset key={label} className="flex flex-col gap-2xs border-none p-0 m-0">
+              <legend className="text-fg-subtle font-mono text-xs uppercase tracking-wide mb-2xs">
+                {label}
+              </legend>
+              <div className="flex flex-wrap gap-2xs">
+                {charsets.map((cs) => (
+                  <button
+                    key={cs}
+                    type="button"
+                    aria-label={cs}
+                    onClick={() => onChange({ charset: cs })}
+                    className={cn(
+                      'flex flex-col px-sm py-2xs rounded-xs border font-mono text-xs transition-colors text-left',
+                      settings.charset === cs
+                        ? 'border-violet text-violet'
+                        : 'border-base text-fg-muted hover:border-dim',
+                    )}
+                  >
+                    <span>{cs}</span>
+                    <span className="text-fg-subtle text-xs tracking-widest">
+                      {sampleChars(cs)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          ))}
+        </div>
       </div>
 
       <Slider
@@ -155,6 +176,10 @@ export default function ControlPanel({ settings, onChange }: Props) {
         step={BRIGHTNESS_RANGE.step}
         onChange={(brightness) => onChange({ brightness })}
         defaultValue={1.0}
+        tooltip={
+          <Tooltip id="tooltip-brightness" content="amplifies pixel brightness before conversion" />
+        }
+        tooltipId="tooltip-brightness"
       />
 
       <Slider
@@ -165,6 +190,13 @@ export default function ControlPanel({ settings, onChange }: Props) {
         step={CONTRAST_RANGE.step}
         onChange={(contrast) => onChange({ contrast })}
         defaultValue={1.0}
+        tooltip={
+          <Tooltip
+            id="tooltip-contrast"
+            content="sharpens the dark-to-light range before conversion"
+          />
+        }
+        tooltipId="tooltip-contrast"
       />
     </div>
   )
