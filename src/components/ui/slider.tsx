@@ -1,3 +1,4 @@
+import { cn } from '../../utils/cn'
 import Label from './label'
 
 interface Props {
@@ -9,7 +10,13 @@ interface Props {
   onChange: (v: number) => void
   format?: (v: number) => string
   defaultValue?: number
-  marks?: number[]
+}
+
+// Accounts for the 20px thumb width so the marker aligns with the visual thumb center
+// rather than the input's left edge at min and max.
+function pct(value: number, min: number, max: number): string {
+  const ratio = (value - min) / (max - min)
+  return `calc(${ratio * 100}% + ${(0.5 - ratio) * 20}px)`
 }
 
 export default function Slider({
@@ -21,10 +28,7 @@ export default function Slider({
   onChange,
   format = (v) => v.toFixed(1),
   defaultValue,
-  marks,
 }: Props) {
-  const pct = (v: number) => `${((v - min) / (max - min)) * 100}%`
-
   const isAtDefault = defaultValue !== undefined && value === defaultValue
 
   return (
@@ -37,6 +41,11 @@ export default function Slider({
         <input
           type="range"
           aria-label={label}
+          title={
+            defaultValue !== undefined
+              ? `double-click to reset to ${format(defaultValue)}`
+              : undefined
+          }
           min={min}
           max={max}
           step={step}
@@ -52,21 +61,13 @@ export default function Slider({
         {defaultValue !== undefined && (
           <div
             data-testid="default-marker"
-            className={`absolute w-0.5 h-2 -translate-x-1/2 top-1/2 -translate-y-1/2 rounded-pill pointer-events-none ${isAtDefault ? 'bg-violet' : 'bg-slate'}`}
-            style={{ left: pct(defaultValue) }}
+            aria-hidden="true"
+            className={cn(
+              'absolute w-0.5 h-2 -translate-x-1/2 top-1/2 -translate-y-1/2 rounded-pill pointer-events-none',
+              isAtDefault ? 'bg-violet' : 'bg-slate',
+            )}
+            style={{ left: pct(defaultValue, min, max) }}
           />
-        )}
-        {marks && marks.length > 0 && (
-          <div className="relative h-1 mt-0.5">
-            {marks.map((mark) => (
-              <div
-                key={mark}
-                data-testid="tick-mark"
-                className="absolute w-px h-1 bg-slate -translate-x-1/2 pointer-events-none"
-                style={{ left: pct(mark) }}
-              />
-            ))}
-          </div>
         )}
       </div>
     </div>

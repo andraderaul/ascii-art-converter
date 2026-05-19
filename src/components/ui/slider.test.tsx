@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import Slider from './slider'
 
 const baseProps = {
@@ -10,6 +10,8 @@ const baseProps = {
   step: 0.05,
   onChange: vi.fn(),
 }
+
+beforeEach(() => vi.clearAllMocks())
 
 describe('Slider', () => {
   it('renders without crashing with required props only', () => {
@@ -34,6 +36,13 @@ describe('Slider', () => {
     expect(onChange).toHaveBeenCalledWith(1.0)
   })
 
+  it('does not call onChange on double-click when defaultValue is not provided', () => {
+    const onChange = vi.fn()
+    render(<Slider {...baseProps} onChange={onChange} />)
+    fireEvent.dblClick(screen.getByLabelText(/volume/i))
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
   it('applies violet style to marker when value equals defaultValue', () => {
     render(<Slider {...baseProps} value={1.0} defaultValue={1.0} />)
     const marker = screen.getByTestId('default-marker')
@@ -46,19 +55,15 @@ describe('Slider', () => {
     expect(marker.className).toMatch(/slate/)
   })
 
-  it('renders tick marks when marks prop is provided', () => {
-    render(<Slider {...baseProps} marks={[0.5, 1.0, 1.5, 2.0]} />)
-    const ticks = screen.getAllByTestId('tick-mark')
-    expect(ticks).toHaveLength(4)
+  it('sets title attribute for discoverability when defaultValue is provided', () => {
+    render(<Slider {...baseProps} defaultValue={1.0} />)
+    const input = screen.getByLabelText(/volume/i)
+    expect(input).toHaveAttribute('title', expect.stringContaining('double-click'))
   })
 
-  it('does not render tick marks when marks is empty', () => {
-    render(<Slider {...baseProps} marks={[]} />)
-    expect(screen.queryByTestId('tick-mark')).not.toBeInTheDocument()
-  })
-
-  it('does not render tick marks when marks is not provided', () => {
+  it('does not set title attribute when defaultValue is not provided', () => {
     render(<Slider {...baseProps} />)
-    expect(screen.queryByTestId('tick-mark')).not.toBeInTheDocument()
+    const input = screen.getByLabelText(/volume/i)
+    expect(input).not.toHaveAttribute('title')
   })
 })
