@@ -17,6 +17,7 @@ export default function Button({ variant, className, children, ...props }: Props
   return (
     <button
       {...props}
+      data-variant={variant}
       type="button"
       className={cn(
         'min-h-[44px] font-mono tracking-wide rounded-xs cursor-pointer transition-all duration-fast',

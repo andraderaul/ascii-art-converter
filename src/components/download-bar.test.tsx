@@ -95,8 +95,7 @@ describe('DownloadBar (live mode)', () => {
     renderBar({ isLive: true, canRecord: true, onStartRecording: vi.fn() })
 
     const recordBtn = screen.getByRole('button', { name: /record/i })
-    expect(recordBtn.className).toContain('bg-transparent')
-    expect(recordBtn.className).not.toContain('bg-danger-ghost')
+    expect(recordBtn).toHaveAttribute('data-variant', 'record')
   })
 
   it('shows stop button and hides record button when recording', () => {
