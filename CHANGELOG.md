@@ -1,3 +1,9 @@
+## [1.16.1](https://github.com/andraderaul/ascii-art-converter/compare/v1.16.0...v1.16.1) (2026-05-20)
+
+### Bug Fixes
+
+* hide DownloadBar when no source is loaded ([c73500f](https://github.com/andraderaul/ascii-art-converter/commit/c73500f7de463ad521a988437f09f19c0663871d))
+
 ## [1.16.0](https://github.com/andraderaul/ascii-art-converter/compare/v1.15.1...v1.16.0) (2026-05-20)
 
 ### Features
