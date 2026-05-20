@@ -1,3 +1,9 @@
+## [1.13.0](https://github.com/andraderaul/ascii-art-converter/compare/v1.12.0...v1.13.0) (2026-05-20)
+
+### Features
+
+* **modal:** escape-to-close and focus trap ([#34](https://github.com/andraderaul/ascii-art-converter/issues/34)) ([017db3f](https://github.com/andraderaul/ascii-art-converter/commit/017db3fe0c07e7426bdd307c92214ccfaeffea49))
+
 ## [1.12.0](https://github.com/andraderaul/ascii-art-converter/compare/v1.11.0...v1.12.0) (2026-05-19)
 
 ### Features
