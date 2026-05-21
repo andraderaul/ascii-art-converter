@@ -7,20 +7,40 @@ interface Props {
   onConfigure: () => void
 }
 
+function readDismissed(): boolean {
+  try {
+    return sessionStorage.getItem(SESSION_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+function writeDismissed(): void {
+  try {
+    sessionStorage.setItem(SESSION_KEY, 'true')
+  } catch {
+    // Safari private mode / sandboxed iframe — silently ignore
+  }
+}
+
 export default function AiConfigBanner({ onConfigure }: Props) {
-  const [dismissed, setDismissed] = useState(() => sessionStorage.getItem(SESSION_KEY) === 'true')
+  const [dismissed, setDismissed] = useState(readDismissed)
 
   if (dismissed) {
     return null
   }
 
   function handleDismiss() {
-    sessionStorage.setItem(SESSION_KEY, 'true')
+    writeDismissed()
     setDismissed(true)
   }
 
   return (
-    <div className="flex items-center justify-between gap-sm px-md py-xs bg-bg-elevated border border-base rounded-xs font-mono">
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex items-center justify-between gap-sm px-md py-xs bg-bg-elevated border border-base rounded-xs font-mono"
+    >
       <p className="text-xs text-fg-muted">
         <span className="text-violet">AI Analyze</span> is available — add an{' '}
         <span className="text-violet">AI Config</span> to scan your ASCII art.
