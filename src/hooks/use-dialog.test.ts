@@ -227,3 +227,20 @@ describe('Focus return on unmount', () => {
     expect(() => unmount()).not.toThrow()
   })
 })
+
+describe('useDialog — tabbable filter with tabindex=-1 container', () => {
+  it('focuses first tabbable when the panel container itself has tabIndex=-1', () => {
+    const panel = document.createElement('div')
+    panel.tabIndex = -1
+    const btn = document.createElement('button')
+    btn.textContent = 'inside'
+    panel.appendChild(btn)
+    document.body.appendChild(panel)
+
+    renderHook(() => useDialog({ panelRef: { current: panel }, onClose: vi.fn() }))
+
+    expect(document.activeElement).toBe(btn)
+
+    document.body.removeChild(panel)
+  })
+})

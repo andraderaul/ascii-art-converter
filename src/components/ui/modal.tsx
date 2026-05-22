@@ -2,6 +2,8 @@ import { type ReactNode, useRef } from 'react'
 import { useDialog } from '../../hooks/use-dialog'
 import { cn } from '../../utils/cn'
 
+const NOOP = () => {}
+
 interface Props {
   children: ReactNode
   onClose: () => void
@@ -23,7 +25,7 @@ export default function Modal({
 }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null)
 
-  useDialog({ panelRef: dialogRef, onClose: closeable ? onClose : () => {} })
+  useDialog({ panelRef: dialogRef, onClose: closeable ? onClose : NOOP })
 
   return (
     <div
