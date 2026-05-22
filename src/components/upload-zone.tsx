@@ -42,7 +42,14 @@ export default function UploadZone({
       />
 
       {mode === 'upload' ? (
-        <SourceImageDropZone size="sm" onImage={onImage} onError={setImageError} />
+        <SourceImageDropZone
+          size="sm"
+          onImage={(img) => {
+            setImageError(null)
+            onImage(img)
+          }}
+          onError={setImageError}
+        />
       ) : (
         <div
           className={cn(

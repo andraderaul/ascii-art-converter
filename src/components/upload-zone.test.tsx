@@ -101,6 +101,26 @@ describe('UploadZone', () => {
     expect(onImage).toHaveBeenCalledWith(lastImg)
   })
 
+  it('clears imageError when a subsequent valid image loads', () => {
+    renderZone()
+
+    fireEvent.drop(getDropZone(), {
+      dataTransfer: { files: [makeFile('bad.jpg', 'image/jpeg')] },
+    })
+    act(() => {
+      lastImg?.onerror?.()
+    })
+    expect(screen.getByText(/failed to load image/i)).toBeInTheDocument()
+
+    fireEvent.drop(getDropZone(), {
+      dataTransfer: { files: [makeFile('good.jpg', 'image/jpeg')] },
+    })
+    act(() => {
+      lastImg?.onload?.()
+    })
+    expect(screen.queryByText(/failed to load image/i)).not.toBeInTheDocument()
+  })
+
   it('applies active border on dragover and removes it on dragleave', () => {
     renderZone()
     const dropZone = getDropZone()

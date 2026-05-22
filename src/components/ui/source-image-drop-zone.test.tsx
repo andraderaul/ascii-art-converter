@@ -108,4 +108,24 @@ describe('SourceImageDropZone', () => {
     render(<SourceImageDropZone {...baseProps} />)
     expect(screen.getByText('jpg · png · webp')).toBeInTheDocument()
   })
+
+  // Behavior 9: two instances on the same page have distinct IDs (AC from issue #48)
+  it('generates distinct IDs across two instances rendered together', () => {
+    render(
+      <>
+        <SourceImageDropZone {...baseProps} />
+        <SourceImageDropZone {...baseProps} />
+      </>,
+    )
+    const inputs = document.querySelectorAll('input[type="file"]')
+    expect(inputs).toHaveLength(2)
+    expect((inputs[0] as HTMLInputElement).id).not.toBe((inputs[1] as HTMLInputElement).id)
+  })
+
+  // Behavior 10: h-full applied so the label stretches in flex containers
+  it('applies h-full so the label fills its flex parent', () => {
+    render(<SourceImageDropZone {...baseProps} />)
+    const label = document.querySelector('label') as HTMLElement
+    expect(label.className).toContain('h-full')
+  })
 })
