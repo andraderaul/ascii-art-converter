@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { AIConfig, AIProviderName } from '../ai/types'
 import { cn } from '../utils/cn'
+import Button from './ui/button'
 import Modal from './ui/modal'
 
 interface Props {
@@ -10,26 +11,15 @@ interface Props {
   onClose: () => void
 }
 
-const PROVIDERS: { value: AIProviderName; label: string }[] = [
-  { value: 'anthropic', label: 'Anthropic (Claude)' },
-  { value: 'openai', label: 'OpenAI (GPT-4o)' },
-  { value: 'gemini', label: 'Google (Gemini)' },
-]
-
-const PROVIDER_KEY_LINKS: Record<AIProviderName, string> = {
-  anthropic: 'https://console.anthropic.com/settings/keys',
-  openai: 'https://platform.openai.com/api-keys',
-  gemini: 'https://aistudio.google.com/app/apikey',
+const PROVIDERS: Record<AIProviderName, { label: string; keyUrl: string }> = {
+  anthropic: { label: 'Anthropic (Claude)', keyUrl: 'https://console.anthropic.com/settings/keys' },
+  openai: { label: 'OpenAI (GPT-4o)', keyUrl: 'https://platform.openai.com/api-keys' },
+  gemini: { label: 'Google (Gemini)', keyUrl: 'https://aistudio.google.com/app/apikey' },
 }
 
 const inputCls = cn(
   'w-full bg-abyss border border-slate text-ghost font-mono text-sm rounded-xs',
   '[padding:var(--input-padding)]',
-)
-
-const btnBase = cn(
-  'font-mono tracking-wide rounded-xs cursor-pointer transition-all duration-fast',
-  '[padding:var(--btn-secondary-padding)] [font-size:var(--btn-secondary-size)]',
 )
 
 export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Props) {
@@ -66,14 +56,14 @@ export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Prop
           onChange={(e) => setProvider(e.target.value as AIProviderName)}
           className={cn(inputCls, 'cursor-pointer')}
         >
-          {PROVIDERS.map((p) => (
-            <option key={p.value} value={p.value}>
-              {p.label}
+          {Object.entries(PROVIDERS).map(([value, { label }]) => (
+            <option key={value} value={value}>
+              {label}
             </option>
           ))}
         </select>
         <a
-          href={PROVIDER_KEY_LINKS[provider]}
+          href={PROVIDERS[provider].keyUrl}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`get ${provider} api key`}
@@ -103,26 +93,18 @@ export default function ApiKeyModal({ current, onSave, onRemove, onClose }: Prop
 
       <div className="flex gap-sm justify-between">
         {current && (
-          <button
-            type="button"
-            onClick={handleRemove}
-            className={cn(btnBase, 'border border-hot-pink bg-danger-bg text-hot-pink')}
-          >
+          <Button variant="danger" onClick={handleRemove}>
             remove key
-          </button>
+          </Button>
         )}
-        <button
-          type="button"
+        <Button
+          variant="primary"
           onClick={handleSave}
           disabled={!key.trim()}
-          className={cn(
-            btnBase,
-            'ml-auto border-2 border-violet bg-accent-bg text-violet font-bold',
-            'disabled:opacity-40 disabled:cursor-not-allowed',
-          )}
+          className="ml-auto disabled:opacity-40 disabled:cursor-not-allowed"
         >
           save key
-        </button>
+        </Button>
       </div>
     </Modal>
   )
