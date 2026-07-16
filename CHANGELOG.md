@@ -1,3 +1,9 @@
+## [1.25.0](https://github.com/andraderaul/ascii-art-converter/compare/v1.24.0...v1.25.0) (2026-07-16)
+
+### Features
+
+* **ascii:** trim TXT Export to the fit region ([#66](https://github.com/andraderaul/ascii-art-converter/issues/66)) ([#69](https://github.com/andraderaul/ascii-art-converter/issues/69)) ([64106b8](https://github.com/andraderaul/ascii-art-converter/commit/64106b8c807b2f9a4ec9297e8125b3e3ddf911b1)), closes [#65](https://github.com/andraderaul/ascii-art-converter/issues/65)
+
 ## [1.24.0](https://github.com/andraderaul/ascii-art-converter/compare/v1.23.0...v1.24.0) (2026-07-16)
 
 ### Features
