@@ -1,0 +1,144 @@
+import { render, screen } from '@testing-library/react'
+import { createRef, type RefObject } from 'react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { DEFAULT_NOISE, DEFAULT_SCANLINES, type GlitchSettings } from '../glitch/types'
+import GlitchCanvas, { HAVE_ENOUGH_DATA, LIVE_SOURCE_FRAME_INTERVAL_MS } from './glitch-canvas'
+
+const renderGlitchFrame = vi.hoisted(() => vi.fn(() => true))
+vi.mock('../glitch/render-frame', () => ({ renderGlitchFrame }))
+
+const SETTINGS: GlitchSettings = {
+  blockDisplacement: { density: 0.5, amount: 0.3 },
+  pixelSort: { enabled: false, direction: 'horizontal', threshold: 0, runLength: 64 },
+  channelShift: { channel: 'r', amount: 2 },
+  scanlines: DEFAULT_SCANLINES,
+  noise: DEFAULT_NOISE,
+}
+
+const SEED = 1234
+
+// The rAF loop is driven by hand so the throttle can be tested as the pure timing rule it is,
+// rather than by waiting on real frames.
+let frameCallbacks: FrameRequestCallback[]
+
+function flushFrame(now: number) {
+  const pending = frameCallbacks
+  frameCallbacks = []
+  pending.forEach((cb) => {
+    cb(now)
+  })
+}
+
+function liveSource(readyState = HAVE_ENOUGH_DATA): HTMLVideoElement {
+  return { videoWidth: 640, videoHeight: 480, readyState } as unknown as HTMLVideoElement
+}
+
+beforeEach(() => {
+  frameCallbacks = []
+  vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+    frameCallbacks.push(cb)
+    return frameCallbacks.length
+  })
+  vi.stubGlobal('cancelAnimationFrame', vi.fn())
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+  vi.clearAllMocks()
+})
+
+function renderCanvas(props: Partial<React.ComponentProps<typeof GlitchCanvas>> = {}) {
+  return render(
+    <GlitchCanvas
+      sourceImage={null}
+      liveSource={null}
+      settings={SETTINGS}
+      seed={SEED}
+      canvasRef={createRef<HTMLCanvasElement>() as RefObject<HTMLCanvasElement>}
+      onClearSource={vi.fn()}
+      {...props}
+    />,
+  )
+}
+
+describe('GlitchCanvas', () => {
+  it('renders a Source Image once, off the rAF loop', () => {
+    renderCanvas({ sourceImage: { naturalWidth: 10, naturalHeight: 10 } as HTMLImageElement })
+
+    expect(renderGlitchFrame).toHaveBeenCalledTimes(1)
+    expect(frameCallbacks).toHaveLength(0)
+  })
+
+  it('drives a Live Source through the rAF loop', () => {
+    const video = liveSource()
+    renderCanvas({ liveSource: video })
+
+    flushFrame(0)
+
+    expect(renderGlitchFrame).toHaveBeenCalledWith(
+      video,
+      expect.anything(),
+      expect.anything(),
+      SETTINGS,
+      SEED,
+    )
+  })
+
+  it('throttles the loop to ~15fps, dropping frames that arrive early', () => {
+    renderCanvas({ liveSource: liveSource() })
+
+    flushFrame(0)
+    expect(renderGlitchFrame).toHaveBeenCalledTimes(1)
+
+    flushFrame(LIVE_SOURCE_FRAME_INTERVAL_MS - 1)
+    expect(renderGlitchFrame).toHaveBeenCalledTimes(1)
+
+    flushFrame(LIVE_SOURCE_FRAME_INTERVAL_MS)
+    expect(renderGlitchFrame).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps requesting frames even when a frame is dropped', () => {
+    renderCanvas({ liveSource: liveSource() })
+
+    flushFrame(0)
+    flushFrame(1)
+
+    expect(frameCallbacks).toHaveLength(1)
+  })
+
+  it('holds the last frame until the Live Source has enough data', () => {
+    renderCanvas({ liveSource: liveSource(0) })
+
+    flushFrame(0)
+
+    expect(renderGlitchFrame).not.toHaveBeenCalled()
+  })
+
+  it('passes the same Seed on every frame, so the corruption is stable frame-to-frame', () => {
+    renderCanvas({ liveSource: liveSource() })
+
+    flushFrame(0)
+    flushFrame(LIVE_SOURCE_FRAME_INTERVAL_MS)
+    flushFrame(LIVE_SOURCE_FRAME_INTERVAL_MS * 2)
+
+    const seeds = renderGlitchFrame.mock.calls.map((call) => (call as unknown[])[4])
+    expect(seeds).toEqual([SEED, SEED, SEED])
+  })
+
+  it('stops the loop when the Live Source goes away', () => {
+    const { unmount } = renderCanvas({ liveSource: liveSource() })
+    flushFrame(0)
+    unmount()
+
+    expect(cancelAnimationFrame).toHaveBeenCalled()
+  })
+
+  it('marks the preview as live only for a Live Source', () => {
+    const { unmount } = renderCanvas({ liveSource: liveSource() })
+    expect(screen.getByText('LIVE')).toBeTruthy()
+    unmount()
+
+    renderCanvas({ sourceImage: { naturalWidth: 10, naturalHeight: 10 } as HTMLImageElement })
+    expect(screen.queryByText('LIVE')).toBeNull()
+  })
+})
