@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MAX_SAMPLE_DIM, sampleDimensions } from './image-utils'
+import { MAX_SAMPLE_DIM, sampleDimensions, sourceDimensions } from './image-utils'
 
 describe('sampleDimensions', () => {
   it('leaves an image already under the cap at its intrinsic size', () => {
@@ -42,5 +42,28 @@ describe('sampleDimensions', () => {
 
   it('reports zero for a source with no intrinsic size yet', () => {
     expect(sampleDimensions(0, 0)).toEqual({ w: 0, h: 0 })
+  })
+})
+
+describe('sourceDimensions', () => {
+  it('reads a Source Image at its intrinsic size', () => {
+    const img = { naturalWidth: 640, naturalHeight: 480 } as HTMLImageElement
+    expect(sourceDimensions(img)).toEqual({ w: 640, h: 480 })
+  })
+
+  it('reads a Live Source at the stream size, not the element box', () => {
+    // width/height on a video element are the CSS box — sampling either would stretch the frame.
+    const video = {
+      videoWidth: 1280,
+      videoHeight: 720,
+      width: 300,
+      height: 150,
+    } as unknown as HTMLVideoElement
+    expect(sourceDimensions(video)).toEqual({ w: 1280, h: 720 })
+  })
+
+  it('reports zero for a Live Source with no frame yet', () => {
+    const video = { videoWidth: 0, videoHeight: 0 } as unknown as HTMLVideoElement
+    expect(sourceDimensions(video)).toEqual({ w: 0, h: 0 })
   })
 })

@@ -30,7 +30,23 @@ export function sampleDimensions(
   }
 }
 
-/** Intrinsic pixel dimensions of the Source Image. Widen when Live Source lands. */
-export function sourceDimensions(source: HTMLImageElement): { w: number; h: number } {
-  return { w: source.naturalWidth, h: source.naturalHeight }
+/**
+ * What the shell can sample a frame from: a Source Image or a Live Source (webcam). Kept out of
+ * `types.ts`, which stays DOM-free — this union is the shell's vocabulary, not the pure core's.
+ */
+export type GlitchSource = HTMLImageElement | HTMLVideoElement
+
+/** Duck-typed rather than `instanceof`: the shell is handed plain video-shaped objects under test. */
+function isLiveSource(source: GlitchSource): source is HTMLVideoElement {
+  return 'videoWidth' in source
+}
+
+/**
+ * Intrinsic pixel dimensions of the Source — the stream's own size for a Live Source, which is
+ * not the video element's `width`/`height` (those are its CSS box).
+ */
+export function sourceDimensions(source: GlitchSource): { w: number; h: number } {
+  return isLiveSource(source)
+    ? { w: source.videoWidth, h: source.videoHeight }
+    : { w: source.naturalWidth, h: source.naturalHeight }
 }

@@ -37,6 +37,10 @@ function fakeSource(naturalWidth: number, naturalHeight: number): HTMLImageEleme
   return { naturalWidth, naturalHeight } as unknown as HTMLImageElement
 }
 
+function fakeLiveSource(videoWidth: number, videoHeight: number): HTMLVideoElement {
+  return { videoWidth, videoHeight } as unknown as HTMLVideoElement
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
 })
@@ -122,5 +126,57 @@ describe('renderGlitchFrame', () => {
     expect(
       renderGlitchFrame(fakeSource(4, 4), fakeCanvas(fakeContext()), hidden, SETTINGS, SEED),
     ).toBe(true)
+  })
+
+  it('samples a Live Source at its stream dimensions', () => {
+    const hiddenCtx = fakeContext(new ImageData(MAX_SAMPLE_DIM, 450))
+    const hidden = fakeCanvas(hiddenCtx)
+    const video = fakeLiveSource(1280, 720)
+
+    expect(renderGlitchFrame(video, fakeCanvas(fakeContext()), hidden, SETTINGS, SEED)).toBe(true)
+
+    expect(hidden.width).toBe(MAX_SAMPLE_DIM)
+    expect(hidden.height).toBe(450)
+    expect(hiddenCtx.drawImage).toHaveBeenCalledWith(video, 0, 0, MAX_SAMPLE_DIM, 450)
+  })
+
+  it('skips the render when the Live Source has no frame yet', () => {
+    const visibleCtx = fakeContext()
+
+    const painted = renderGlitchFrame(
+      fakeLiveSource(0, 0),
+      fakeCanvas(visibleCtx),
+      fakeCanvas(fakeContext()),
+      SETTINGS,
+      SEED,
+    )
+
+    expect(painted).toBe(false)
+    expect(visibleCtx.putImageData).not.toHaveBeenCalled()
+  })
+
+  // The Seed is what keeps a Live Source's corruption from boiling frame to frame (#82).
+  it('paints an identical frame for an unchanged Live Source frame and Seed', () => {
+    function paintOnce() {
+      const source = new ImageData(4, 2)
+      source.data.forEach((_, i) => {
+        source.data[i] = (i * 7) % 256
+      })
+      const visibleCtx = fakeContext()
+      renderGlitchFrame(
+        fakeLiveSource(4, 2),
+        fakeCanvas(visibleCtx),
+        fakeCanvas(fakeContext(source)),
+        {
+          ...SETTINGS,
+          blockDisplacement: { density: 0.8, amount: 0.5 },
+          noise: { amount: 0.5, tint: 'mono' },
+        },
+        SEED,
+      )
+      return Array.from((visibleCtx.putImageData.mock.calls[0][0] as ImageData).data)
+    }
+
+    expect(paintOnce()).toEqual(paintOnce())
   })
 })

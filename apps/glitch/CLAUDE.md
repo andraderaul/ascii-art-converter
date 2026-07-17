@@ -8,11 +8,12 @@ layout, the deck-wide comment convention, and the release ritual. Paths below ar
 
 ## Status
 
-Tracer bullet (#77) plus Pixel Sort (#78), Scanlines (#79), Noise (#80) and Block Displacement with
-Seed / Re-roll (#81). All five v1 Effects are live — Source Image → Block Displacement → Pixel Sort
-→ Channel Shift → Scanlines → Noise → PNG Export — the pure-core / imperative-shell seam is
-established, and the Pipeline is deterministic in GlitchSettings + Seed. Presets, Live Source,
-Capture and Recording are not built yet; see `CONTEXT.md` for the v1 scope they belong to.
+Tracer bullet (#77) plus Pixel Sort (#78), Scanlines (#79), Noise (#80), Block Displacement with
+Seed / Re-roll (#81) and Live Source + Capture (#82). All five v1 Effects are live — Source Image
+*or* Live Source → Block Displacement → Pixel Sort → Channel Shift → Scanlines → Noise → PNG Export
+/ Capture — the pure-core / imperative-shell seam is established, and the Pipeline is deterministic
+in GlitchSettings + Seed. Presets and Recording are not built yet; see `CONTEXT.md` for the v1 scope
+they belong to.
 
 ## Commands
 
@@ -35,23 +36,50 @@ Single-page React/TS/Vite app. Fully client-side — no backend, no network.
 
 ### Glitch pipeline
 
-1. `EmptyStateHero` → `SourceImageDropZone` hands an `HTMLImageElement` (Source Image) to `App`
+1. `EmptyStateHero` offers the two entry points: `SourceImageDropZone` hands an `HTMLImageElement`
+   (Source Image) to `App`, or **use webcam** switches `useWebcamState` to the Live Source
 2. `App` holds `GlitchSettings` state and, **beside** it, the `Seed` — two separate pieces of state,
    which is what lets Re-roll draw a new Seed and leave the look alone. Both go to `GlitchCanvas`
-   with the Source Image
-3. `GlitchCanvas` decides *when* to render: once per Source Image, GlitchSettings or Seed change via
-   `useEffect`. It keeps the **hidden off-screen sampling canvas** (`hiddenRef`) that the shell
-   draws into — kept separate from the visible canvas per ADR 0001
+   with whichever Source is active
+3. `GlitchCanvas` decides *when* to render: a Source Image once per Source, GlitchSettings or Seed
+   change via `useEffect`; a Live Source on a `requestAnimationFrame` loop throttled to ~15fps
+   (ADR 0002) instead. It keeps the **hidden off-screen sampling canvas** (`hiddenRef`) that the
+   shell draws into — kept separate from the visible canvas per ADR 0001
 4. `renderGlitchFrame()` in `src/glitch/render-frame.ts` is the imperative shell: draws the
    Source onto the hidden canvas at the sampled size → `getImageData` → unwraps to a
    `PixelBuffer` → `applyPipeline()` → wraps back into `ImageData` → `putImageData` onto the
    visible canvas. Returns `false` (skips) if there's no 2D context or the Source has no
-   intrinsic size yet
+   intrinsic size yet. A `GlitchSource` is an image *or* a video — one webcam frame is just
+   another Source to sample, so both paths share this one shell
 5. `applyPipeline()` is **pure** — `PixelBuffer` + `GlitchSettings` + `Seed` in, `PixelBuffer` out,
    no DOM (ADR 0005). It is the only place Effects run, and it holds no randomness of its own: every
    draw comes off the Seed's stream (`createRng`) or a Seed-fed positional hash
 6. The visible canvas is sized to the **sampled** dimensions, so the canvas *is* the output —
    PNG Export takes it as-is and CSS `object-contain` handles the on-screen fit
+
+### Live Source
+
+`useWebcamState` owns the `MediaStream` lifecycle and hands `App` a playing `HTMLVideoElement`; it
+is never rendered, only sampled into the hidden canvas (ADR 0001). It's a hand-copy of
+ASCII//Convert's hook (ADR 0011) with three deliberate divergences, all noted in the file: modes
+carry this app's terms (`'image'` / `'live'`), the lifecycle side-effects are **Commands** rather
+than Effects — `Effect` already means a pure `PixelBuffer` transform here, and the collision would
+be a trap — and there's no `onFacingModeChange`.
+
+The lifecycle is copied whole, so `switchCamera` / `facingMode` ride along with no control surfacing
+them: #82 scoped in the Live Source, not camera choice. Front camera only until an issue asks
+otherwise.
+
+That last one is the load-bearing difference: **the preview is not mirrored.** ASCII//Convert
+mirrors the selfie view with a CSS transform, which it can afford because its output is the ascii
+text. Here the canvas *is* the output, so a CSS-only mirror would hand back a Capture that disagrees
+with what's on screen. Un-mirrored keeps the two honest.
+
+The Seed is held across frames rather than re-rolled per frame — that's what keeps the corruption
+pattern still instead of boiling. Animating it is explicitly v2 (`CONTEXT.md`).
+
+**Capture** is PNG Export on a different Source: it reads the pixels the loop last painted and never
+touches the loop, so the feed keeps running.
 
 ### Sampling cap
 
@@ -84,7 +112,9 @@ Use these terms precisely — avoid the listed alternatives:
 | **Seed** | Seeds the Pipeline's pseudo-randomness — the arrangement. Lives beside GlitchSettings | random, rng |
 | **Preset** | A named GlitchSettings snapshot — a curated look | filter, look |
 | **Source Image** | Static uploaded image; immutable during session | uploadedImage, input image |
+| **Live Source** | The webcam feed, sampled on the rAF loop | video, camera, stream |
 | **Export** | Taking the result out (PNG) | download, save |
+| **Capture** | One frame of a Live Source taken out as PNG | screenshot, snapshot |
 
 `Preset` is the one domain term the code hasn't reached yet (#75). The Seed landed with Block
 Displacement: `createSeed()` is the single place the app draws real randomness, and everything
@@ -117,23 +147,27 @@ See the root `CLAUDE.md` — the convention is deck-wide.
   `channelShift()`, `scanlines()`, `noise()` — see ADR 0005
 - `src/glitch/rng.ts` — `createRng()` (pure, Seed → draw stream), `createSeed()` (impure — the app's
   only real randomness), `Rng`
-- `src/glitch/image-utils.ts` — `sampleDimensions()` (800×800 cap), `sourceDimensions()`
+- `src/glitch/image-utils.ts` — `sampleDimensions()` (800×800 cap), `sourceDimensions()`,
+  `GlitchSource` (image | video — the shell's vocabulary, kept out of the DOM-free `types.ts`)
 - `src/glitch/render-frame.ts` — `renderGlitchFrame()`: the imperative shell
 
 **Errors & utilities**
 - `src/errors/app-error.ts` — `AppError`, `createError`, `normalizeError`, `Errors`
 - `src/export/output.ts` — `outputFilename()`
 - `src/hooks/use-toast.ts` — toast queue state
+- `src/hooks/use-webcam-state.ts` — `useWebcamState()`, `planCommands()`, `reducer()`: the Live
+  Source's MediaStream lifecycle
 - `src/utils/cn.ts` — `cn()` (clsx + tailwind-merge)
 - `src/utils/load-image-file.ts` — `loadImageFile()` (File → HTMLImageElement)
 - `src/utils/share.ts` — `shareOrDownloadCanvas()` (Web Share API with download fallback)
 
 **Components**
-- `src/components/glitch-canvas.tsx` — lifecycle coordinator: drives the render
+- `src/components/glitch-canvas.tsx` — lifecycle coordinator: drives the render, and owns the
+  ~15fps rAF loop for a Live Source
 - `src/components/control-panel.tsx` — GlitchSettings controls, in Pipeline order, plus the Re-roll
   control (its own callback — the Seed is not part of the look)
-- `src/components/empty-state-hero.tsx` — initial empty state with the upload entry point
-- `src/components/export-bar.tsx` — PNG Export control
+- `src/components/empty-state-hero.tsx` — initial empty state with the upload and webcam entry points
+- `src/components/export-bar.tsx` — PNG Export / Capture control
 - `src/components/toast-provider.tsx` — renders the toast queue
 - `src/components/error-boundary.tsx` — generic React error boundary
 - `src/components/ui/` — design system primitives: `button`, `label`, `slider`, `toast`,

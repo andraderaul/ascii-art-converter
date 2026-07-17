@@ -7,9 +7,15 @@ import Button from './ui/button'
 
 interface Props {
   canvasRef: RefObject<HTMLCanvasElement | null>
+  isLive?: boolean
 }
 
-export default function ExportBar({ canvasRef }: Props) {
+/**
+ * Takes the result out. Capture and PNG Export are the same act on a different Source — the canvas
+ * *is* the output either way, so a Capture only reads the pixels the rAF loop last painted and
+ * never touches the loop itself.
+ */
+export default function ExportBar({ canvasRef, isLive }: Props) {
   const toastError = useToastError()
 
   async function exportPng() {
@@ -18,7 +24,7 @@ export default function ExportBar({ canvasRef }: Props) {
       return
     }
     try {
-      await shareOrDownloadCanvas(canvas, outputFilename('png-export'))
+      await shareOrDownloadCanvas(canvas, outputFilename(isLive ? 'capture' : 'png-export'))
     } catch {
       toastError(Errors.exportFailed().message)
     }
@@ -27,7 +33,7 @@ export default function ExportBar({ canvasRef }: Props) {
   return (
     <div className="flex gap-xs sm:gap-sm sm:justify-end">
       <Button variant="primary" onClick={exportPng} className="flex-1 sm:flex-none">
-        export png
+        {isLive ? 'capture' : 'export png'}
       </Button>
     </div>
   )

@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './app'
 import {
   DEFAULT_BLOCK_DISPLACEMENT,
@@ -24,17 +24,19 @@ vi.mock('./components/glitch-canvas', () => ({
   default: ({
     settings,
     seed,
+    liveSource,
     onClearSource,
   }: {
     settings: GlitchSettings
     seed: Seed
+    liveSource: HTMLVideoElement | null
     onClearSource?: () => void
   }) => {
     renderedSettings(settings)
     renderedSeed(seed)
     return (
       <>
-        <canvas aria-label="glitched preview" />
+        <canvas aria-label={liveSource ? 'live glitched preview' : 'glitched preview'} />
         <button type="button" onClick={onClearSource}>
           clear
         </button>
@@ -43,13 +45,26 @@ vi.mock('./components/glitch-canvas', () => ({
   },
 }))
 
-vi.mock('./components/export-bar', () => ({ default: () => <div>export png</div> }))
+vi.mock('./components/export-bar', () => ({
+  default: ({ isLive }: { isLive?: boolean }) => <div>{isLive ? 'capture' : 'export png'}</div>,
+}))
 
 vi.mock('./components/empty-state-hero', () => ({
-  default: ({ onImage }: { onImage: (img: HTMLImageElement) => void }) => (
-    <button type="button" onClick={() => onImage(new Image())}>
-      upload
-    </button>
+  default: ({
+    onImage,
+    onUseWebcam,
+  }: {
+    onImage: (img: HTMLImageElement) => void
+    onUseWebcam: () => void
+  }) => (
+    <>
+      <button type="button" onClick={() => onImage(new Image())}>
+        upload
+      </button>
+      <button type="button" onClick={onUseWebcam}>
+        use webcam
+      </button>
+    </>
   ),
 }))
 
@@ -250,5 +265,122 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: 'green' }))
 
     expect(renderedSeed).toHaveBeenLastCalledWith(before)
+  })
+
+  describe('Live Source', () => {
+    let mockTrack: { stop: ReturnType<typeof vi.fn> }
+
+    beforeEach(() => {
+      mockTrack = { stop: vi.fn() }
+      vi.stubGlobal('navigator', {
+        ...navigator,
+        mediaDevices: {
+          getUserMedia: vi.fn().mockResolvedValue({
+            getTracks: () => [mockTrack],
+          } as unknown as MediaStream),
+        },
+      })
+      const realCreateElement = document.createElement.bind(document)
+      vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+        if (tag === 'video') {
+          return {
+            srcObject: null,
+            play: vi.fn().mockResolvedValue(undefined),
+          } as unknown as HTMLVideoElement
+        }
+        return realCreateElement(tag)
+      })
+    })
+
+    afterEach(() => {
+      vi.unstubAllGlobals()
+      vi.restoreAllMocks()
+    })
+
+    it('offers the webcam as an entry point from the empty state', () => {
+      render(<App />)
+
+      expect(screen.getByRole('button', { name: 'use webcam' })).toBeInTheDocument()
+    })
+
+    it('shows the live preview once the webcam is activated', async () => {
+      render(<App />)
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'use webcam' }))
+      })
+
+      expect(await screen.findByLabelText('live glitched preview')).toBeInTheDocument()
+    })
+
+    it('offers Capture rather than PNG Export while live', async () => {
+      render(<App />)
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'use webcam' }))
+      })
+
+      expect(await screen.findByText('capture')).toBeInTheDocument()
+      expect(screen.queryByText('export png')).not.toBeInTheDocument()
+    })
+
+    it('holds the Seed steady while the webcam runs, so the corruption stays put', async () => {
+      render(<App />)
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'use webcam' }))
+      })
+      const seeds = renderedSeed.mock.calls.map((c) => c[0])
+
+      expect(new Set(seeds).size).toBe(1)
+    })
+
+    it('releases the camera and returns to the empty state when the Source is cleared', async () => {
+      render(<App />)
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'use webcam' }))
+      })
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'clear' }))
+      })
+
+      expect(mockTrack.stop).toHaveBeenCalled()
+      expect(screen.getByRole('button', { name: 'use webcam' })).toBeInTheDocument()
+    })
+
+    it('falls back to the empty state when camera access is denied', async () => {
+      vi.stubGlobal('navigator', {
+        ...navigator,
+        mediaDevices: { getUserMedia: vi.fn().mockRejectedValue(new Error('denied')) },
+      })
+      render(<App />)
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'use webcam' }))
+      })
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'use webcam' })).toBeInTheDocument()
+      })
+      expect(screen.queryByLabelText('live glitched preview')).not.toBeInTheDocument()
+    })
+
+    // A Source is only ever chosen from the empty state, which no Source is showing behind — so
+    // the Live Source and a Source Image can't be set at once, and clearing is the only way back.
+    it('lets a Source Image be picked up again after the Live Source is cleared', async () => {
+      render(<App />)
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'use webcam' }))
+      })
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'clear' }))
+      })
+      fireEvent.click(screen.getByRole('button', { name: 'upload' }))
+
+      expect(screen.getByLabelText('glitched preview')).toBeInTheDocument()
+      expect(screen.queryByLabelText('live glitched preview')).not.toBeInTheDocument()
+    })
   })
 })
