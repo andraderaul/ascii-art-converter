@@ -48,6 +48,16 @@ seams obvious, so the proven-shared surface was extracted into
 generic browser plumbing. It's consumed as source (no build step) and is deliberately *not* a
 domain core: each app's pipeline stays in the app ([ADR 0014](./docs/adr/0014-deck-kit-shared-package.md)).
 
+## Credits
+
+GOLEM//Console's instruction set is inherited from **Poxim**, the didactic 32-bit architecture
+used in the Arquitetura de Computadores course at **UFS (Universidade Federal de Sergipe)**, 2017.
+The encoding, register file, and 42 mnemonics are Poxim's; the reference programs under
+`apps/golem/src/golem/__fixtures__/` are the course's example project, kept verbatim as test
+oracles. Credit to the course and its instructor —
+[ADR 0019](./docs/adr/0019-golem-isa-inherited-from-poxim.md) explains why the ISA was inherited
+rather than designed.
+
 ## Deploys
 
 Each app is its own Vercel project, both pointing at this repo:
