@@ -5,6 +5,18 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    # Neither job reads anything a docs change can affect, so the run is pure cost.
+    # `**.md` already covers docs/**/*.md; `docs/**` is here for non-markdown assets in that tree.
+    #
+    # Safe only while `main` has NO required status checks: a filtered-out workflow never reports,
+    # and the PR blocks forever on "Expected — waiting for status to be reported". If required
+    # checks are enabled later, swap this for the skip-job pattern (a job matching these paths
+    # that reports success) rather than deleting the filter.
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".changeset/**"
+      - "LICENSE"
 
 jobs:
   test:
