@@ -75,51 +75,21 @@ GOLEM//Console follows the GLITCH pattern — its own Vercel project with **Root
 
 ### Skipping preview deploys
 
-Each project carries an `ignoreCommand` so a PR only redeploys the projects it can actually
-affect — a docs-only PR builds nothing. Vercel skips the build when the command exits `0` and
-builds when it exits non-zero, and `git diff --quiet` matches that polarity exactly.
+Each project's `ignoreCommand` skips its build (exit `0`) when the diff touches nothing that
+project ships. Four details are load-bearing:
 
-**The diff range is `$VERCEL_GIT_PREVIOUS_SHA..HEAD`, not `HEAD^..HEAD`.** That variable is the
-SHA of the last *successful deploy of this project on this branch*, and Vercel exposes it only
-when an Ignored Build Step is configured. `HEAD^` would compare against the previous *commit*,
-which silently breaks the multi-commit case: push `feat: rewrite the pipeline` followed by
-`docs: typo`, and every project skips, because the one commit it looked at touched only markdown.
-Diffing from the last successful deploy means nothing can slip through a later commit's shadow,
-and it's per-project — a project that skipped keeps its old SHA, so the next push still sees
-everything that accumulated since it last actually built.
+- **`packages/deck-kit` is in every project's list** — all three apps consume it as source
+  ([ADR 0014](./docs/adr/0014-deck-kit-shared-package.md)). Watching only an app's own directory
+  would silently stop deploying Deck Kit changes.
+- **The range is `$VERCEL_GIT_PREVIOUS_SHA..HEAD`** — the last successful deploy of *that project
+  on that branch*. `HEAD^` would see only the newest commit, so a code commit pushed ahead of a
+  docs commit would skip.
+- **`':(exclude)**/*.md'`** — markdown inside an app (`apps/glitch/CLAUDE.md`) ships nothing.
+- **It fails toward deploying.** Production, a branch's first deploy (empty previous SHA), and any
+  git error all build. A false skip hides; a false build costs a minute.
 
-Two things about the path set are deliberate and must not be trimmed:
-
-- **`packages/deck-kit` is in every project's list.** All three apps consume Deck Kit as source
-  ([ADR 0014](./docs/adr/0014-deck-kit-shared-package.md)), so a Deck Kit change has to redeploy
-  all of them. Watching only the project's own `apps/` directory would silently stop shipping
-  Deck Kit changes — and a stale deploy looks like nothing is wrong.
-- **`package.json` / `package-lock.json` are in every list**, so a dependency bump redeploys.
-- **Only the root `vercel.json` lists itself.** It sits outside `apps/ascii`, so a change to
-  ASCII//Convert's own build config would otherwise not match anything. The other two configs live
-  inside the directory they already watch.
-
-The trailing `':(exclude)**/*.md'` pathspec is what makes a genuinely docs-only PR skip even when
-the markdown lives *inside* an app — `apps/glitch/CLAUDE.md` ships nothing. A commit touching both
-markdown and source still builds, since the source path still matches.
-
-Two safety properties, both verified before these commands landed:
-
-- **Production always builds.** The `VERCEL_ENV != production` guard exits non-zero on production
-  deploys, so `main` never skips regardless of the diff.
-- **The first deploy on a branch always builds.** `VERCEL_GIT_PREVIOUS_SHA` is empty when the
-  project has never deployed this branch, and the `-n` guard turns that into a build. There is no
-  baseline to diff against, so the only safe answer is to build.
-- **It fails toward deploying.** If the git command errors — a shallow clone that lacks the
-  previous SHA, say — it exits non-zero and the build proceeds. The dangerous direction is a
-  false skip, not a false build.
-
-Paths are relative to where the command runs: the repo root for ASCII//Convert, and `apps/glitch`
-/ `apps/golem` for the other two, which is why those `cd ../..` first (the same idiom their
-install and build commands already use).
-
-This is a different mechanism from `.github/workflows/ci.yml`, which has its own `paths-ignore` —
-Vercel does not read the workflow file.
+Paths are relative to where the command runs, hence the `cd ../..` in the nested configs. Vercel
+does not read `.github/workflows/ci.yml` — that has its own `paths-ignore`.
 
 ## Contributing
 
