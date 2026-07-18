@@ -13,7 +13,7 @@ import {
 } from './chain'
 import { blockDisplacement } from './pipeline'
 import { deriveSeed } from './rng'
-import type { BlockDisplacementParams, PixelBuffer } from './types'
+import type { BlockDisplacementParams, PixelBuffer, PixelSortParams } from './types'
 
 /** An arbitrary fixed Seed — every test that isn't about the Seed itself rolls this one. */
 const SEED = 4242
@@ -44,7 +44,10 @@ function bytesOf(buffer: PixelBuffer): number[] {
   return Array.from(buffer.data)
 }
 
-const SORT = createLink('pixelSort', { direction: 'horizontal', threshold: 0.2, runLength: 8 })
+/** Held at its own type, not read back off the Link, whose `params` widen to the union. */
+const SORT_PARAMS: PixelSortParams = { direction: 'horizontal', threshold: 0.2, runLength: 8 }
+
+const SORT = createLink('pixelSort', SORT_PARAMS)
 
 const SHIFT = createLink('channelShift', { channel: 'r', amount: 5 })
 
@@ -403,7 +406,7 @@ describe('duplicateLink', () => {
     const pixels = gradient(24, 18)
     const crossed: Chain = [
       SORT,
-      createLink('pixelSort', { ...SORT.params, direction: 'vertical' }),
+      createLink('pixelSort', { ...SORT_PARAMS, direction: 'vertical' }),
     ]
 
     expect(bytesOf(applyChain(pixels, crossed, SEED))).not.toEqual(
