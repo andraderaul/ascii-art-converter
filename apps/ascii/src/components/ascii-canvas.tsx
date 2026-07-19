@@ -170,15 +170,16 @@ export default function AsciiCanvas({
             type="button"
             data-testid="rec-indicator"
             onClick={onStopRecording}
+            // The name carries the time, so the button announces "1:15 elapsed" when focused. It
+            // is deliberately not also a live region: the timer ticks once a second, and announcing
+            // it every second would talk over the user for the length of the take.
             aria-label={`stop recording — ${formatElapsedTime(elapsedSeconds)} elapsed`}
-            className="flex items-center gap-2xs font-mono text-xs text-hot-pink border border-hot-pink px-sm py-2xs rounded-xs select-none cursor-pointer transition-colors duration-fast hover:bg-danger-ghost"
+            className="flex items-center gap-2xs font-mono text-xs text-hot-pink border border-hot-pink px-sm py-2xs rounded-xs select-none cursor-pointer transition-colors duration-fast hover:bg-shadow"
           >
             <span className="motion-safe:animate-pulse" aria-hidden="true">
               ●
             </span>
-            <span role="status" aria-live="polite">
-              {formatElapsedTime(elapsedSeconds)}
-            </span>
+            <span>{formatElapsedTime(elapsedSeconds)}</span>
             <span aria-hidden="true">⏹</span>
           </button>
         )}

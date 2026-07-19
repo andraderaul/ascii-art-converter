@@ -123,26 +123,30 @@ export default function GlitchCanvas({
         {/* The badge *is* the stop control (ADR 0020): a take runs while the user keeps working in
             PRESETS and EDIT, so its stop has to be reachable from every tab — and the badge already
             marks the one place that is. No new chrome, and it carries the timer that left with the
-            ExportBar. `role="status"` so the elapsing time is announced rather than silently
-            counting; the badge is now the announced timer, so nothing doubles it. */}
+            ExportBar. */}
         {isRecording && (
           <button
             type="button"
             data-testid="rec-indicator"
             onClick={onStopRecording}
+            // The name carries the time, so the button announces "1:15 elapsed" when focused. It
+            // is deliberately not also a live region: the timer ticks once a second, and announcing
+            // it every second would talk over the user for the length of the take.
             aria-label={`stop recording — ${formatElapsedTime(elapsedSeconds)} elapsed`}
             className={cn(
               CANVAS_OVERLAY_CHROME,
               'flex items-center gap-2xs text-hot-pink border border-hot-pink',
-              'cursor-pointer transition-colors duration-fast hover:bg-danger-ghost',
+              // `bg-shadow`, not the translucent `bg-danger-ghost` a hover state would normally
+              // take: this chip sits on the user's artwork, so ADR 0013's opaque-background rule
+              // binds every state it has, not just the resting one. --hot-pink on --shadow is
+              // pinned in src/contrast.test.ts.
+              'cursor-pointer transition-colors duration-fast hover:bg-shadow',
             )}
           >
             <span className="motion-safe:animate-pulse" aria-hidden="true">
               ●
             </span>
-            <span role="status" aria-live="polite">
-              {formatElapsedTime(elapsedSeconds)}
-            </span>
+            <span>{formatElapsedTime(elapsedSeconds)}</span>
             <span aria-hidden="true">⏹</span>
           </button>
         )}

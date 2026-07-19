@@ -1,6 +1,6 @@
 import { Button, Chip, Label, Slider, ToggleGroup, Tooltip } from '@cyberdeck/deck-kit/ui'
 import { cn } from '@cyberdeck/deck-kit/utils'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   type Chain,
   EFFECT_REGISTRY,
@@ -24,20 +24,21 @@ import {
   SCANLINES_DENSITY_STEP,
   type SortDirection,
 } from '../glitch/types'
+import { type ChipBounds, chipAtPointer, isDragGesture } from './chain-drag'
 
-export const BLOCK_DISPLACEMENT_DENSITY_RANGE = { min: 0, max: 1 } as const
+const BLOCK_DISPLACEMENT_DENSITY_RANGE = { min: 0, max: 1 } as const
 
-export const BLOCK_DISPLACEMENT_AMOUNT_RANGE = { min: 0, max: 1 } as const
+const BLOCK_DISPLACEMENT_AMOUNT_RANGE = { min: 0, max: 1 } as const
 
-export const PIXEL_SORT_THRESHOLD_RANGE = { min: 0, max: 1 } as const
+const PIXEL_SORT_THRESHOLD_RANGE = { min: 0, max: 1 } as const
 
-export const SCANLINES_DENSITY_RANGE = { min: 0, max: 1 } as const
+const SCANLINES_DENSITY_RANGE = { min: 0, max: 1 } as const
 
-export const SCANLINES_INTENSITY_RANGE = { min: 0, max: 1 } as const
+const SCANLINES_INTENSITY_RANGE = { min: 0, max: 1 } as const
 
-export const NOISE_AMOUNT_RANGE = { min: 0, max: 1 } as const
+const NOISE_AMOUNT_RANGE = { min: 0, max: 1 } as const
 
-export const CHROMATIC_ABERRATION_STRENGTH_RANGE = { min: 0, max: 1 } as const
+const CHROMATIC_ABERRATION_STRENGTH_RANGE = { min: 0, max: 1 } as const
 
 const CHANNELS: readonly ChannelName[] = ['r', 'g', 'b']
 
@@ -253,11 +254,14 @@ function LinkControls({ link, onChange }: LinkProps) {
   }
 }
 
-// What the panel above the Chain row is showing. The add palette takes the same slot as a Link's
-// params rather than opening its own surface: one thing in focus at a time is the Strip's whole
-// grammar (ADR 0020), and a palette floating over the row would occlude what it edits.
-// `id: null` means "whichever Link is first" — the tab opens on the Chain's head rather than on an
-// empty panel, without this component having to re-point the focus every time the Chain changes.
+/**
+ * What the panel above the Chain row is showing. The add palette takes the same slot as a Link's
+ * params rather than opening its own surface: one thing in focus at a time is the Strip's whole
+ * grammar (ADR 0020), and a palette floating over the row would occlude what it edits.
+ *
+ * `id: null` means "whichever Link is first" — the tab opens on the Chain's head rather than on an
+ * empty panel, without this component having to re-point the focus every time the Chain changes.
+ */
 type Focus = { kind: 'link'; id: string | null } | { kind: 'palette' }
 
 interface Props {
@@ -281,9 +285,15 @@ export default function ChainEditor({ chain, actions, onReroll }: Props) {
   const { onLinkChange, onReorder, onAdd, onRemove, onDuplicate } = actions
   const isFull = chain.length >= MAX_CHAIN_LENGTH
   const [focus, setFocus] = useState<Focus>({ kind: 'link', id: null })
-  // Which Link the pointer is currently carrying. Held here rather than in the drag event because
-  // `dataTransfer` is unreadable during dragover — the moment the drop target has to be decided.
+  // Which Link the pointer is carrying, once the press has cleared the tap threshold.
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
+  // The press in flight, before it is known to be a drag. A ref, not state: it changes on every
+  // pointermove and nothing renders from it.
+  const press = useRef<{ index: number; x: number; y: number; dragging: boolean } | null>(null)
+  // The row, so the chips can be measured on demand. Read through `data-chip-index` rather than a
+  // ref per chip: the kit's Chip is a plain function component on React 18, so it forwards no ref,
+  // and a data attribute spreads through it like any other prop.
+  const rowRef = useRef<HTMLDivElement>(null)
 
   // Falls back to the first Link rather than tracking the selection through every edit: a removed
   // Link, a Preset swap and a Randomize all retire ids the focus may still name, and each one would
@@ -296,6 +306,17 @@ export default function ChainEditor({ chain, actions, onReroll }: Props) {
     if (target >= 0 && target < chain.length) {
       onReorder(index, target)
     }
+  }
+
+  const chipBounds = (): ChipBounds[] =>
+    [...(rowRef.current?.querySelectorAll<HTMLElement>('[data-chip-index]') ?? [])].map((el) => {
+      const rect = el.getBoundingClientRect()
+      return { index: Number(el.dataset.chipIndex), left: rect.left, right: rect.right }
+    })
+
+  const endPress = () => {
+    press.current = null
+    setDraggingIndex(null)
   }
 
   return (
@@ -376,32 +397,65 @@ export default function ChainEditor({ chain, actions, onReroll }: Props) {
       </div>
 
       <div className="flex items-center gap-sm">
-        <div className="flex-1 min-w-0 flex gap-2xs overflow-x-auto">
+        <div ref={rowRef} className="flex-1 min-w-0 flex gap-2xs overflow-x-auto">
           {chain.map((link, index) => (
             // The chip is both the selection control and the drag handle: in a row, the thing you
-            // grab to move a Link is the Link. Its own drop target, too — dropping *onto* a chip is
-            // how a horizontal reorder reads.
+            // grab to move a Link is the Link. Pointer Events rather than HTML5 drag-and-drop —
+            // that never fires on touch, which left reorder desktop-only against #187's parity
+            // requirement. One path now covers mouse, pen and finger.
             <Chip
               key={link.id}
+              data-chip-index={index}
               selected={focusedLink?.id === link.id}
-              draggable
               onClick={() => setFocus({ kind: 'link', id: link.id })}
-              onDragStart={() => setDraggingIndex(index)}
-              onDragEnd={() => setDraggingIndex(null)}
-              onDragOver={(event) => {
-                // Without this the drop is never allowed and the chip silently refuses every pointer.
-                event.preventDefault()
-              }}
-              onDrop={(event) => {
-                event.preventDefault()
-                if (draggingIndex !== null) {
-                  onReorder(draggingIndex, index)
+              onPointerDown={(event) => {
+                press.current = {
+                  index,
+                  x: event.clientX,
+                  y: event.clientY,
+                  dragging: false,
                 }
-                setDraggingIndex(null)
+                // Keeps the moves coming to this chip even once the pointer has left it, which is
+                // the whole of the gesture — without capture, a finger crossing to a neighbour
+                // stops reporting and the drag dies mid-row.
+                event.currentTarget.setPointerCapture?.(event.pointerId)
+              }}
+              onPointerMove={(event) => {
+                const started = press.current
+                if (!started) {
+                  return
+                }
+                if (
+                  !started.dragging &&
+                  isDragGesture(event.clientX - started.x, event.clientY - started.y)
+                ) {
+                  started.dragging = true
+                  setDraggingIndex(started.index)
+                }
+                if (!started.dragging) {
+                  return
+                }
+                const target = chipAtPointer(event.clientX, chipBounds())
+                if (target !== null && target !== started.index) {
+                  onReorder(started.index, target)
+                  // The dragged Link is at the target now, so the next move measures from there.
+                  started.index = target
+                  setDraggingIndex(target)
+                }
+              }}
+              onPointerUp={endPress}
+              onPointerCancel={endPress}
+              onClickCapture={(event) => {
+                // A drag ends with a click on mobile and desktop alike; letting it through would
+                // move the focus to whichever Link the finger happened to land on.
+                if (draggingIndex !== null) {
+                  event.stopPropagation()
+                  event.preventDefault()
+                }
               }}
               onKeyDown={(event) => {
-                // Pointer reordering is unreachable by keyboard, and these arrows are the whole of
-                // that alternative (#127). Left/right rather than up/down: the Chain reads across.
+                // The keyboard path (#127): pointer reordering is unreachable without one, and
+                // left/right rather than up/down because the Chain reads across.
                 if (event.key === 'ArrowLeft') {
                   event.preventDefault()
                   moveBy(index, -1)
@@ -415,7 +469,14 @@ export default function ChainEditor({ chain, actions, onReroll }: Props) {
               // what a screen-reader user is trying to change.
               aria-label={`${EFFECT_LABELS[link.type]}, position ${index + 1} of ${chain.length}`}
               aria-describedby="reorder-hint"
-              className={cn('shrink-0 cursor-grab', draggingIndex === index && 'opacity-50')}
+              // `touch-none` only while dragging: the row scrolls horizontally, and killing
+              // touch-action outright would leave a finger unable to scroll past the chips it
+              // starts on.
+              className={cn(
+                'shrink-0 cursor-grab',
+                draggingIndex !== null && 'touch-none',
+                draggingIndex === index && 'opacity-50',
+              )}
             >
               {EFFECT_LABELS[link.type]}
             </Chip>
@@ -439,7 +500,8 @@ export default function ChainEditor({ chain, actions, onReroll }: Props) {
       {/* Referenced by every chip rather than repeated into each accessible name, which would make
           the instructions the loudest part of a row the user is trying to scan. */}
       <p id="reorder-hint" className="sr-only">
-        Press the left and right arrow keys to move this effect earlier or later in the chain.
+        Drag this effect, or press the left and right arrow keys, to move it earlier or later in the
+        chain.
       </p>
 
       {/* A live region, not a static hint: the message appears mid-interaction, and a user who just

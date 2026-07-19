@@ -42,9 +42,11 @@ function swatchStyle(colorMode: ColorMode): string {
 const SOLID_MODES = COLOR_MODES.filter((m) => !Array.isArray(getModePalette(m)))
 const GRADIENT_MODES = COLOR_MODES.filter((m) => Array.isArray(getModePalette(m)))
 
-// The tools, in the order the EDIT row shows them. GLITCH's row is the Chain itself, which processes
-// left→right; ConversionSettings has no such order, so this one is grouped by what it changes —
-// what the characters *are*, then how they're coloured, then how densely they're sampled.
+/**
+ * The tools, in the order the EDIT row shows them. GLITCH's row is the Chain itself, which
+ * processes left→right; ConversionSettings has no such order, so this one is grouped by what it
+ * changes — what the characters *are*, then how they're coloured, then how densely they're sampled.
+ */
 const TOOLS = [
   { id: 'charset', label: 'charset' },
   { id: 'colorMode', label: 'color mode' },
@@ -55,9 +57,11 @@ const TOOLS = [
 
 type ToolId = (typeof TOOLS)[number]['id']
 
-// The three sliders are siblings: at `sm` the panel shows the whole group side by side rather than
-// only the focused one (adaptive density, ADR 0020). Charset and Color Mode are groups of one —
-// their own chip grids already fill the panel.
+/**
+ * The three sliders are siblings: at `sm` the panel shows the whole group side by side rather than
+ * only the focused one (adaptive density, ADR 0020). Charset and Color Mode are groups of one —
+ * their own chip grids already fill the panel.
+ */
 const SLIDER_GROUP: readonly ToolId[] = ['resolution', 'brightness', 'contrast']
 
 interface Props {

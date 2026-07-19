@@ -6,12 +6,14 @@ import OutputPanel from './output-panel'
 import PresetPicker from './preset-picker'
 import SettingsEditor from './settings-editor'
 
-// PRESETS → EDIT → OUT, which is the session read left to right: ADR 0015's hierarchy survives the
-// new shell (a good look in one tap first, fine editing one step behind), and export is the
-// terminal action that affords a tab switch rather than sitting always-visible.
-//
-// Kept app-side even though GLITCH's list is identical today: the tab set is this program's
-// vocabulary, and vocabulary never crosses the kit's seam (ADR 0014, recorded in ADR 0020).
+/**
+ * PRESETS → EDIT → OUT, which is the session read left to right: ADR 0015's hierarchy survives the
+ * new shell (a good look in one tap first, fine editing one step behind), and export is the
+ * terminal action that affords a tab switch rather than sitting always-visible.
+ *
+ * Kept app-side even though GLITCH's list is identical today: the tab set is this program's
+ * vocabulary, and vocabulary never crosses the kit's seam (ADR 0014, recorded in ADR 0020).
+ */
 const TABS = [
   { id: 'presets', label: 'presets' },
   { id: 'edit', label: 'edit' },
