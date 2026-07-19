@@ -316,13 +316,52 @@ describe('App', () => {
       expect(chainMatch(lastChain(), DEFAULT_PRESET.chain)).toBe(true)
     })
 
-    it('reorders on a pointer drag and drop', () => {
-      renderWithEditOpen()
+    // Pointer Events, not HTML5 drag-and-drop: the latter never fires on touch, which left reorder
+    // desktop-only against #187's parity requirement. `pointerType: 'touch'` here is the case that
+    // used to be impossible.
+    describe('dragging', () => {
+      // happy-dom lays nothing out, so every rect is zero — the chips are given positions by hand
+      // and the geometry itself is covered purely in chain-drag.test.ts.
+      function layOutChips() {
+        for (const [index, chip] of linkChips().entries()) {
+          chip.getBoundingClientRect = () =>
+            ({ left: index * 100, right: index * 100 + 100 }) as DOMRect
+        }
+      }
 
-      fireEvent.dragStart(linkChips()[0])
-      fireEvent.drop(linkChips()[5])
+      function drag(from: number, toX: number, pointerType = 'touch') {
+        const chip = linkChips()[from]
+        layOutChips()
+        fireEvent.pointerDown(chip, { clientX: from * 100 + 50, clientY: 0, pointerType })
+        fireEvent.pointerMove(chip, { clientX: toX, clientY: 0, pointerType })
+        fireEvent.pointerUp(chip, { clientX: toX, clientY: 0, pointerType })
+      }
 
-      expect(lastChain().map((link) => link.type)[5]).toBe('blockDisplacement')
+      it('reorders on a touch drag', () => {
+        renderWithEditOpen()
+
+        drag(0, 550)
+
+        expect(lastChain().map((link) => link.type)[5]).toBe('blockDisplacement')
+      })
+
+      it('reorders on a mouse drag just the same', () => {
+        renderWithEditOpen()
+
+        drag(0, 150, 'mouse')
+
+        expect(lastChain().map((link) => link.type)[1]).toBe('blockDisplacement')
+      })
+
+      // The chip is the selection control too, so a press that never travels has to stay a tap.
+      it('leaves the Chain alone when the press never becomes a drag', () => {
+        renderWithEditOpen()
+        const before = lastChain().map((link) => link.type)
+
+        drag(2, 2 * 100 + 52)
+
+        expect(lastChain().map((link) => link.type)).toEqual(before)
+      })
     })
   })
 

@@ -176,10 +176,12 @@ describe('GlitchCanvas', () => {
       expect(screen.getByRole('button', { name: 'stop recording — 1:15 elapsed' })).toBeTruthy()
     })
 
-    it('announces the elapsing time', () => {
+    // Deliberately not a live region: the timer ticks once a second, and announcing it every
+    // second would talk over the user for the length of the take. The accessible name carries it.
+    it('does not announce the timer once a second', () => {
       renderCanvas({ liveSource: liveSource(), isRecording: true, elapsedSeconds: 5 })
 
-      expect(screen.getByRole('status')).toHaveTextContent('0:05')
+      expect(screen.queryByRole('status')).toBeNull()
     })
   })
 

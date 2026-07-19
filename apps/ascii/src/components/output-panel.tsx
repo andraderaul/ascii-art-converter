@@ -1,9 +1,9 @@
 import { Button, Chip, useToastError } from '@cyberdeck/deck-kit/ui'
 import { isTouchDevice, shareOrDownloadCanvas } from '@cyberdeck/deck-kit/utils'
 import { type RefObject, useState } from 'react'
-import AiConfigBanner from '../components/ai-config-banner'
 import { Errors } from '../errors/app-error'
 import { outputFilename, type PngScale, planPngExport } from '../export/output'
+import AiConfigBanner from './ai-config-banner'
 
 interface Props {
   canvasRef: RefObject<HTMLCanvasElement | null>
