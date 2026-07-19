@@ -389,8 +389,9 @@ export default function ControlPanel({
         Press the up and down arrow keys to move this effect earlier or later in the chain.
       </p>
 
-      {/* Built from the registry's own order rather than a second hand-kept list, so a new Effect
-          reaches the palette the day it is registered (ADR 0017). */}
+      {/* The palette reads EFFECT_ORDER (presets.ts) — the canonical order the Presets share —
+          rather than the registry's incidental key order. That list is hand-kept: a new Effect
+          must be added there to reach the palette, and the compiler won't point at it. */}
       <fieldset className="flex flex-col gap-sm border-none p-0 m-0">
         <legend className="w-full mb-2xs">
           <Label>add effect</Label>

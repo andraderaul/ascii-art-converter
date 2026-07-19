@@ -10,12 +10,12 @@ layout, the deck-wide comment convention, and the release ritual. Paths below ar
 
 Tracer bullet (#77) plus Pixel Sort (#78), Scanlines (#79), Noise (#80), Block Displacement with
 Seed / Re-roll (#81), Live Source + Capture (#82), Copy (#83), the advanced panel (#84), Recording
-(#85) and Presets + Randomize (#86), plus Chromatic Aberration (#116). All six Effects are live —
-Source Image *or* Live Source → Block Displacement → Pixel Sort → Channel Shift → Chromatic
-Aberration → Scanlines → Noise → PNG Export / Capture / Copy / Recording — the pure-core /
-imperative-shell seam is established, and the Pipeline is deterministic in GlitchSettings + Seed.
-The front door is the six Presets plus Randomize; every Effect's params are reachable behind the
-advanced affordance. The v1 scope in `CONTEXT.md` is complete.
+(#85) and Presets + Randomize (#86), plus Chromatic Aberration (#116) and the composable Effect
+Chain (ADR 0017, #125–#128). All six Effects are live — Source Image *or* Live Source → the Chain
+→ PNG Export / Capture / Copy / Recording — the pure-core / imperative-shell seam is established,
+and the render is deterministic in Chain + Seed. The front door is the six Presets plus Randomize;
+behind the advanced affordance the Chain is fully editable — reorder, add, remove, duplicate, the
+same Effect more than once. The v1 scope in `CONTEXT.md` is complete.
 
 The Preset **values** are taste, not derivation: they are the one thing here a human curates, and
 re-curating a number in `presets.ts` is a design change, not a bug fix.
@@ -39,26 +39,27 @@ Lint and format are repo-wide and run from the root: `npm run check`.
 
 Single-page React/TS/Vite app. Fully client-side — no backend, no network.
 
-### Glitch pipeline
+### Glitch chain
 
 1. `EmptyStateHero` offers the two entry points: `SourceImageDropZone` hands an `HTMLImageElement`
    (Source Image) to `App`, or **use webcam** switches `useWebcamState` to the Live Source
-2. `App` holds `GlitchSettings` state and, **beside** it, the `Seed` — two separate pieces of state,
+2. `App` holds the `Chain` state and, **beside** it, the `Seed` — two separate pieces of state,
    which is what lets Re-roll draw a new Seed and leave the look alone. Both go to `GlitchCanvas`
    with whichever Source is active
-3. `GlitchCanvas` decides *when* to render: a Source Image once per Source, GlitchSettings or Seed
+3. `GlitchCanvas` decides *when* to render: a Source Image once per Source, Chain or Seed
    change via `useEffect`; a Live Source on a `requestAnimationFrame` loop throttled to ~15fps
    (ADR 0002) instead. It keeps the **hidden off-screen sampling canvas** (`hiddenRef`) that the
    shell draws into — kept separate from the visible canvas per ADR 0001
 4. `renderGlitchFrame()` in `src/glitch/render-frame.ts` is the imperative shell: draws the
    Source onto the hidden canvas at the sampled size → `getImageData` → unwraps to a
-   `PixelBuffer` → `applyPipeline()` → wraps back into `ImageData` → `putImageData` onto the
+   `PixelBuffer` → `applyChain()` → wraps back into `ImageData` → `putImageData` onto the
    visible canvas. Returns `false` (skips) if there's no 2D context or the Source has no
    intrinsic size yet. A `GlitchSource` is an image *or* a video — one webcam frame is just
    another Source to sample, so both paths share this one shell
-5. `applyPipeline()` is **pure** — `PixelBuffer` + `GlitchSettings` + `Seed` in, `PixelBuffer` out,
+5. `applyChain()` is **pure** — `PixelBuffer` + `Chain` + `Seed` in, `PixelBuffer` out,
    no DOM (ADR 0005). It is the only place Effects run, and it holds no randomness of its own: every
-   draw comes off the Seed's stream (`createRng`) or a Seed-fed positional hash
+   draw comes off the Seed's stream (`createRng`) or a Seed-fed positional hash, with a repeated
+   Link drawing from an occurrence-keyed sub-seed (`deriveSeed` — ADR 0017)
 6. The visible canvas is sized to the **sampled** dimensions, so the canvas *is* the output —
    PNG Export takes it as-is and CSS `object-contain` handles the on-screen fit
 
@@ -128,7 +129,7 @@ and Capture keep stable names. The asymmetry is deliberate: a Capture is one cli
 take is minutes of someone's performance, and a second one must not collide and leave the browser
 to disambiguate with " (1)".
 
-Like Capture, it records the **output canvas** the Pipeline already painted — it is *not* datamosh
+Like Capture, it records the **output canvas** the Chain already painted — it is *not* datamosh
 (`CONTEXT.md`), and it never touches the rAF loop. The capture rate matches that loop's ~15fps
 (ADR 0002); a higher rate would only duplicate frames.
 
@@ -145,7 +146,7 @@ work, so a large image can't freeze the tab. The downscale itself rides on the h
 
 Note this caps **both** axes, where ASCII//Convert's `resizeImage()` caps width alone. That's not
 gratuitous divergence: ASCII resamples down to a `cols × rows` char grid, which bounds the work
-whatever the Source's height. Here the sampled buffer *is* what `applyPipeline` walks, so a
+whatever the Source's height. Here the sampled buffer *is* what `applyChain` walks, so a
 500×20000 Source would sail through a width-only cap and freeze the tab.
 
 ### Error handling
@@ -164,10 +165,10 @@ Use these terms precisely — avoid the listed alternatives:
 |------|---------|-------|
 | **PixelBuffer** | `{ data, width, height }` — the pure core's currency, DOM-free | ImageData, bitmap, frame |
 | **Effect** | A named, isolated pure `PixelBuffer → PixelBuffer` transform | filter, layer |
-| **Pipeline** | The fixed, ordered sequence of Effects | stack, chain |
-| **GlitchSettings** | Flat object holding every Effect's params — the look. Carries no Seed | options, config, filters |
-| **Seed** | Seeds the Pipeline's pseudo-randomness — the arrangement. Lives beside GlitchSettings | random, rng |
-| **Preset** | A named GlitchSettings snapshot — a curated look | filter, look |
+| **Chain** | The ordered, editable list of Links — the look. Order matters; repeats allowed | stack, pipeline, options, config, filters |
+| **Link** | One Effect instance in the Chain: `{ type, params }` plus a UI-only `id`. Presence in the Chain is on/off | enabled flag, step, row |
+| **Seed** | Seeds the Chain's pseudo-randomness — the arrangement. Lives beside the Chain | random, rng |
+| **Preset** | A named Chain — a curated look | filter, look |
 | **Randomize** | Discovering a look by picking a Preset and jittering its params | shuffle |
 | **Source Image** | Static uploaded image; immutable during session | uploadedImage, input image |
 | **Live Source** | The webcam feed, sampled on the rAF loop | video, camera, stream |
@@ -194,7 +195,7 @@ step with `apps/ascii` by hand; the duplication is the signal that tells us what
 constraint on any overlay added later, not just the ones there now (`CANVAS_OVERLAY_CHROME` in
 `glitch-canvas.tsx`: the LIVE / REC badges and the clear control). ADR 0009's ratios are all
 token-on-token, and this is the one surface in the app where the backdrop isn't a token at all: it's
-the user's artwork, and the Pipeline can paint any color under a chip. Translucency can't fix that —
+the user's artwork, and the Chain can paint any color under a chip. Translucency can't fix that —
 no alpha survives an arbitrary backdrop — so the chips stand on an opaque `bg-bg` and hold the
 audited ratio. `src/contrast.test.ts` pins the pairs.
 
@@ -210,7 +211,7 @@ See the root `CLAUDE.md` — the convention is deck-wide.
 ## Key files
 
 **Glitch core**
-- `src/glitch/types.ts` — `PixelBuffer`, `GlitchSettings`, `Seed`, `ChannelName`,
+- `src/glitch/types.ts` — `PixelBuffer`, `Seed`, `ChannelName`,
   `ChannelShiftParams`, `SortDirection`, `PixelSortParams`, `DEFAULT_PIXEL_SORT`, `ScanlinesParams`,
   `DEFAULT_SCANLINES`, `SPARSEST_SCANLINE_PERIOD`, `TIGHTEST_SCANLINE_PERIOD`,
   `SCANLINES_DENSITY_STEP`, `NoiseParams`, `NoiseTint`, `DEFAULT_NOISE`, `MAX_NOISE_DELTA`,

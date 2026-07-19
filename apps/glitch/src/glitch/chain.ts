@@ -1,5 +1,6 @@
-// The composable Effect Chain — see ADR 0017. Slice 1 (#125) introduces the model and the fold
-// behind the flat GlitchSettings, which stays the source of truth until Slice 2 (#126).
+// The composable Effect Chain — see ADR 0017. An ordered, editable list of Links, repeats
+// allowed; presence in the Chain is what turns an Effect on, and the Chain is the look's
+// source of truth.
 
 import {
   blockDisplacement,
