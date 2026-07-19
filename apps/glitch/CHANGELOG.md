@@ -1,5 +1,18 @@
 # @cyberdeck/glitch
 
+## 0.5.0
+
+### Minor Changes
+
+- e6ec788: Build your own chain. The advanced panel now has an effect palette — add any effect, remove one, or duplicate a row — so the same effect can appear more than once: two pixel sorts, or a channel split before _and_ after a sort. Repeats each get their own arrangement rather than redrawing the first. Chains are capped at 10 effects, and the palette says how full the chain is as you go.
+- e6ec788: The Chain is now the look. App state holds an ordered list of Links instead of a flat settings object, the six Presets are Chains carrying only the Effects they actually use, and an Effect is on because its Link is present — the on/off toggles and the "zero means off" convention are gone. Every Preset renders exactly as it did before. The advanced panel lists the active look's Links in order, so a Preset that leaves an Effect out simply has one section fewer.
+- e6ec788: Reorder the Effects in a look. Each row in the advanced panel now carries a grab handle: drag it to move that Effect earlier or later in the chain, or focus it and use the up and down arrow keys. Because order is part of the look, moving an Effect marks the active Preset as modified — and moving it back restores the match.
+
+### Patch Changes
+
+- e6ec788: Withhold duplicate for pixel sort, where a straight copy would have changed nothing. Sorting an already-sorted run leaves it as it was, so a second pixel sort with identical settings renders exactly like one — the control now says so instead of spending a click on an invisible change. A second pixel sort is still available from the add palette, where tuning it differently (a horizontal pass crossed with a vertical one) does produce the double melt.
+- e6ec788: Introduce the composable Effect Chain in the core (ADR 0017), behind the existing controls. Rendering now folds through `applyChain`, with each Link drawing on a Seed derived from which occurrence of its Effect it is, so a future Chain can carry the same Effect twice without the repeats sharing an arrangement. No control changes and no rendering changes: every Preset renders byte-for-byte as before.
+
 ## 0.4.0
 
 ### Minor Changes
