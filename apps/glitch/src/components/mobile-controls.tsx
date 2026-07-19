@@ -1,8 +1,8 @@
 import { MobileBottomSheet } from '@cyberdeck/deck-kit/ui'
 import { useRef, useState } from 'react'
-import type { Chain, EffectType, Link } from '../glitch/chain'
+import type { Chain } from '../glitch/chain'
 import type { Preset } from '../glitch/presets'
-import ControlPanel from './control-panel'
+import ControlPanel, { type ChainActions } from './control-panel'
 import PresetPicker from './preset-picker'
 import Disclosure from './ui/disclosure'
 
@@ -11,11 +11,7 @@ interface Props {
   activePresetId: string | null
   onSelect: (preset: Preset) => void
   onRandomize: () => void
-  onLinkChange: (id: string, params: Link['params']) => void
-  onReorder: (from: number, to: number) => void
-  onAdd: (type: EffectType) => void
-  onRemove: (id: string) => void
-  onDuplicate: (id: string) => void
+  actions: ChainActions
   onReroll: () => void
 }
 
@@ -30,11 +26,7 @@ export default function MobileControls({
   activePresetId,
   onSelect,
   onRandomize,
-  onLinkChange,
-  onReorder,
-  onAdd,
-  onRemove,
-  onDuplicate,
+  actions,
   onReroll,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false)
@@ -65,15 +57,7 @@ export default function MobileControls({
             onRandomize={onRandomize}
           />
           <Disclosure label="advanced">
-            <ControlPanel
-              chain={chain}
-              onLinkChange={onLinkChange}
-              onReorder={onReorder}
-              onAdd={onAdd}
-              onRemove={onRemove}
-              onDuplicate={onDuplicate}
-              onReroll={onReroll}
-            />
+            <ControlPanel chain={chain} actions={actions} onReroll={onReroll} />
           </Disclosure>
         </div>
       </MobileBottomSheet>

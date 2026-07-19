@@ -16,11 +16,13 @@ const defaultProps = {
   activePresetId: DEFAULT_PRESET.id,
   onSelect: vi.fn(),
   onRandomize: vi.fn(),
-  onLinkChange: vi.fn(),
-  onReorder: vi.fn(),
-  onAdd: vi.fn(),
-  onRemove: vi.fn(),
-  onDuplicate: vi.fn(),
+  actions: {
+    onLinkChange: vi.fn(),
+    onReorder: vi.fn(),
+    onAdd: vi.fn(),
+    onRemove: vi.fn(),
+    onDuplicate: vi.fn(),
+  },
   onReroll: vi.fn(),
 }
 

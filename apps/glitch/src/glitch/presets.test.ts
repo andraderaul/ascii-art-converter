@@ -9,6 +9,7 @@ import {
   scanlines,
 } from './pipeline'
 import { chainMatch, DEFAULT_PRESET, PRESETS, randomizeChain } from './presets'
+import { structuredBuffer } from './test-pixels'
 import {
   CHANNEL_SHIFT_AMOUNT_RANGE,
   type ChannelName,
@@ -173,24 +174,10 @@ describe('the migrated Presets preserve the v1 looks', () => {
     return buffer
   }
 
-  function fixture(width: number, height: number): PixelBuffer {
-    const data = new Uint8ClampedArray(width * height * 4)
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const offset = (y * width + x) * 4
-        data[offset] = (x * 53) % 256
-        data[offset + 1] = (y * 97) % 256
-        data[offset + 2] = (x * 29 + y * 71) % 256
-        data[offset + 3] = 255
-      }
-    }
-    return { data, width, height }
-  }
-
   const SEED = 90210
 
   it.each(PRESETS)('renders $name exactly as its flat Preset did', ({ id, chain }) => {
-    const pixels = fixture(40, 30)
+    const pixels = structuredBuffer(40, 30)
 
     expect(Array.from(applyChain(pixels, chain, SEED).data)).toEqual(
       Array.from(legacyRender(pixels, LEGACY[id], SEED).data),

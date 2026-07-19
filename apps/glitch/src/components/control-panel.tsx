@@ -252,17 +252,26 @@ function LinkControls({ link, onChange }: LinkProps) {
   }
 }
 
-interface Props {
-  chain: Chain
-  // Re-roll rides its own callback rather than a Link edit: the Seed is not part of the look, and
-  // the panel edits the look. Threading it as a Link patch would put the arrangement inside the
-  // Chain by the back door.
-  onReroll: () => void
+/**
+ * The Chain-editing callbacks, bundled: the five only ever travel together — App mints them as one
+ * set and MobileControls forwards them untouched — so they cross each surface as one prop rather
+ * than five parallel ones.
+ */
+export interface ChainActions {
   onLinkChange: (id: string, params: Link['params']) => void
   onReorder: (from: number, to: number) => void
   onAdd: (type: EffectType) => void
   onRemove: (id: string) => void
   onDuplicate: (id: string) => void
+}
+
+interface Props {
+  chain: Chain
+  actions: ChainActions
+  // Re-roll rides its own callback rather than joining the bundle: the Seed is not part of the
+  // look, and the actions edit the look. Threading it as a Link patch would put the arrangement
+  // inside the Chain by the back door.
+  onReroll: () => void
 }
 
 /**
@@ -273,15 +282,8 @@ interface Props {
  * one section fewer (ADR 0017). Keyed by Link id, not by Effect: a Chain may hold the same Effect
  * twice, and keying by type would collapse the repeats into one row.
  */
-export default function ControlPanel({
-  chain,
-  onLinkChange,
-  onReroll,
-  onReorder,
-  onAdd,
-  onRemove,
-  onDuplicate,
-}: Props) {
+export default function ControlPanel({ chain, actions, onReroll }: Props) {
+  const { onLinkChange, onReorder, onAdd, onRemove, onDuplicate } = actions
   const isFull = chain.length >= MAX_CHAIN_LENGTH
   // Which Link the pointer is currently carrying. Held here rather than in the drag event because
   // `dataTransfer` is unreadable during dragover — the moment the drop target has to be decided.

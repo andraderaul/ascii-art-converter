@@ -1,7 +1,7 @@
 import { useRecording } from '@cyberdeck/deck-kit/recording'
 import { EmptyStateHero, ErrorBoundary, useToastError } from '@cyberdeck/deck-kit/ui'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import ControlPanel from './components/control-panel'
+import ControlPanel, { type ChainActions } from './components/control-panel'
 import ExportBar from './components/export-bar'
 import GlitchCanvas from './components/glitch-canvas'
 import MobileControls from './components/mobile-controls'
@@ -109,6 +109,14 @@ export default function App() {
     setChain((prev) => duplicateLink(prev, id))
   }, [])
 
+  const chainActions: ChainActions = {
+    onLinkChange: patchLink,
+    onReorder: handleReorder,
+    onAdd: handleAdd,
+    onRemove: handleRemove,
+    onDuplicate: handleDuplicate,
+  }
+
   // The Seed is not part of the look, so a Re-roll leaves both the Chain and the active
   // Preset exactly where they were — a new arrangement is not a customisation.
   const handleReroll = useCallback(() => setSeed(createSeed()), [])
@@ -215,15 +223,7 @@ export default function App() {
             onRandomize={handleRandomize}
           />
           <Disclosure label="advanced">
-            <ControlPanel
-              chain={chain}
-              onLinkChange={patchLink}
-              onReorder={handleReorder}
-              onAdd={handleAdd}
-              onRemove={handleRemove}
-              onDuplicate={handleDuplicate}
-              onReroll={handleReroll}
-            />
+            <ControlPanel chain={chain} actions={chainActions} onReroll={handleReroll} />
           </Disclosure>
         </aside>
       </div>
@@ -236,11 +236,7 @@ export default function App() {
           activePresetId={activePresetId}
           onSelect={handlePresetSelect}
           onRandomize={handleRandomize}
-          onLinkChange={patchLink}
-          onReorder={handleReorder}
-          onAdd={handleAdd}
-          onRemove={handleRemove}
-          onDuplicate={handleDuplicate}
+          actions={chainActions}
           onReroll={handleReroll}
         />
       )}

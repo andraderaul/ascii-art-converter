@@ -1,4 +1,4 @@
-import { type Chain, createLink, type EffectType, type Link } from './chain'
+import { type Chain, createLink, type EffectParams, type EffectType, type Link } from './chain'
 import type { Rng } from './rng'
 import {
   CHANNEL_SHIFT_AMOUNT_RANGE,
@@ -191,88 +191,80 @@ function jitterUnit(source: Rng, base: number, spread: number): number {
 }
 
 /**
+ * How Randomize perturbs each Effect's numbers — the same map-on-EffectType shape as
+ * EFFECT_REGISTRY, so per-Effect jitter is looked up rather than switched on. It lives here rather
+ * than in the registry because the spreads are curated taste, and taste stays in this file.
+ *
+ * Each entry draws once per jittered param, in declaration order — the pinned-stream tests in
+ * `presets.test.ts` count on that order, one draw per param.
+ */
+const LINK_JITTERS: {
+  [K in EffectType]: (source: Rng, params: EffectParams[K]) => EffectParams[K]
+} = {
+  blockDisplacement: (source, params) => ({
+    density: jitterUnit(source, params.density, BLOCK_DENSITY_SPREAD),
+    amount: jitterUnit(source, params.amount, BLOCK_AMOUNT_SPREAD),
+  }),
+  pixelSort: (source, params) => ({
+    ...params,
+    threshold: jitterUnit(source, params.threshold, SORT_THRESHOLD_SPREAD),
+    runLength: clamp(
+      Math.round(jitter(source, params.runLength, SORT_RUN_LENGTH_SPREAD)),
+      PIXEL_SORT_RUN_LENGTH_RANGE.min,
+      PIXEL_SORT_RUN_LENGTH_RANGE.max,
+    ),
+  }),
+  channelShift: (source, params) => ({
+    ...params,
+    amount: clamp(
+      Math.round(jitter(source, params.amount, CHANNEL_AMOUNT_SPREAD)),
+      CHANNEL_SHIFT_AMOUNT_RANGE.min,
+      CHANNEL_SHIFT_AMOUNT_RANGE.max,
+    ),
+  }),
+  // Jittered freely now, where the flat model had to copy it through untouched. That guard
+  // existed because CA was curated *off* as a zero in five Presets, and jittering a zero
+  // upward would have switched the Effect on where nobody vouched for it. Off is the Link's
+  // absence today, so a CA Link here is one a curator put there — perturbing it stays inside
+  // what the base promised.
+  chromaticAberration: (source, params) => ({
+    strength: jitterUnit(source, params.strength, CHROMATIC_STRENGTH_SPREAD),
+  }),
+  scanlines: (source, params) => ({
+    density: notchedDensity(
+      clamp(
+        Math.round(
+          jitter(source, params.density / SCANLINES_DENSITY_STEP, SCANLINE_DENSITY_SPREAD_NOTCHES),
+        ),
+        0,
+        SCANLINE_NOTCH_COUNT,
+      ),
+    ),
+    intensity: jitterUnit(source, params.intensity, SCANLINE_INTENSITY_SPREAD),
+  }),
+  noise: (source, params) => ({
+    ...params,
+    amount: jitterUnit(source, params.amount, NOISE_AMOUNT_SPREAD),
+  }),
+}
+
+/**
  * Perturbs one Link's numbers, leaving its Effect and its non-numeric choices alone.
  *
  * Every jittered number is clamped back to the range its own control offers, so the "narrower than
  * the sliders, never the ugly extremes" promise is enforced here rather than left riding on the
  * curated values — a future curator can move a base without a jitter sailing off the end of a range.
+ *
+ * The casts mirror `applyLink` (chain.ts): TypeScript checks `LINK_JITTERS[link.type]` and
+ * `link.params` independently and can't see both came from the same `type`, though `Link`'s own
+ * shape keeps the pair correlated in fact.
  */
 function jitterLink(source: Rng, link: Link): Link {
-  switch (link.type) {
-    case 'blockDisplacement':
-      return {
-        ...link,
-        params: {
-          density: jitterUnit(source, link.params.density, BLOCK_DENSITY_SPREAD),
-          amount: jitterUnit(source, link.params.amount, BLOCK_AMOUNT_SPREAD),
-        },
-      }
-    case 'pixelSort':
-      return {
-        ...link,
-        params: {
-          ...link.params,
-          threshold: jitterUnit(source, link.params.threshold, SORT_THRESHOLD_SPREAD),
-          runLength: clamp(
-            Math.round(jitter(source, link.params.runLength, SORT_RUN_LENGTH_SPREAD)),
-            PIXEL_SORT_RUN_LENGTH_RANGE.min,
-            PIXEL_SORT_RUN_LENGTH_RANGE.max,
-          ),
-        },
-      }
-    case 'channelShift':
-      return {
-        ...link,
-        params: {
-          ...link.params,
-          amount: clamp(
-            Math.round(jitter(source, link.params.amount, CHANNEL_AMOUNT_SPREAD)),
-            CHANNEL_SHIFT_AMOUNT_RANGE.min,
-            CHANNEL_SHIFT_AMOUNT_RANGE.max,
-          ),
-        },
-      }
-    case 'chromaticAberration':
-      // Jittered freely now, where the flat model had to copy it through untouched. That guard
-      // existed because CA was curated *off* as a zero in five Presets, and jittering a zero
-      // upward would have switched the Effect on where nobody vouched for it. Off is the Link's
-      // absence today, so a CA Link here is one a curator put there — perturbing it stays inside
-      // what the base promised.
-      return {
-        ...link,
-        params: {
-          strength: jitterUnit(source, link.params.strength, CHROMATIC_STRENGTH_SPREAD),
-        },
-      }
-    case 'scanlines':
-      return {
-        ...link,
-        params: {
-          density: notchedDensity(
-            clamp(
-              Math.round(
-                jitter(
-                  source,
-                  link.params.density / SCANLINES_DENSITY_STEP,
-                  SCANLINE_DENSITY_SPREAD_NOTCHES,
-                ),
-              ),
-              0,
-              SCANLINE_NOTCH_COUNT,
-            ),
-          ),
-          intensity: jitterUnit(source, link.params.intensity, SCANLINE_INTENSITY_SPREAD),
-        },
-      }
-    case 'noise':
-      return {
-        ...link,
-        params: {
-          ...link.params,
-          amount: jitterUnit(source, link.params.amount, NOISE_AMOUNT_SPREAD),
-        },
-      }
-  }
+  const jitterParams = LINK_JITTERS[link.type] as (
+    source: Rng,
+    params: Link['params'],
+  ) => Link['params']
+  return { ...link, params: jitterParams(source, link.params) } as Link
 }
 
 /**

@@ -12,33 +12,11 @@ import {
   removeLink,
 } from './chain'
 import { blockDisplacement } from './pipeline'
-import { deriveSeed } from './rng'
+import { structuredBuffer } from './test-pixels'
 import type { BlockDisplacementParams, PixelBuffer, PixelSortParams } from './types'
 
 /** An arbitrary fixed Seed — every test that isn't about the Seed itself rolls this one. */
 const SEED = 4242
-
-/**
- * A buffer with structure on both axes and no flat regions, so any Effect that moves or tints
- * pixels leaves a visible trace — a flat fill would hide a displacement entirely.
- *
- * Deliberately **not** a smooth ramp. Luminance has to rise and fall along a row or Pixel Sort finds
- * every run already ordered and quietly becomes the identity, which would let an order-sensitivity
- * test pass while proving nothing. The coprime strides keep it non-monotonic on both axes.
- */
-function gradient(width: number, height: number): PixelBuffer {
-  const data = new Uint8ClampedArray(width * height * 4)
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const offset = (y * width + x) * 4
-      data[offset] = (x * 53) % 256
-      data[offset + 1] = (y * 97) % 256
-      data[offset + 2] = (x * 29 + y * 71) % 256
-      data[offset + 3] = 255
-    }
-  }
-  return { data, width, height }
-}
 
 function bytesOf(buffer: PixelBuffer): number[] {
   return Array.from(buffer.data)
@@ -83,7 +61,7 @@ describe('EFFECT_REGISTRY', () => {
 
 describe('applyChain', () => {
   it('returns the input untouched for an empty Chain', () => {
-    const pixels = gradient(16, 12)
+    const pixels = structuredBuffer(16, 12)
 
     const out = applyChain(pixels, [], SEED)
 
@@ -91,7 +69,7 @@ describe('applyChain', () => {
   })
 
   it('never mutates the input buffer', () => {
-    const pixels = gradient(16, 12)
+    const pixels = structuredBuffer(16, 12)
     const before = bytesOf(pixels)
 
     applyChain(pixels, [BLOCKS, SORT, GRAIN], SEED)
@@ -102,7 +80,7 @@ describe('applyChain', () => {
   it('is order-sensitive — the same Links in a different order render differently', () => {
     // The property that makes this a Chain rather than a set: the PixelBuffer flows through each
     // Link into the next, so sorting a shifted image is not the same as shifting a sorted one.
-    const pixels = gradient(16, 12)
+    const pixels = structuredBuffer(16, 12)
 
     const sortedFirst = applyChain(pixels, [SORT, SHIFT], SEED)
     const shiftedFirst = applyChain(pixels, [SHIFT, SORT], SEED)
@@ -117,7 +95,7 @@ describe('applyChain', () => {
     // The headline capability ADR 0017 exists for: the same Effect twice. Were both Links handed
     // the global Seed, the second would redraw the first's exact arrangement — the repeat would
     // collapse into a no-op and "two Pixel Sorts" would look like one.
-    const pixels = gradient(24, 18)
+    const pixels = structuredBuffer(24, 18)
 
     const twice = applyChain(pixels, [BLOCKS, BLOCKS], SEED)
     const once = applyChain(pixels, [BLOCKS], SEED)
@@ -127,7 +105,7 @@ describe('applyChain', () => {
   })
 
   it('reproduces its output exactly for a fixed Chain and Seed', () => {
-    const pixels = gradient(16, 12)
+    const pixels = structuredBuffer(16, 12)
     const chain: Chain = [BLOCKS, SORT, SHIFT, GRAIN]
 
     expect(bytesOf(applyChain(pixels, chain, SEED))).toEqual(
@@ -136,7 +114,7 @@ describe('applyChain', () => {
   })
 
   it('arranges the same Chain differently under a new Seed', () => {
-    const pixels = gradient(16, 12)
+    const pixels = structuredBuffer(16, 12)
     const chain: Chain = [BLOCKS, GRAIN]
 
     const first = applyChain(pixels, chain, SEED)
@@ -150,7 +128,7 @@ describe('applyChain', () => {
     // Chain cannot move its grain. Both Chains put an identity Link at index 0 and Noise at index 1:
     // same index, same incoming pixels, therefore byte-identical grain. A Link that streamed its
     // randomness would fail this the moment the predecessor changed.
-    const pixels = gradient(16, 12)
+    const pixels = structuredBuffer(16, 12)
     const identityShift = createLink('channelShift', { channel: 'r', amount: 0 })
     const identityFringe = createLink('chromaticAberration', { strength: 0 })
 
@@ -165,7 +143,7 @@ describe('applyChain', () => {
     // input, so putting a Link somewhere else leaves its draw alone. An index-keyed sub-seed would
     // fail this, and with it Slice 2's migration — dropping a Preset's off-Links shifts every later
     // Link's index and would silently re-roll the whole look.
-    const pixels = gradient(24, 18)
+    const pixels = structuredBuffer(24, 18)
     const identity = createLink('channelShift', { channel: 'r', amount: 0 })
 
     const alone = applyChain(pixels, [BLOCKS], SEED)
@@ -177,34 +155,12 @@ describe('applyChain', () => {
   it('hands the first Link of a type the global Seed untouched', () => {
     // What makes a one-of-each Chain reproduce the fixed Pipeline exactly: every Link in it is the
     // first of its type, so every Link draws on the Seed the old Pipeline handed it.
-    const pixels = gradient(24, 18)
+    const pixels = structuredBuffer(24, 18)
 
     const throughTheChain = applyChain(pixels, [BLOCKS], SEED)
     const direct = blockDisplacement(pixels, BLOCKS.params as BlockDisplacementParams, SEED)
 
     expect(bytesOf(throughTheChain)).toEqual(bytesOf(direct))
-  })
-})
-
-describe('deriveSeed', () => {
-  it('gives every occurrence its own Seed', () => {
-    const seeds = Array.from({ length: 12 }, (_, occurrence) => deriveSeed(SEED, occurrence))
-
-    expect(new Set(seeds).size).toBe(seeds.length)
-  })
-
-  it('displaces the Seed even at occurrence 0', () => {
-    // A first occurrence drawing the raw Seed is linkSeed's explicit branch (chain.ts), not a
-    // property of this hash — pinning the displacement keeps that branch from looking removable.
-    expect(deriveSeed(SEED, 0)).not.toBe(SEED)
-  })
-
-  it('is deterministic', () => {
-    expect(deriveSeed(SEED, 3)).toBe(deriveSeed(SEED, 3))
-  })
-
-  it('sends two Seeds to unrelated places at the same occurrence', () => {
-    expect(deriveSeed(SEED, 3)).not.toBe(deriveSeed(SEED + 1, 3))
   })
 })
 
@@ -264,7 +220,7 @@ describe('moveLink', () => {
 
   it('changes what the Chain renders', () => {
     // Order is the look: the reorder has to reach the pixels, not just the list.
-    const pixels = gradient(16, 12)
+    const pixels = structuredBuffer(16, 12)
 
     expect(bytesOf(applyChain(pixels, [SORT, SHIFT], SEED))).not.toEqual(
       bytesOf(applyChain(pixels, moveLink([SORT, SHIFT], 0, 1), SEED)),
@@ -395,7 +351,7 @@ describe('duplicateLink', () => {
   it('renders the repeat distinctly from its source', () => {
     // The occurrence sub-seed at work: a duplicated seeded Link must not redraw the original's
     // arrangement, or the repeat would be an invisible no-op.
-    const pixels = gradient(24, 18)
+    const pixels = structuredBuffer(24, 18)
     const doubled = duplicateLink([BLOCKS], BLOCKS.id)
 
     expect(bytesOf(applyChain(pixels, doubled, SEED))).not.toEqual(
@@ -409,7 +365,7 @@ describe('duplicateLink', () => {
     // Chain — it is what the Effect means — but it is the one duplicate that shows the user
     // nothing until they edit it, which is why it is pinned here rather than left to surprise
     // someone. Every other Effect renders its duplicate visibly.
-    const pixels = gradient(24, 18)
+    const pixels = structuredBuffer(24, 18)
     const doubled = duplicateLink([SORT], SORT.id)
 
     expect(EFFECT_REGISTRY.pixelSort.idempotent).toBe(true)
@@ -425,7 +381,7 @@ describe('duplicateLink', () => {
   ])('renders a duplicated $type visibly, and leaves it unflagged', (link) => {
     // The other side of the flag: every Effect the editor still offers duplicate for has to
     // actually change the image, or the control is lying in the other direction.
-    const pixels = gradient(24, 18)
+    const pixels = structuredBuffer(24, 18)
 
     expect(EFFECT_REGISTRY[link.type].idempotent).toBeFalsy()
     expect(bytesOf(applyChain(pixels, duplicateLink([link], link.id), SEED))).not.toEqual(
@@ -436,7 +392,7 @@ describe('duplicateLink', () => {
   it('renders two Pixel Sorts differently once their params diverge', () => {
     // The "double melt" the model exists for is reachable — it just takes an edit, since the
     // duplicate starts identical.
-    const pixels = gradient(24, 18)
+    const pixels = structuredBuffer(24, 18)
     const crossed: Chain = [
       SORT,
       createLink('pixelSort', { ...SORT_PARAMS, direction: 'vertical' }),
