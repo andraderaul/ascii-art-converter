@@ -2,6 +2,7 @@
 // "what a dump looks like" is a testable function rather than something only a DOM assertion can
 // reach, and so both surfaces format a value the same way.
 
+import { hex } from './hex'
 import { byteShift, EQ, FR, GT, IV, LT, OV, registerName, ZD } from './isa'
 import type { Machine } from './machine'
 
@@ -24,9 +25,8 @@ const FLAGS: { name: string; bit: number; meaning: string }[] = [
   { name: 'IV', bit: IV, meaning: 'an invalid instruction was executed' },
 ]
 
-export const hex32 = (value: number) =>
-  `0x${(value >>> 0).toString(16).toUpperCase().padStart(8, '0')}`
-export const hex8 = (value: number) => (value & 0xff).toString(16).toUpperCase().padStart(2, '0')
+export const hex32 = (value: number) => `0x${hex(value)}`
+export const hex8 = (value: number) => hex(value & 0xff, 2)
 
 /** Reads `FR` as named flags. */
 export function flagsOf(machine: Machine | null): Flag[] {

@@ -261,12 +261,20 @@ function parseNumber(text: string): number | null {
   return null
 }
 
+/** What every encoder needs: the label table, the line to blame, and where errors accumulate. */
+interface EncodeContext {
+  labels: Map<string, number>
+  line: number
+  errors: AssembleError[]
+}
+
 function encode(
   piece: Extract<Piece, { kind: 'instruction' }>,
   labels: Map<string, number>,
   errors: AssembleError[],
 ): number | null {
   const { spec, operands, mnemonic, line } = piece
+  const context: EncodeContext = { labels, line, errors }
 
   if (operands.length !== spec.operands.length) {
     const expected = spec.operands.length
@@ -281,7 +289,7 @@ function encode(
   let failed = false
 
   spec.operands.forEach((slot, index) => {
-    const encoded = encodeOperand(slot, operands[index], spec, mnemonic, labels, line, errors)
+    const encoded = encodeOperand(slot, operands[index], spec, mnemonic, context)
     if (encoded === null) {
       failed = true
       return
@@ -297,12 +305,12 @@ function encodeOperand(
   written: string,
   spec: Spec,
   mnemonic: string,
-  labels: Map<string, number>,
-  line: number,
-  errors: AssembleError[],
+  context: EncodeContext,
 ): number | null {
+  const { line, errors } = context
+
   if (slot === 'shift') {
-    const amount = resolveValue(written, labels, line, errors)
+    const amount = resolveValue(written, context)
     if (amount === null) {
       return null
     }
@@ -318,7 +326,7 @@ function encodeOperand(
   }
 
   if (slot === 'imm') {
-    return encodeImmediate(written, spec, labels, line, errors)
+    return encodeImmediate(written, spec, context)
   }
 
   const index = registerIndex(written)
@@ -342,14 +350,10 @@ function encodeOperand(
   return (index << (slot === 'x' ? 5 : 0)) >>> 0
 }
 
-function encodeImmediate(
-  written: string,
-  spec: Spec,
-  labels: Map<string, number>,
-  line: number,
-  errors: AssembleError[],
-): number | null {
-  const value = resolveValue(written, labels, line, errors)
+function encodeImmediate(written: string, spec: Spec, context: EncodeContext): number | null {
+  const { line, errors } = context
+
+  const value = resolveValue(written, context)
   if (value === null) {
     return null
   }
@@ -381,22 +385,17 @@ function encodeImmediate(
 }
 
 /** A written value is either a literal or a label, and a label evaluates to its word index. */
-function resolveValue(
-  written: string,
-  labels: Map<string, number>,
-  line: number,
-  errors: AssembleError[],
-): number | null {
+function resolveValue(written: string, context: EncodeContext): number | null {
   const literal = parseNumber(written)
   if (literal !== null) {
     return literal
   }
 
-  const label = labels.get(written.toLowerCase())
+  const label = context.labels.get(written.toLowerCase())
   if (label !== undefined) {
     return label
   }
 
-  errors.push({ line, message: `Undefined label "${written}"` })
+  context.errors.push({ line: context.line, message: `Undefined label "${written}"` })
   return null
 }

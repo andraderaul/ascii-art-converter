@@ -253,6 +253,22 @@ describe('breakpoints and the current line', () => {
     expect(markedLine()?.textContent).toContain('add r3, r1, r2')
   })
 
+  // The check runs before the step, so even the first instruction of a fresh run can pause.
+  it('pauses a fresh run at a breakpoint on the entry line', async () => {
+    render(<App />)
+    write(TINY)
+
+    await type('asm')
+    await type('break 1')
+    await type('run')
+
+    await waitFor(() => expect(screen.getByText('paused at line 1')).toBeInTheDocument())
+    expect(markedLine()?.textContent).toContain('addi r1, r0, 20')
+
+    await type('run')
+    await waitFor(() => expect(screen.getByText('halted')).toBeInTheDocument())
+  })
+
   it('leaves the machine steppable and runnable from a pause', async () => {
     render(<App />)
     write(TINY)

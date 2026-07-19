@@ -13,9 +13,6 @@ export type ClockRate = number | 'max'
 /** Slow enough to follow by eye — the product is watching the machine think, not finishing fast. */
 export const DEFAULT_RATE = 8
 
-export const MIN_RATE = 1
-export const MAX_RATE = 10000
-
 // At `max`, how long a frame may spend stepping before yielding. Well inside a 16ms frame, so
 // the browser still paints and still sees input.
 const FRAME_BUDGET_MS = 8

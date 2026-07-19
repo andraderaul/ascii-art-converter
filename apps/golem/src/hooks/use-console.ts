@@ -10,7 +10,7 @@ import { formatMemoryDump, formatRegister, hex32 } from '../golem/inspect'
 import { PC, registerIndex } from '../golem/isa'
 import { createMachine, type Machine, step } from '../golem/machine'
 import { encode } from '../golem/share'
-import { formatHex, formatStep, TRACE_END, TRACE_START } from '../golem/trace'
+import { formatHex, formatStep, frameTrace } from '../golem/trace'
 import { type ClockRate, useClock } from './use-clock'
 import { saveSource } from './use-source-loading'
 
@@ -59,11 +59,11 @@ function lineOfPc(machine: Machine | null, image: Image | null): number | null {
   return image.lineForWord[machine.registers[PC] >>> 2] ?? null
 }
 
-/** Frames the recorded lines the way the reference emulator frames a run, so the two can diff. */
+/** Frames the recorded lines for export, marking truncation when the limit was hit. */
 function wrapTrace(lines: string[]): string {
   const body =
     lines.length < TRACE_LIMIT ? lines : [...lines, `[TRACE TRUNCATED AT ${TRACE_LIMIT}]`]
-  return [TRACE_START, ...body, TRACE_END].join('\n')
+  return frameTrace(body)
 }
 
 /**
@@ -129,7 +129,12 @@ export function useConsole(initialSource: string): ConsoleState {
     setBreakpoints(new Set(breakpointsRef.current))
   }, [])
 
+  // The PC a run paused at, so resuming skips that one breakpoint instead of tripping it again.
+  // Any step or machine replacement invalidates it — see setMachine.
+  const pausedPcRef = useRef<number | null>(null)
+
   const setMachine = useCallback((next: Machine | null) => {
+    pausedPcRef.current = null
     machineRef.current = next
     setMachineState(next)
   }, [])
@@ -156,11 +161,20 @@ export function useConsole(initialSource: string): ConsoleState {
 
   // One instruction. Returns false when there is nothing left to run, which stops the clock.
   //
-  // The breakpoint is checked *after* stepping, on the instruction about to run. That is also
-  // what lets a run resume from a breakpoint without immediately tripping it again.
+  // The breakpoint is checked *before* stepping, so a breakpoint on the line the PC starts at can
+  // pause a fresh run (PRD story 19). Resuming is the exception: the PC the run paused at is
+  // remembered, and its breakpoint is skipped once so `run` moves off the line it stopped on.
   const advance = useCallback((): boolean => {
     const current = machineRef.current
     if (current === null || current.halted) {
+      return false
+    }
+
+    const line = lineOfPc(current, imageRef.current)
+    const pc = current.registers[PC]
+    if (line !== null && breakpointsRef.current.has(line) && pausedPcRef.current !== pc) {
+      pausedPcRef.current = pc
+      append([{ kind: 'info', text: `paused at line ${line}` }])
       return false
     }
 
@@ -168,12 +182,6 @@ export function useConsole(initialSource: string): ConsoleState {
     if (next.halted) {
       // A run that reaches `int 0` should say so; silence reads as the clock having stalled.
       append([{ kind: 'info', text: 'halted' }])
-      return false
-    }
-
-    const line = lineOfPc(next, imageRef.current)
-    if (line !== null && breakpointsRef.current.has(line)) {
-      append([{ kind: 'info', text: `paused at line ${line}` }])
       return false
     }
     return true

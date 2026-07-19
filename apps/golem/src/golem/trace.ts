@@ -6,11 +6,9 @@
 // The shapes here are the reference emulator's own `fprintf` formats, reproduced so a GOLEM trace
 // and a reference trace can be diffed line for line.
 
+import { hex } from './hex'
 import { CR, ER, FR, PC, registerName, unpackU } from './isa'
 import type { Machine } from './machine'
-
-const hex = (value: number, width = 8) =>
-  (value >>> 0).toString(16).toUpperCase().padStart(width, '0')
 
 // The disassembly line names registers in lower case, the effects line in upper.
 const lower = (index: number) => registerName(index)
@@ -183,16 +181,14 @@ export function formatStep(before: Machine, after: Machine): string {
   }
 }
 
-/**
- * Runs a machine to completion, collecting the trace — the whole log, framed the way the
- * reference emulator frames it, so the two can be diffed directly.
- */
+/** Frames already-formatted trace lines the way the reference emulator frames a run. */
+export function frameTrace(lines: readonly string[]): string {
+  return [TRACE_START, ...lines, TRACE_END].join('\n')
+}
+
+/** The whole log for collected steps, framed so it can be diffed directly against the reference. */
 export function formatTrace(steps: { before: Machine; after: Machine }[]): string {
-  return [
-    TRACE_START,
-    ...steps.map(({ before, after }) => formatStep(before, after)),
-    TRACE_END,
-  ].join('\n')
+  return frameTrace(steps.map(({ before, after }) => formatStep(before, after)))
 }
 
 /** The Image in the reference `.hex` format: one `0x`-prefixed word per line. */

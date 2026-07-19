@@ -34,8 +34,6 @@ export interface Machine {
   readonly terminal: string
 }
 
-export { OV as OVERFLOW }
-
 /** Instantiates a machine with the Image loaded at word 0 and every register cleared. */
 export function createMachine(image: Image): Machine {
   const memory = new Array<number>(MEMORY_WORDS).fill(0)

@@ -2,7 +2,6 @@
 // The Console is the only control grammar on this program (ADR 0018), so this is the entire
 // control surface.
 
-import { MAX_RATE, MIN_RATE } from '../hooks/use-clock'
 import type { MemoryUnit } from './inspect'
 
 export type Command =
@@ -46,6 +45,11 @@ const NO_ARGUMENT_COMMANDS = ['asm', 'step', 'reset', 'run', 'stop', 'share', 'b
 
 const DEFAULT_DUMP_COUNT = 8
 const MAX_DUMP_COUNT = 256
+
+// Grammar-owned so the pure core never imports from the shell; the Clock driver just obeys what
+// `clock N` was allowed to say.
+export const MIN_RATE = 1
+export const MAX_RATE = 10000
 
 /**
  * Parses one Console line. Unknown input resolves to a suggestion rather than an error, so a

@@ -9,8 +9,8 @@ import Terminal from './components/terminal'
 import { useConsole } from './hooks/use-console'
 import { useSourceLoading } from './hooks/use-source-loading'
 
-// Prints a string a byte at a time, so the Terminal has something to show on first load. The
-// example that teaches the syntax properly, with its own tour, arrives with #140.
+// Prints a string a byte at a time, so the Terminal has something to show on first load and the
+// commented example doubles as the syntax tour (PRD stories 1 and 4).
 const STARTER_SOURCE = [
   '// GOLEM//Console — type `run` to watch it work.',
   'init:',
