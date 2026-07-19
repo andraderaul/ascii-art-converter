@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './app'
@@ -75,7 +75,7 @@ describe('App', () => {
   it('renders a region for each surface the program needs', () => {
     render(<App />)
 
-    for (const region of ['Console', 'Registers', 'Flags', 'Memory', 'Terminal']) {
+    for (const region of ['Console', 'Registers', 'Flags', 'Devices', 'Memory', 'Terminal']) {
       expect(screen.getByRole('region', { name: region })).toBeInTheDocument()
     }
     expect(screen.getByRole('region', { name: /^Source/ })).toBeInTheDocument()
@@ -327,6 +327,54 @@ describe('load', () => {
     await type('asm')
 
     expect(screen.getByText(/assembled \d+ words/)).toBeInTheDocument()
+  })
+})
+
+describe('the Devices panel', () => {
+  const panel = () => screen.getByRole('region', { name: 'Devices' })
+
+  it('is there before a machine exists, reading as idle', () => {
+    render(<App />)
+
+    expect(panel()).toHaveTextContent(/off/)
+    expect(panel()).toHaveTextContent(/idle/)
+  })
+
+  // The signature scene, end to end: a countdown racing an infinite loop.
+  it('shows the watchdog counting down during a run', async () => {
+    render(<App />)
+
+    await type('load watchdog')
+    await type('asm')
+    await stepTimes(12)
+
+    expect(panel()).toHaveTextContent(/armed/)
+    const early = panel().textContent
+    await stepTimes(5)
+
+    expect(panel().textContent).not.toBe(early)
+  })
+
+  it('shows the FPU registers as decoded floats, raw word beside them', async () => {
+    render(<App />)
+
+    await type('load fpu')
+    await type('asm')
+    await stepTimes(40)
+
+    // 74 / 8 — the value the reference program computes first.
+    expect(panel()).toHaveTextContent(/9\.25/)
+    expect(panel()).toHaveTextContent(/0x41140000/)
+  })
+
+  // ADR 0018: every surface but the Source editor is read-only, and Devices more strictly than
+  // most — even the Console never writes a device register.
+  it('offers no interactive affordance at all', () => {
+    render(<App />)
+
+    expect(within(panel()).queryByRole('button')).not.toBeInTheDocument()
+    expect(within(panel()).queryByRole('textbox')).not.toBeInTheDocument()
+    expect(within(panel()).queryByRole('checkbox')).not.toBeInTheDocument()
   })
 })
 
